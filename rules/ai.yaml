@@ -1,0 +1,65 @@
+# ChatGPT / OpenAI / Claude / Claude Code / Gemini / Nano Banana
+# Mihomo classical rule-provider
+payload:
+  # OpenAI / ChatGPT / Sora
+  - DOMAIN-SUFFIX,openai.com
+  - DOMAIN-SUFFIX,chatgpt.com
+  - DOMAIN-SUFFIX,chat.com
+  - DOMAIN-SUFFIX,chatgpt.site
+  - DOMAIN-SUFFIX,oaistatic.com
+  - DOMAIN-SUFFIX,oaistatsig.com
+  - DOMAIN-SUFFIX,oaiusercontent.com
+  - DOMAIN-SUFFIX,sora.com
+  - DOMAIN-SUFFIX,crixet.com
+  - DOMAIN,openai.com.cdn.cloudflare.net
+  - DOMAIN,openaiapi-site.azureedge.net
+  - DOMAIN,openaiassets.blob.core.windows.net
+  - DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
+  - DOMAIN,openaicom.imgix.net
+  - DOMAIN,openaicomproductionae4b.blob.core.windows.net
+  - DOMAIN,production-openaicom-storage.azureedge.net
+  - DOMAIN-SUFFIX,chatgpt.livekit.cloud
+  - DOMAIN-SUFFIX,host.livekit.cloud
+  - DOMAIN-SUFFIX,turn.livekit.cloud
+
+  # Anthropic / Claude / Claude Code
+  - DOMAIN-SUFFIX,anthropic.com
+  - DOMAIN-SUFFIX,claude.ai
+  - DOMAIN-SUFFIX,claude.com
+  - DOMAIN-SUFFIX,clau.de
+  - DOMAIN-SUFFIX,claudemcpclient.com
+  - DOMAIN-SUFFIX,claudemcpcontent.com
+  - DOMAIN-SUFFIX,claudeusercontent.com
+  - DOMAIN,servd-anthropic-website.b-cdn.net
+
+  # Google Gemini / AI Studio / Gemini API
+  - DOMAIN-SUFFIX,gemini.google
+  - DOMAIN,gemini.google.com
+  - DOMAIN,gemini.gstatic.com
+  - DOMAIN-SUFFIX,generativeai.google
+  - DOMAIN,ai.google.dev
+  - DOMAIN,ai.studio
+  - DOMAIN,aistudio.google.com
+  - DOMAIN,makersuite.google.com
+  - DOMAIN,bard.google.com
+  - DOMAIN,generativelanguage.googleapis.com
+  - DOMAIN,geller-pa.googleapis.com
+  - DOMAIN,proactivebackend-pa.googleapis.com
+  - DOMAIN,robinfrontend-pa.googleapis.com
+  - DOMAIN,alkalicore-pa.clients6.google.com
+  - DOMAIN,alkalimakersuite-pa.clients6.google.com
+  - DOMAIN,webchannel-alkalimakersuite-pa.clients6.google.com
+  - DOMAIN,cloudaicompanion.googleapis.com
+  - DOMAIN,cloudcode-pa.googleapis.com
+  - DOMAIN,daily-cloudcode-pa.googleapis.com
+
+  # Nano Banana / Google Labs / Flow 常见入口与资源
+  - DOMAIN-SUFFIX,labs.google
+  - DOMAIN-SUFFIX,flow.google
+  - DOMAIN,aisandbox-pa.googleapis.com
+  - DOMAIN,aicode.googleapis.com
+  - DOMAIN,aida.googleapis.com
+
+  # Google 登录和 AI 生成内容资源，保证登录与资源请求出口一致
+  - DOMAIN,accounts.google.com
+  - DOMAIN-SUFFIX,googleusercontent.com
