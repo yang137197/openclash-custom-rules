@@ -1,6 +1,6 @@
 # OpenClash 自定义覆写规则
 
-本仓库给第三方订阅模板追加统一分流，不保存机场订阅、Sub-Store 地址、令牌或密钥，也不替换模板原有策略组、DNS 和规则。
+本仓库在第三方订阅规则最前面插入统一分流，不保存机场订阅、Sub-Store 地址、令牌或密钥。第三方订阅继续提供节点、原策略组和未指定设备的最终兜底。
 
 ## 当前能力
 
@@ -8,12 +8,15 @@
 - 按设备固定 IP 分流：公司、家里等不同局域网只需把地址追加到对应 `device-*.yaml`。
 - 中国大陆域名和 IP 直连。
 - 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
+- Google、Google Play 和 TikTok 按设备地区保持一致出口，优先于可能重叠的国内域名列表。
 - Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
 - TikTok 主站、API、CDN 和字节海外共享域名在国内判断前按设备地区代理。
 - 局域网、链路本地和组播直连，并让 `.lan`、`.local`、`.home.arpa` 绕过 Fake-IP。
 - 不再全局拒绝公网 IPv6；设备分流默认关闭 AAAA 返回，以 IPv4 来源地址稳定匹配。
 - UDP 代理保持启用；UDP/443 QUIC 默认禁用并回落到 TCP，降低节点 UDP 不稳定导致的断流。
 - 开启域名嗅探，识别 TLS/QUIC 纯 IP 连接中的 TikTok 域名。
+- 中国域名使用国内加密 DoH 直连解析；其他域名使用 `DNS-海外` 组查询，不追加 WAN/运营商 DNS。
+- 设备和手工规则每 5 分钟检查 GitHub 更新；版本化缓存路径避免继续复用旧 IP 规则。
 
 兼容要求：OpenClash `v0.47.081+`，Mihomo `v1.19.28+`，规则模式。订阅节点本身必须支持 UDP。
 
@@ -29,7 +32,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwri
 https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@main/overwrite/openclash-overwrite.conf
 ```
 
-在 OpenClash 的“覆写设置 → 模块设置”中新建远程订阅，填入主地址并启用，然后更新配置订阅并应用。
+在 OpenClash 的“覆写设置 → 模块设置”中新建远程订阅，填入主地址并启用，然后更新配置订阅并应用。重大更新后应重启一次 OpenClash，让新规则缓存路径立即下载。
 
 ## 按设备维护地区
 
@@ -54,7 +57,7 @@ payload:
 - 各路由器用 DHCP 静态租约固定设备 IPv4。
 - 手机关闭随机 Wi-Fi MAC，或让静态租约绑定当前网络实际使用的随机 MAC。
 - 一个来源地址只能放在一个地区文件中；规则优先级是日本、美国、新加坡。
-- 修改后提交到 `main`，等待 Raw 文件可访问，再在 OpenClash 更新模块和配置。
+- 修改后提交到 `main`，等待 Raw 文件可访问；运行中的 OpenClash 最迟约 5 分钟自动更新，也可在规则提供者页面手动刷新。
 
 ### 同一设备在不同局域网使用相同网段
 
@@ -107,12 +110,39 @@ payload:
 
 1. 局域网、链路本地、组播直连。
 2. 手工域名规则。
-3. TikTok、Google Play 按设备地区代理。
+3. Google、TikTok、Google Play 按设备地区代理。
 4. 中国大陆域名和 IP 直连。
 5. 按设备来源地址走日本、美国或新加坡。
-6. 俄罗斯电商、AI 日本和第三方模板原有规则。
+6. 未指定设备才继续使用第三方订阅原有规则和最终 `MATCH`。
 
-“中国大陆全部直连”有两个有意保留的内置例外：TikTok 和 `rules/google-play.yaml`。前者必须按设备地区代理；Google 的部分下载域名带 `.cn` 或被国内列表收录，若这些请求直连、账号和校验请求走代理，Google Play 可能在 99% 停住。
+“中国大陆全部直连”有两个有意保留的业务例外：Google 和 TikTok。它们必须按设备地区代理；Google 的部分静态或下载域名带 `.cn` 或被国内列表收录，若账号、资源和校验请求出口不一致，Google Play 可能在 99% 停住。
+
+## 2026-08-24 香港误路由根因
+
+日志中的：
+
+```text
+192.168.100.203 ... match Match using 🐟 漏网之鱼[香港节点]
+```
+
+说明该连接没有命中 `Linyang-Device-US`，而是走到第三方订阅最后的 `MATCH`。`.203` 在 17:28 才写入 GitHub，但旧规则提供者使用相同本地路径和 24 小时更新周期，OpenClash 重启后仍可能复用此前包含 `.238` 的缓存。
+
+当前修正：
+
+- 设备规则使用新的 `linyang-v2-*` 缓存路径，首次加载必须重新下载。
+- 设备及手工规则更新周期缩短为 300 秒。
+- 规则下载显式使用 `DNS-海外`，不再由第三方 `MATCH` 决定下载出口。
+- `+rules` 按 OpenClash 官方语义插入规则数组开头，设备规则始终早于第三方 `MATCH`。
+
+Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证据。Google 会参考出口 IP、设备位置和账号历史；本次日志已经证明浏览流量实际使用了香港节点。修正后，`.203` 的 Google 连接会优先命中“美国”。
+
+## DNS 策略
+
+- `geosite:cn,private`：使用阿里/腾讯 DoH 直连解析。
+- 其他域名：使用 Cloudflare/Google DoH，并通过 `DNS-海外` 发送；该组默认选择“美国”。
+- 代理节点自身域名：使用国内 DoH 直连解析，避免先解析节点又必须先连接节点的循环。
+- `APPEND_WAN_DNS = 0`：不把 WAN/运营商 DNS 加入 Mihomo 查询池。
+- `IPV6_DNS = 0`：普通 DNS 不返回 AAAA，以固定 IPv4 稳定匹配设备规则。
 
 ## 已知问题判断
 
@@ -157,8 +187,6 @@ payload:
 - `rules/manual-*.yaml`：手工域名出口规则。
 - `rules/google-play.yaml`：Google Play 一致出口规则。
 - `rules/tiktok.yaml`：TikTok 主站、API、CDN 和字节海外共享域名规则。
-- `rules/ai.yaml`：AI 服务规则。
-- `rules/ru-commerce.yaml`：Ozon / Wildberries 规则。
 - `docs/acceptance-log.md`：本地验收记录。
 
-参考：[OpenClash YAML 覆写示例](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 路由规则](https://wiki.metacubex.one/config/rules/)、[Mihomo 域名嗅探](https://wiki.metacubex.one/config/sniff/)、[V2Fly TikTok 域名](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)、[blackmatrix7 TikTok 规则](https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Clash/TikTok/TikTok_No_Resolve.yaml)、[Microsoft 手机连接排错](https://support.microsoft.com/windows/apps/phonelink/troubleshooting-the-phone-link)、[Google Play 下载排错](https://support.google.com/googleplay/answer/14122894)。
+参考：[OpenClash YAML 覆写示例](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 路由规则](https://wiki.metacubex.one/config/rules/)、[Mihomo DNS](https://wiki.metacubex.one/config/dns/)、[Mihomo 域名嗅探](https://wiki.metacubex.one/config/sniff/)、[V2Fly TikTok 域名](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)、[blackmatrix7 TikTok 规则](https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Clash/TikTok/TikTok_No_Resolve.yaml)、[Google 如何使用位置信息](https://policies.google.com/technologies/location-data)、[Microsoft 手机连接排错](https://support.microsoft.com/windows/apps/phonelink/troubleshooting-the-phone-link)、[Google Play 下载排错](https://support.google.com/googleplay/answer/14122894)。
