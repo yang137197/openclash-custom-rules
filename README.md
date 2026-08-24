@@ -9,10 +9,11 @@
 - 中国大陆域名和 IP 直连。
 - 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
 - Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
-- TikTok 域名在国内判断前按设备地区代理。
+- TikTok 主站、API、CDN 和字节海外共享域名在国内判断前按设备地区代理。
 - 局域网、链路本地和组播直连，并让 `.lan`、`.local`、`.home.arpa` 绕过 Fake-IP。
 - 不再全局拒绝公网 IPv6；设备分流默认关闭 AAAA 返回，以 IPv4 来源地址稳定匹配。
-- UDP/QUIC 保持启用，供 TikTok、语音、视频和 HTTP/3 使用。
+- UDP 代理保持启用；UDP/443 QUIC 默认禁用并回落到 TCP，降低节点 UDP 不稳定导致的断流。
+- 开启域名嗅探，识别 TLS/QUIC 纯 IP 连接中的 TikTok 域名。
 
 兼容要求：OpenClash `v0.47.081+`，Mihomo `v1.19.28+`，规则模式。订阅节点本身必须支持 UDP。
 
@@ -131,14 +132,15 @@ payload:
 
 ### TikTok 提示无网络
 
-旧覆写有两个高概率触发点：地区手选组首项是 `REJECT`，以及 `IP-CIDR6,::/0,REJECT` 全局拒绝公网 IPv6。新规则显式把 TikTok 放在国内判断之前，改为自动地区组、无节点才拒绝，并关闭 AAAA 下发而非硬拒绝公网 IPv6。
+旧覆写有四个高概率触发点：地区手选组首项是 `REJECT`、全局拒绝公网 IPv6、`GEOSITE,tiktok` 未覆盖部分字节海外共享域名，以及节点 UDP/QUIC 不稳定。新规则补齐 TikTok 域名并放在国内判断之前，开启纯 IP 域名嗅探，关闭 AAAA 下发而非硬拒绝公网 IPv6，并让 UDP/443 回落到 TCP。
 
 若仍无网络：
 
-1. 在面板确认设备命中正确地区组，组内存在真实节点而不是 `REJECT`。
-2. 确认节点支持 UDP；切换同地区另一节点复测。
-3. 查看 OpenClash 连接日志，确认 TikTok 域名未被第三方广告规则提前拒绝。
-4. 关闭 TikTok 后清除应用缓存并重开，排除旧 DNS/连接缓存。
+1. 更新覆写模块、配置订阅和全部规则提供者，然后重启 OpenClash；只更新配置但不更新规则提供者可能仍使用旧缓存。
+2. 在面板把设备对应地区组临时改为一个确定可用的真实节点，不要先用自动测速组；确认不是 `REJECT`。
+3. 查看连接日志，确认 `tiktokv.com`、`byteintlapi.com`、`snssdk.com`、`ibyteimg.com` 等全部命中同一个地区组，没有 `DIRECT` 或 `REJECT`。
+4. 若仍提示网络不稳定，在同一地区切换另一节点。测速正常只代表测试网址可达，不代表该出口 IP 可用 TikTok。
+5. 强制停止 TikTok，清除应用缓存后重开；仍不行再用手机浏览器访问 `https://www.tiktok.com/` 做对照。
 
 ### Google Play 卡在 99%
 
@@ -154,8 +156,9 @@ payload:
 - `rules/device-*.yaml`：设备到地区策略的来源地址映射。
 - `rules/manual-*.yaml`：手工域名出口规则。
 - `rules/google-play.yaml`：Google Play 一致出口规则。
+- `rules/tiktok.yaml`：TikTok 主站、API、CDN 和字节海外共享域名规则。
 - `rules/ai.yaml`：AI 服务规则。
 - `rules/ru-commerce.yaml`：Ozon / Wildberries 规则。
 - `docs/acceptance-log.md`：本地验收记录。
 
-参考：[OpenClash YAML 覆写示例](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 路由规则](https://wiki.metacubex.one/config/rules/)、[Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)、[Microsoft 手机连接排错](https://support.microsoft.com/windows/apps/phonelink/troubleshooting-the-phone-link)、[Google Play 下载排错](https://support.google.com/googleplay/answer/14122894)。
+参考：[OpenClash YAML 覆写示例](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 路由规则](https://wiki.metacubex.one/config/rules/)、[Mihomo 域名嗅探](https://wiki.metacubex.one/config/sniff/)、[V2Fly TikTok 域名](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)、[blackmatrix7 TikTok 规则](https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Clash/TikTok/TikTok_No_Resolve.yaml)、[Microsoft 手机连接排错](https://support.microsoft.com/windows/apps/phonelink/troubleshooting-the-phone-link)、[Google Play 下载排错](https://support.google.com/googleplay/answer/14122894)。
