@@ -1,12 +1,20 @@
 # OpenClash 自定义覆写规则
 
-本仓库为第三方订阅转换模板追加统一分流，不接管或替换模板本身：
+本仓库给第三方订阅模板追加统一分流，不保存机场订阅、Sub-Store 地址、令牌或密钥，也不替换模板原有策略组、DNS 和规则。
 
-- 霖洋 A 手机（`192.168.100.173`）：中国大陆直连，其余服务固定走 `社媒-日本`，包括 AI、TikTok、WhatsApp、Facebook 和 Google。
-- 霖洋 B 手机（`192.168.100.238`）：中国大陆直连，其余服务固定走 `社媒-美国`，包括 AI、TikTok、WhatsApp、Facebook 和 Google。
-- ChatGPT、OpenAI、Claude、Gemini、AI Studio、Flow 等 AI 服务在其他设备上走 `AI-日本`。
-- Ozon、Wildberries 等俄罗斯电商服务在其他设备上走 `俄罗斯电商`。
-- 第三方模板原有策略组、DNS 和其他规则保持不变。
+## 当前能力
+
+- `日本`、`美国`、`新加坡`：自动收集订阅中名称匹配的节点；默认自动测速，也可在面板手选节点。
+- 按设备固定 IP 分流：公司、家里等不同局域网只需把地址追加到对应 `device-*.yaml`。
+- 中国大陆域名和 IP 直连。
+- 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
+- Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
+- TikTok 域名在国内判断前按设备地区代理。
+- 局域网、链路本地和组播直连，并让 `.lan`、`.local`、`.home.arpa` 绕过 Fake-IP。
+- 不再全局拒绝公网 IPv6；设备分流默认关闭 AAAA 返回，以 IPv4 来源地址稳定匹配。
+- UDP/QUIC 保持启用，供 TikTok、语音、视频和 HTTP/3 使用。
+
+兼容要求：OpenClash `v0.47.081+`，Mihomo `v1.19.28+`，规则模式。订阅节点本身必须支持 UDP。
 
 ## 覆写订阅地址
 
@@ -22,35 +30,104 @@ https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@main/overwrite/ope
 
 在 OpenClash 的“覆写设置 → 模块设置”中新建远程订阅，填入主地址并启用，然后更新配置订阅并应用。
 
-## 使用要求
+## 按设备维护地区
 
-- OpenClash 使用规则模式、Fake-IP、IPv6 流量代理、IPv6 DNS 解析和 UDP 流量转发。
-- IPv6 代理模式使用 TProxy，并将“实验性：绕过指定区域 IPv6”设为“绕过中国大陆”。
-- A、B 手机的网关和 DNS 必须是 CatWrt，并通过 DHCP 静态租约保持上述 IPv4 地址。
-- `社媒-日本`和`社媒-美国`是手动选择组。首次启用后必须分别选择稳定的日本、美国节点；未选择可用节点时默认 `REJECT`，避免意外直连。
-- 手机需要保持固定 Wi-Fi MAC 或确保静态租约匹配当前 Wi-Fi 使用的 MAC。
+编辑以下文件，每行一个 `SRC-IP-CIDR`。同一设备在公司和家里的固定地址可以同时写入同一文件：
 
-## IPv6 行为
+| 策略组 | 文件 |
+| --- | --- |
+| 日本 | `rules/device-jp.yaml` |
+| 美国 | `rules/device-us.yaml` |
+| 新加坡 | `rules/device-sg.yaml` |
 
-- 中国大陆域名和中国大陆 IPv4/IPv6 直连。
-- 国外 IPv6 在内核中拒绝，客户端回落到 IPv4 后再按设备来源地址进入日本或美国组。
-- 不要将 `::/0` 加入 OpenClash 的“本地 IPv6 绕过地址”，否则所有 IPv6 都会绕过内核。
+示例：
 
-## 当前策略优先级
+```yaml
+payload:
+  - SRC-IP-CIDR,192.168.100.173/32
+  - SRC-IP-CIDR,192.168.20.73/32
+```
 
-1. 局域网地址直连。
-2. A/B 手机访问 Google Play 中国域名时按各自地区代理。
-3. 中国大陆域名和 IP 直连。
-4. 国外 IPv6 拒绝。
-5. A 手机国外 IPv4 走日本，B 手机国外 IPv4 走美国。
-6. 其他设备依次使用俄罗斯电商、AI 日本及第三方模板规则。
+要求：
+
+- 各路由器用 DHCP 静态租约固定设备 IPv4。
+- 手机关闭随机 Wi-Fi MAC，或让静态租约绑定当前网络实际使用的随机 MAC。
+- 一个来源地址只能放在一个地区文件中；规则优先级是日本、美国、新加坡。
+- 修改后提交到 `main`，等待 Raw 文件可访问，再在 OpenClash 更新模块和配置。
+
+## 手工指定域名
+
+| 出口 | 文件 |
+| --- | --- |
+| 直连 | `rules/manual-direct.yaml` |
+| 日本 | `rules/manual-jp.yaml` |
+| 美国 | `rules/manual-us.yaml` |
+| 新加坡 | `rules/manual-sg.yaml` |
+
+示例：
+
+```yaml
+payload:
+  - DOMAIN,api.example.com
+  - DOMAIN-SUFFIX,example.com
+```
+
+同一域名不要重复放入多个文件。优先级为 `DIRECT > 日本 > 美国 > 新加坡`，并高于国内直连、设备分流和第三方模板规则。
+
+## 规则优先级
+
+1. 局域网、链路本地、组播直连。
+2. 手工域名规则。
+3. TikTok、Google Play 按设备地区代理。
+4. 中国大陆域名和 IP 直连。
+5. 按设备来源地址走日本、美国或新加坡。
+6. 俄罗斯电商、AI 日本和第三方模板原有规则。
+
+“中国大陆全部直连”有两个有意保留的内置例外：TikTok 和 `rules/google-play.yaml`。前者必须按设备地区代理；Google 的部分下载域名带 `.cn` 或被国内列表收录，若这些请求直连、账号和校验请求走代理，Google Play 可能在 99% 停住。
+
+## 已知问题判断
+
+### Windows“手机连接”
+
+代理可能是原因之一，但不是唯一原因。旧规则已让常见私网地址直连；本次进一步补齐链路本地、组播和本地域名，因此覆写本身不应再把同一局域网通信送进代理。
+
+若仍不能连接，依次检查：
+
+1. 手机和 Windows 位于同一可信 Wi-Fi/子网，Windows 网络类型为“专用”。
+2. 路由器未启用 AP/Wireless Isolation，访客网络未隔离客户端。
+3. 临时关闭 Windows 上的其他 VPN/第三方防火墙做对照测试。
+4. 两端使用同一 Microsoft 账号，更新“手机连接”和“连接至 Windows”。
+5. Android 对“连接至 Windows”关闭电池优化；通话功能另需正常的蓝牙配对。
+
+微软官方排错同样把同一 Wi-Fi、AP 隔离、VPN/防火墙、账号、版本和电池优化列为主要检查项。
+
+### TikTok 提示无网络
+
+旧覆写有两个高概率触发点：地区手选组首项是 `REJECT`，以及 `IP-CIDR6,::/0,REJECT` 全局拒绝公网 IPv6。新规则显式把 TikTok 放在国内判断之前，改为自动地区组、无节点才拒绝，并关闭 AAAA 下发而非硬拒绝公网 IPv6。
+
+若仍无网络：
+
+1. 在面板确认设备命中正确地区组，组内存在真实节点而不是 `REJECT`。
+2. 确认节点支持 UDP；切换同地区另一节点复测。
+3. 查看 OpenClash 连接日志，确认 TikTok 域名未被第三方广告规则提前拒绝。
+4. 关闭 TikTok 后清除应用缓存并重开，排除旧 DNS/连接缓存。
+
+### Google Play 卡在 99%
+
+本模块把商店、下载 CDN、校验和账号相关域名按设备地区保持一致出口。若仍复现，先确认这些连接全部命中同一地区组，再按 Google 官方步骤检查网络和存储、重启设备、清理 Play 商店/Play 服务缓存；不要把 `google-play.yaml` 中的域名同时加入 `manual-direct.yaml`。
+
+## IPv6 边界
+
+模块设置 `IPV6_DNS = 0`，让普通域名连接使用 IPv4，从而按固定设备 IPv4 稳定分流；它不会用 `::/0` 全局拒绝 IPv6。若要完整使用 IPv6 设备分流，必须为每个网络准备稳定 IPv6/ULA 来源段，追加到相应 `device-*.yaml`，再自行启用 IPv6 DNS。
 
 ## 文件
 
 - `overwrite/openclash-overwrite.conf`：远程覆写模块。
-- `rules/device-jp.yaml`：A 手机日本分流来源地址。
-- `rules/device-us.yaml`：B 手机美国分流来源地址。
-- `rules/ai.yaml`：AI 服务 classical 规则集。
-- `rules/ru-commerce.yaml`：Ozon / Wildberries classical 规则集。
+- `rules/device-*.yaml`：设备到地区策略的来源地址映射。
+- `rules/manual-*.yaml`：手工域名出口规则。
+- `rules/google-play.yaml`：Google Play 一致出口规则。
+- `rules/ai.yaml`：AI 服务规则。
+- `rules/ru-commerce.yaml`：Ozon / Wildberries 规则。
+- `docs/acceptance-log.md`：本地验收记录。
 
-仓库不得提交机场订阅链接、Sub-Store 地址、令牌或其他密钥。
+参考：[OpenClash YAML 覆写示例](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 路由规则](https://wiki.metacubex.one/config/rules/)、[Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)、[Microsoft 手机连接排错](https://support.microsoft.com/windows/apps/phonelink/troubleshooting-the-phone-link)、[Google Play 下载排错](https://support.google.com/googleplay/answer/14122894)。

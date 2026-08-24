@@ -1,0 +1,13 @@
+# Google Play 商店、下载、校验与账号链路
+# 这些域名按设备地区保持一致出口，避免部分请求直连、部分请求代理导致更新卡住。
+payload:
+  - DOMAIN,play.google.com
+  - DOMAIN,play.googleapis.com
+  - DOMAIN,play-fe.googleapis.com
+  - DOMAIN,android.clients.google.com
+  - DOMAIN-SUFFIX,googleusercontent.com
+  - DOMAIN-SUFFIX,gvt1.com
+  - DOMAIN-SUFFIX,gvt2.com
+  - DOMAIN-SUFFIX,gvt3.com
+  - DOMAIN-SUFFIX,googleapis.cn
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com
