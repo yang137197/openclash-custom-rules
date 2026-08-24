@@ -25,3 +25,19 @@
 - 补充 GitHub 网页编辑、提交、创建拉取请求及 OpenClash 更新步骤。
 - 设备地区规则文件改为可点击的相对链接；本次没有修改实际分流规则。
 - Markdown 格式和 Git 差异检查通过。
+
+## 2026-08-24：TikTok 网络不稳定修正
+
+范围：`overwrite/openclash-overwrite.conf`、`rules/tiktok.yaml`、`README.md`。
+
+结果：
+
+- 新增独立 TikTok 规则提供者，覆盖主站、API、CDN、特效及字节海外共享域名，并保持在中国直连规则之前。
+- 启用 TLS/QUIC 纯 IP 域名嗅探，减少 CDN 连接因缺少域名而误判直连。
+- 保留 UDP 代理，但禁用 UDP/443 QUIC，使 UDP 不稳定节点回落到 TCP/HTTPS。
+- 补充规则缓存、固定节点、连接日志和出口可用性检查步骤。
+- 覆写 YAML 段和 11 个规则文件通过 YAML 解析；TikTok 规则共 41 条。
+- 使用官方 Mihomo `v1.19.30` 加载最小合并配置，`mihomo -t` 验证成功。
+- Mihomo API 回读确认：嗅探器正常加载，TikTok 规则提供者 41 条，前三条设备条件规则依次指向日本、美国、新加坡。
+
+未覆盖：无法从本地访问用户的 OpenClash 实机和手机，因此节点出口是否被 TikTok 接受仍需部署后通过连接日志和手机实测确认。
