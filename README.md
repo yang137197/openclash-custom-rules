@@ -36,9 +36,9 @@ https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@main/overwrite/ope
 
 | 策略组 | 文件 |
 | --- | --- |
-| 日本 | `rules/device-jp.yaml` |
-| 美国 | `rules/device-us.yaml` |
-| 新加坡 | `rules/device-sg.yaml` |
+| 日本 | [`rules/device-jp.yaml`](rules/device-jp.yaml) |
+| 美国 | [`rules/device-us.yaml`](rules/device-us.yaml) |
+| 新加坡 | [`rules/device-sg.yaml`](rules/device-sg.yaml) |
 
 示例：
 
@@ -54,6 +54,34 @@ payload:
 - 手机关闭随机 Wi-Fi MAC，或让静态租约绑定当前网络实际使用的随机 MAC。
 - 一个来源地址只能放在一个地区文件中；规则优先级是日本、美国、新加坡。
 - 修改后提交到 `main`，等待 Raw 文件可访问，再在 OpenClash 更新模块和配置。
+
+### 同一设备在不同局域网使用相同网段
+
+规则只识别设备当前的来源 IP，不识别设备名称或 MAC 地址。因此：
+
+- 家里和公司都是 `192.168.1.0/24`，且这台设备在两处都固定为 `192.168.1.173`：只需写一条 `SRC-IP-CIDR,192.168.1.173/32`，前提是两处各自使用 OpenClash 网关和同一份规则。
+- 设备在两处获得不同 IP：把两个地址写入同一个地区文件。
+- 其他设备如果也获得 `192.168.1.173`，同样会命中该策略；务必在每个路由器设置 DHCP 静态租约。
+- 两个相同网段同时接入同一台集中式 OpenClash 网关时，网关无法区分两个相同的来源 IP。应改成不同子网/VLAN，或让两处分别使用各自的 OpenClash 网关。
+
+手机可能对不同 Wi-Fi 使用不同的随机 MAC；请分别为实际 MAC 固定 IP，或按需要关闭该 Wi-Fi 的随机 MAC。
+
+### 在 GitHub 网页修改并提交
+
+1. 打开上表对应的地区文件，点击右上角铅笔图标 **Edit this file**。
+2. 保留 `payload:`，在下面按 YAML 缩进每行添加一个地址，例如：
+
+   ```yaml
+   payload:
+     # 家里
+     - SRC-IP-CIDR,192.168.1.173/32
+     # 公司
+     - SRC-IP-CIDR,192.168.1.88/32
+   ```
+
+3. 点击 **Preview** 检查内容，再点击 **Commit changes...**，填写说明，例如 `chore: update device IP mapping`。
+4. 简单修改可选择直接提交到 `main`。更稳妥的方式是选择新建分支，依次点击 **Propose changes**、**Create pull request**，确认后再点击 **Merge pull request**。
+5. 合并到 `main` 后，在 OpenClash 更新覆写模块和配置订阅，然后应用配置。
 
 ## 手工指定域名
 
