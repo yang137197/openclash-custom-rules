@@ -1,2 +1,3 @@
 # 手工指定直连的域名规则；示例：DOMAIN-SUFFIX,example.cn
-payload: []
+payload: 
+  - DOMAIN-SUFFIX,web.gdwzy.top
