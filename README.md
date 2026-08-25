@@ -16,7 +16,7 @@
 - UDP 代理保持启用；UDP/443 QUIC 默认禁用并回落到 TCP，降低节点 UDP 不稳定导致的断流。
 - 开启域名嗅探，识别 TLS/QUIC 纯 IP 连接中的 TikTok 域名。
 - 中国域名使用国内加密 DoH 直连解析；其他域名使用 `DNS-海外` 组查询，不追加 WAN/运营商 DNS。
-- 设备和手工规则每 5 分钟检查 GitHub 更新；版本化缓存路径避免继续复用旧 IP 规则。
+- 设备和手工规则每 60 秒检查 GitHub 更新；规则下载继续通过 `DNS-海外`，避免路由器直连 GitHub Raw 失败。
 
 兼容要求：OpenClash `v0.47.081+`，Mihomo `v1.19.28+`，规则模式。订阅节点本身必须支持 UDP。
 
@@ -32,7 +32,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwri
 https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@main/overwrite/openclash-overwrite.conf
 ```
 
-在 OpenClash 的“覆写设置 → 模块设置”中新建远程订阅，填入主地址并启用，然后更新配置订阅并应用。重大更新后应重启一次 OpenClash，让新规则缓存路径立即下载。
+在 OpenClash 的“覆写设置 → 模块设置”中新建远程订阅，填入主地址并启用，然后更新配置订阅并应用。首次安装或本模块本身有更新时，应更新覆写模块并应用/重启一次 OpenClash。
 
 ## 按设备维护地区
 
@@ -57,7 +57,7 @@ payload:
 - 各路由器用 DHCP 静态租约固定设备 IPv4。
 - 手机关闭随机 Wi-Fi MAC，或让静态租约绑定当前网络实际使用的随机 MAC。
 - 一个来源地址只能放在一个地区文件中；规则优先级是日本、美国、新加坡。
-- 修改后提交到 `main`，等待 Raw 文件可访问；运行中的 OpenClash 最迟约 5 分钟自动更新，也可在规则提供者页面手动刷新。
+- 修改后提交到 `main`，等待 Raw 文件可访问；运行中的 OpenClash 最迟约 60 秒自动更新，也可在规则提供者页面手动刷新。
 
 ### 同一设备在不同局域网使用相同网段
 
@@ -85,9 +85,57 @@ payload:
 
 3. 点击 **Preview** 检查内容，再点击 **Commit changes...**，填写说明，例如 `chore: update device IP mapping`。
 4. 简单修改可选择直接提交到 `main`。更稳妥的方式是选择新建分支，依次点击 **Propose changes**、**Create pull request**，确认后再点击 **Merge pull request**。
-5. 合并到 `main` 后，在 OpenClash 更新覆写模块和配置订阅，然后应用配置。
+5. 合并到 `main` 后，设备规则会在约 60 秒内自动更新。要立即生效，可在 OpenClash 的规则提供者页面刷新对应的 `Linyang-Device-*`；若同时修改了覆写模块，再更新模块并应用/重启 OpenClash。
 
 ## 手工指定域名
+
+### 域名不走代理：只维护这一个文件
+
+以后需要直连的域名，统一编辑 [`rules/manual-direct.yaml`](rules/manual-direct.yaml)。保留文件最上方的 `payload:`，每条规则前面用两个空格缩进并写 `-`：
+
+```yaml
+payload:
+  - DOMAIN,api.example.com
+  - DOMAIN-SUFFIX,example.com
+```
+
+两种写法的区别：
+
+- `DOMAIN,api.example.com`：只匹配完整域名 `api.example.com`，不会匹配 `www.example.com`、`example.com` 或 `a.api.example.com`。只想放行一个明确接口时使用它。
+- `DOMAIN-SUFFIX,example.com`：匹配 `example.com` 本身以及全部子域名，例如 `www.example.com`、`api.example.com`。整个网站都要直连时使用它。
+
+以当前微信小程序域名为例：
+
+```yaml
+payload:
+  - DOMAIN-SUFFIX,web.gdwzy.top
+```
+
+它会匹配 `web.gdwzy.top` 和 `api.web.gdwzy.top`，不会匹配 `gdwzy.top` 或 `www.gdwzy.top`。
+
+填写时注意：
+
+- 只写域名，不要写 `https://`、端口、斜杠或网页路径。例如不要写 `https://api.example.com/v1`。
+- 使用英文逗号 `,`，不要使用中文逗号 `，`。
+- 同一域名不要同时写 `DOMAIN` 和能覆盖它的 `DOMAIN-SUFFIX`，也不要重复放进其他 `manual-*.yaml`。
+- 每添加一个域名就新增一行；不要重复写第二个 `payload:`。
+
+### 修改后如何生效
+
+1. 在 GitHub 打开 [`rules/manual-direct.yaml`](rules/manual-direct.yaml)，点击铅笔图标。
+2. 添加规则，点击 **Commit changes...**，直接提交到 `main`。
+3. 等 GitHub 提交完成。运行中的 OpenClash 会每 60 秒检查一次 `Linyang-Manual-Direct`，通常不需要更新配置订阅或覆写模块。
+4. 需要立即生效时，在 OpenClash 的“规则提供者”页面手动更新 `Linyang-Manual-Direct`。若找不到该入口，等待最多约 60 秒后再试。
+
+OpenClash 的“刷新覆写订阅”只负责下载模块文件，手动刷新动作本身不保证立即重新加载当前配置。因此，只有修改了 `overwrite/openclash-overwrite.conf` 时才需要更新覆写模块，并随后应用配置或重启。模块的定时更新启用了 `RESTART = true`，定时更新成功后会自动重启。
+
+生效后，连接日志应显示类似：
+
+```text
+match RuleSet/Linyang-Manual-Direct using DIRECT
+```
+
+### 其他手工出口文件
 
 | 出口 | 文件 |
 | --- | --- |
@@ -95,14 +143,6 @@ payload:
 | 日本 | `rules/manual-jp.yaml` |
 | 美国 | `rules/manual-us.yaml` |
 | 新加坡 | `rules/manual-sg.yaml` |
-
-示例：
-
-```yaml
-payload:
-  - DOMAIN,api.example.com
-  - DOMAIN-SUFFIX,example.com
-```
 
 同一域名不要重复放入多个文件。优先级为 `DIRECT > 日本 > 美国 > 新加坡`，并高于国内直连、设备分流和第三方模板规则。
 
@@ -130,7 +170,7 @@ payload:
 当前修正：
 
 - 设备规则使用新的 `linyang-v2-*` 缓存路径，首次加载必须重新下载。
-- 设备及手工规则更新周期缩短为 300 秒。
+- 设备及手工规则当前更新周期为 60 秒，并继续通过 `DNS-海外` 拉取。
 - 规则下载显式使用 `DNS-海外`，不再由第三方 `MATCH` 决定下载出口。
 - `+rules` 按 OpenClash 官方语义插入规则数组开头，设备规则始终早于第三方 `MATCH`。
 
@@ -166,7 +206,7 @@ Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证�
 
 若仍无网络：
 
-1. 更新覆写模块、配置订阅和全部规则提供者，然后重启 OpenClash；只更新配置但不更新规则提供者可能仍使用旧缓存。
+1. 更新覆写模块并重启 OpenClash，再刷新对应规则提供者；只改规则文件时无需更新配置订阅。
 2. 在面板把设备对应地区组临时改为一个确定可用的真实节点，不要先用自动测速组；确认不是 `REJECT`。
 3. 查看连接日志，确认 `tiktokv.com`、`byteintlapi.com`、`snssdk.com`、`ibyteimg.com` 等全部命中同一个地区组，没有 `DIRECT` 或 `REJECT`。
 4. 若仍提示网络不稳定，在同一地区切换另一节点。测速正常只代表测试网址可达，不代表该出口 IP 可用 TikTok。

@@ -81,3 +81,25 @@
 - 将新规则合并到既有最小配置后，官方 Mihomo 配置测试成功。
 
 未覆盖：无法访问用户的 OpenClash 实机及微信小程序运行日志；部署后应确认连接命中 `RuleSet/Linyang-Manual-Direct → DIRECT`。若已经命中仍失败，应检查小程序后台的 `request` 合法域名及服务端应用日志。
+
+## 2026-08-25：手工直连说明与快速规则更新
+
+范围：`README.md`、`overwrite/openclash-overwrite.conf`。
+
+变更：
+
+- 明确以后所有“不走代理”域名统一维护在 `rules/manual-direct.yaml`，并说明 `DOMAIN` 与 `DOMAIN-SUFFIX` 的匹配范围、格式、示例和常见错误。
+- 设备及手工规则提供者更新周期由 300 秒缩短为 60 秒。
+- 模块加入 `RESTART = true`；远程模块定时更新成功后自动重启。
+- 记录 OpenClash 手动刷新覆写订阅只下载模块文件，不保证立即重新加载配置；规则立即生效应刷新对应规则提供者，模块变更后应应用或重启。
+- 保留规则提供者通过 `DNS-海外` 下载；不在启动阶段强制直连 GitHub Raw，避免下载失败阻断模块加载。
+
+验收：
+
+- 覆写 `[YAML]` 段和全部 9 个规则文件通过 YAML 解析。
+- 回读确认共有 9 个规则提供者，其中 4 个手工规则和 3 个设备规则的 `interval` 均为 60 秒；`RESTART = true` 唯一且可被当前 OpenClash 解析。
+- 9 个 GitHub Raw 规则地址均返回 HTTP 200，内容与提交前的 `origin/main` 一致。
+- 使用官方 Mihomo `v1.19.30` 加载 60 秒更新周期的最小合并配置，`mihomo -t` 验证成功。
+- Markdown 和 Git 差异检查通过。
+
+未覆盖：没有用户路由器的实时访问权，无法替代 OpenClash 实机验证模块下载、重启和连接日志。
