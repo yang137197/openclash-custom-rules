@@ -64,3 +64,20 @@
 - API 回读：`Linyang-Device-US` 1 条、`Linyang-Device-JP` 2 条、TikTok 41 条、Google Play 10 条；Google 美国逻辑规则位于设备美国兜底和最终 `MATCH` 之前。
 
 未覆盖：没有用户路由器的实时 API/文件访问权，部署后仍需用 OpenClash 日志确认 `.203` 命中 `RuleSet/Linyang-Device-US → 美国`。
+
+## 2026-08-25：微信小程序业务域名直连
+
+触发：微信小程序访问 `web.gdwzy.top` 失败。
+
+诊断与变更：
+
+- Google、Cloudflare、AliDNS、DNSPod DoH 均解析为 `47.121.182.56`；APNIC RDAP 登记为中国 `ALISOFT` 地址段。
+- 直接访问源站的 HTTP 返回 `301` 跳转 HTTPS，HTTPS 返回 `200 OK`，TLS 校验成功。
+- 在 `rules/manual-direct.yaml` 添加精确规则 `DOMAIN,web.gdwzy.top`，不影响 `gdwzy.top` 的其他子域名。
+
+验收：
+
+- 全部 9 个规则 YAML 文件解析成功。
+- 将新规则合并到既有最小配置后，官方 Mihomo 配置测试成功。
+
+未覆盖：无法访问用户的 OpenClash 实机及微信小程序运行日志；部署后应确认连接命中 `RuleSet/Linyang-Manual-Direct → DIRECT`。若已经命中仍失败，应检查小程序后台的 `request` 合法域名及服务端应用日志。
