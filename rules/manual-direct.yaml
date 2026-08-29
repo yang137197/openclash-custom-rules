@@ -2,3 +2,10 @@
 payload:
   # 微信小程序业务域名；中国阿里云源站，避免设备地区代理影响访问。
   - DOMAIN-SUFFIX,web.gdwzy.top
+
+  # 奥智联数字钥匙：辽宁科大物联自有业务域名。
+  - DOMAIN-SUFFIX,askdwl.com
+
+  # 一汽奥迪：一汽-大众业务域名及奥迪中国官方域名。
+  - DOMAIN-SUFFIX,faw-vw.com
+  - DOMAIN-SUFFIX,audi.cn

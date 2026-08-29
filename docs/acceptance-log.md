@@ -103,3 +103,21 @@
 - Markdown 和 Git 差异检查通过。
 
 未覆盖：没有用户路由器的实时访问权，无法替代 OpenClash 实机验证模块下载、重启和连接日志。
+
+## 2026-08-29：奥智联与一汽奥迪 App 直连
+
+范围：`rules/manual-direct.yaml`。
+
+确认与变更：
+
+- 奥智联的开发者和隐私政策均指向辽宁科大物联，官方业务站点为 `audi.askdwl.com`；添加 `DOMAIN-SUFFIX,askdwl.com`，覆盖该 App 同一自有域名下的接口和子域名。
+- 一汽奥迪 App Store 的开发者隐私政策指向 `audi2c.faw-vw.com`，官方平台使用 `audi.cn`；添加 `DOMAIN-SUFFIX,faw-vw.com` 与 `DOMAIN-SUFFIX,audi.cn`。
+- 三条手工直连规则位于设备地区规则和国内规则之前，优先命中 `DIRECT`。
+
+验收：
+
+- 全部 9 个规则 YAML 文件解析成功。
+- 将新规则加载到既有最小合并配置后，官方 Mihomo `v1.19.30` 配置测试成功。
+- Git 差异检查通过。
+
+未覆盖：公开资料不能证明 App 运行期间调用的全部第三方 SDK、CDN 或临时域名。若实机仍有单项功能失败，应按手机源 IP 抓取该操作发生时的 OpenClash 连接日志，再只补充实际误走代理的域名。
