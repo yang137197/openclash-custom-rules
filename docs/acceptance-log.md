@@ -150,3 +150,21 @@
 - 当前 `gdwzy.top`、`askdwl.com`、`faw-vw.com`、`audi.cn` 四个直连主域名均已符合该规范，可同时匹配主域名和所有层级的子域名。
 - README 示例同步改为 `DOMAIN-SUFFIX,gdwzy.top`，避免以后因新增同级接口或 CDN 子域名漏匹配。
 - 全部 9 个规则 YAML 文件解析成功；官方 Mihomo `v1.19.30` 配置测试成功；检查确认 `manual-direct.yaml` 不含 `DOMAIN`、`DOMAIN-KEYWORD` 或过窄的 `web.gdwzy.top` 条目。
+
+## 2026-08-31：微软服务全局直连
+
+范围：`overwrite/openclash-overwrite.conf`、`README.md`。
+
+变更：
+
+- 在设备地区和第三方订阅规则之前新增 `GEOSITE,microsoft,DIRECT`、`GEOSITE,onedrive,DIRECT`、`GEOSITE,xbox,DIRECT`。
+- 覆盖 Windows Update、Microsoft Store、微软账号、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint 和 Xbox 等微软服务。
+- GitHub、LinkedIn 保持为独立平台，不因公司所有权被扩大直连。
+
+验收：
+
+- 覆写 YAML 和全部 9 个规则文件解析成功。
+- 官方 Mihomo `v1.19.30` 加载配置成功；当前 Geosite 数据分别加载 Microsoft 751 条、OneDrive 19 条、Xbox 45 条，目标均为 `DIRECT`。
+- 三条微软直连规则位于所有手工地区规则、Google/TikTok/Google Play 设备规则和设备兜底规则之前；Git 差异检查通过。
+
+未覆盖：没有用户路由器实时访问权；更新覆写模块并应用后，应从 OpenClash 日志确认微软域名命中 `GeoSite(microsoft|onedrive|xbox) using DIRECT`。

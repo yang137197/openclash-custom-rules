@@ -7,6 +7,7 @@
 - `日本`、`美国`、`新加坡`：自动收集订阅中名称匹配的节点；默认自动测速，也可在面板手选节点。
 - 按设备固定 IP 分流：公司、家里等不同局域网只需把地址追加到对应 `device-*.yaml`。
 - 中国大陆域名和 IP 直连。
+- Microsoft、Windows Update、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint 和 Xbox 服务全局直连，不受设备地区策略影响。
 - 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
 - Google、Google Play 和 TikTok 按设备地区保持一致出口，优先于可能重叠的国内域名列表。
 - Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
@@ -179,6 +180,12 @@ Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证�
 - 代理节点自身域名：使用国内 DoH 直连解析，避免先解析节点又必须先连接节点的循环。
 - `APPEND_WAN_DNS = 0`：不把 WAN/运营商 DNS 加入 Mihomo 查询池。
 - `IPV6_DNS = 0`：普通 DNS 不返回 AAAA，以固定 IPv4 稳定匹配设备规则。
+
+## 微软服务直连
+
+覆写在所有设备地区规则之前依次加入 `GEOSITE,microsoft`、`GEOSITE,onedrive` 和 `GEOSITE,xbox`，统一直连 Windows Update、Microsoft Store、微软账号、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint、Xbox 等服务。设备即使被分配到日本、美国或新加坡，微软服务仍优先走 `DIRECT`。
+
+GitHub 和 LinkedIn 作为独立平台不包含在上述微软基础服务分类中；如需直连，应另行加入 `rules/manual-direct.yaml`。
 
 ## 已知问题判断
 
