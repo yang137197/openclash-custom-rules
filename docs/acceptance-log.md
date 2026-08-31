@@ -139,3 +139,14 @@
 - 回读确认 `Linyang-Manual-Direct → DIRECT` 仍位于设备地区规则之前，Git 差异检查通过。
 
 实机更新后应确认日志显示 `webcdn.gdwzy.top match RuleSet(Linyang-Manual-Direct) using DIRECT`。
+
+## 2026-08-31：手工直连统一覆盖主域名和全部子域名
+
+范围：`rules/manual-direct.yaml`、`README.md`。
+
+变更与验收：
+
+- 明确手工直连只填写业务主域名，并统一使用 `DOMAIN-SUFFIX`；不再使用只匹配单一完整域名的 `DOMAIN`。
+- 当前 `gdwzy.top`、`askdwl.com`、`faw-vw.com`、`audi.cn` 四个直连主域名均已符合该规范，可同时匹配主域名和所有层级的子域名。
+- README 示例同步改为 `DOMAIN-SUFFIX,gdwzy.top`，避免以后因新增同级接口或 CDN 子域名漏匹配。
+- 全部 9 个规则 YAML 文件解析成功；官方 Mihomo `v1.19.30` 配置测试成功；检查确认 `manual-direct.yaml` 不含 `DOMAIN`、`DOMAIN-KEYWORD` 或过窄的 `web.gdwzy.top` 条目。

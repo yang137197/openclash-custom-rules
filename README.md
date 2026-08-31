@@ -91,33 +91,29 @@ payload:
 
 ### 域名不走代理：只维护这一个文件
 
-以后需要直连的域名，统一编辑 [`rules/manual-direct.yaml`](rules/manual-direct.yaml)。保留文件最上方的 `payload:`，每条规则前面用两个空格缩进并写 `-`：
+以后需要直连的域名，统一编辑 [`rules/manual-direct.yaml`](rules/manual-direct.yaml)。所有条目统一填写业务主域名并使用 `DOMAIN-SUFFIX`，同时覆盖主域名和全部子域名。保留文件最上方的 `payload:`，每条规则前面用两个空格缩进并写 `-`：
 
 ```yaml
 payload:
-  - DOMAIN,api.example.com
   - DOMAIN-SUFFIX,example.com
 ```
 
-两种写法的区别：
-
-- `DOMAIN,api.example.com`：只匹配完整域名 `api.example.com`，不会匹配 `www.example.com`、`example.com` 或 `a.api.example.com`。只想放行一个明确接口时使用它。
-- `DOMAIN-SUFFIX,example.com`：匹配 `example.com` 本身以及全部子域名，例如 `www.example.com`、`api.example.com`。整个网站都要直连时使用它。
+`DOMAIN-SUFFIX,example.com` 会匹配 `example.com` 本身及其全部子域名，例如 `www.example.com`、`api.example.com` 和 `a.api.example.com`。本仓库的手工直连文件不再使用只匹配单一完整域名的 `DOMAIN` 写法，避免业务新增 CDN 或接口子域名后再次误走代理。
 
 以当前微信小程序域名为例：
 
 ```yaml
 payload:
-  - DOMAIN-SUFFIX,web.gdwzy.top
+  - DOMAIN-SUFFIX,gdwzy.top
 ```
 
-它会匹配 `web.gdwzy.top` 和 `api.web.gdwzy.top`，不会匹配 `gdwzy.top` 或 `www.gdwzy.top`。
+它会同时匹配 `gdwzy.top`、`web.gdwzy.top`、`webcdn.gdwzy.top` 以及其他全部子域名。
 
 填写时注意：
 
 - 只写域名，不要写 `https://`、端口、斜杠或网页路径。例如不要写 `https://api.example.com/v1`。
 - 使用英文逗号 `,`，不要使用中文逗号 `，`。
-- 同一域名不要同时写 `DOMAIN` 和能覆盖它的 `DOMAIN-SUFFIX`，也不要重复放进其他 `manual-*.yaml`。
+- 只填写主域名并使用 `DOMAIN-SUFFIX`；不要使用 `DOMAIN`，也不要重复放进其他 `manual-*.yaml`。
 - 每添加一个域名就新增一行；不要重复写第二个 `payload:`。
 
 ### 修改后如何生效

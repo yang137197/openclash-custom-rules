@@ -1,4 +1,4 @@
-# 手工指定直连的域名规则；示例：DOMAIN-SUFFIX,example.cn
+# 手工直连统一填写主域名并使用 DOMAIN-SUFFIX，同时覆盖主域名和全部子域名。
 payload:
   # 微信小程序业务域名；覆盖 web、webcdn 等全部 gdwzy.top 子域名。
   - DOMAIN-SUFFIX,gdwzy.top
