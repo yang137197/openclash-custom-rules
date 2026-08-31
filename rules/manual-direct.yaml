@@ -1,7 +1,7 @@
 # 手工指定直连的域名规则；示例：DOMAIN-SUFFIX,example.cn
 payload:
-  # 微信小程序业务域名；中国阿里云源站，避免设备地区代理影响访问。
-  - DOMAIN-SUFFIX,web.gdwzy.top
+  # 微信小程序业务域名；覆盖 web、webcdn 等全部 gdwzy.top 子域名。
+  - DOMAIN-SUFFIX,gdwzy.top
 
   # 奥智联数字钥匙：辽宁科大物联自有业务域名。
   - DOMAIN-SUFFIX,askdwl.com

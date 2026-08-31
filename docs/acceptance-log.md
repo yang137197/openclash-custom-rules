@@ -121,3 +121,21 @@
 - Git 差异检查通过。
 
 未覆盖：公开资料不能证明 App 运行期间调用的全部第三方 SDK、CDN 或临时域名。若实机仍有单项功能失败，应按手机源 IP 抓取该操作发生时的 OpenClash 连接日志，再只补充实际误走代理的域名。
+
+## 2026-08-31：微信小程序 CDN 同级域名直连
+
+触发证据：`192.168.100.216` 访问 `webcdn.gdwzy.top:443` 命中 `Linyang-Device-JP → 日本`。
+
+根因与变更：
+
+- 原规则 `DOMAIN-SUFFIX,web.gdwzy.top` 只覆盖 `web.gdwzy.top` 及其下级域名，不覆盖同级的 `webcdn.gdwzy.top`，并非规则优先级冲突。
+- 将规则扩大为 `DOMAIN-SUFFIX,gdwzy.top`，统一覆盖 `gdwzy.top`、`web.gdwzy.top`、`webcdn.gdwzy.top` 及其他子域名。
+- Cloudflare DoH 查询确认三个域名均正常解析；APNIC RDAP 显示对应地址分别属于中国 ALISOFT 和 CHINANET-JX 网段。
+
+验收：
+
+- 全部 9 个规则 YAML 文件解析成功。
+- 新规则加载到最小合并配置后，官方 Mihomo `v1.19.30` 配置测试成功。
+- 回读确认 `Linyang-Manual-Direct → DIRECT` 仍位于设备地区规则之前，Git 差异检查通过。
+
+实机更新后应确认日志显示 `webcdn.gdwzy.top match RuleSet(Linyang-Manual-Direct) using DIRECT`。
