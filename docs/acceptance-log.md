@@ -206,3 +206,16 @@
 - 官方 Mihomo `v1.19.30` 配置测试成功，启动日志未加载上述四个已删除分类；Git 差异检查通过。
 
 未覆盖：未连接用户的 OpenClash 实机。更新覆写模块并应用/重启后，需通过连接日志确认 Microsoft 与 GitHub 按通用规则命中。
+
+## 2026-09-01：定位 GitHub 仍命中旧 Microsoft 直连规则
+
+现场证据：
+
+- OpenClash 日志显示 `github.com`、`avatars*.githubusercontent.com` 仍命中 `GeoSite(microsoft) using DIRECT`，证明运行配置尚未加载已删除该规则的最新覆写。
+- 同时，日本节点的代理服务器返回 `503 Service Unavailable`；这是独立的节点故障，不能解释 GitHub 的 `DIRECT` 命中。
+- 实时回读发现 jsDelivr `@main` 返回 10187 字节旧覆写并含 7 条 Microsoft/GitHub 规则；固定提交 `@f78b82c` 与 GitHub Raw 主分支返回 9664 字节新覆写，相关规则数量为 0。
+
+处理：
+
+- README 备用地址改为固定提交 `@f78b82c`，并明确禁止用 jsDelivr `@main` 获取刚提交的实时覆写。
+- 实机应只保留一个本仓库模块订阅，使用固定提交地址更新、应用并重启；确认日志不再命中旧 Microsoft 规则后，再恢复 GitHub Raw 主地址。

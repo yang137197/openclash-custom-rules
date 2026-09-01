@@ -31,13 +31,15 @@
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwrite/openclash-overwrite.conf
 ```
 
-备用地址：
+一次性恢复地址（固定到已验收提交，不受 jsDelivr 分支缓存影响）：
 
 ```text
-https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@main/overwrite/openclash-overwrite.conf
+https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@f78b82c/overwrite/openclash-overwrite.conf
 ```
 
-在 OpenClash 的“覆写设置 → 模块设置”中新建远程订阅，填入主地址并启用，然后更新配置订阅并应用。首次安装或本模块本身有更新时，应更新覆写模块并应用/重启一次 OpenClash。
+不要使用 jsDelivr 的 `@main` 地址获取刚提交的覆写：分支地址可能缓存旧内容。GitHub Raw 暂时无法访问时，可用上面的固定提交地址恢复一次；成功应用后再换回主地址，以继续接收后续更新。
+
+在 OpenClash 的“覆写设置 → 模块设置”中只保留一个本仓库订阅并启用，然后更新覆写订阅、应用配置并重启一次 OpenClash。首次安装或本模块本身有更新时，也必须完成同样步骤。
 
 ## 按设备维护地区
 
