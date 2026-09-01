@@ -4,6 +4,12 @@
 
 ## 2026-09-01
 
+### 修复 Kimi API 开放平台无法访问
+
+- 将 `platform.kimi.com` 精确加入手工日本规则，并保持在中国大陆直连规则之前。
+- 仅调整 Kimi API 开放平台，不扩大到整个 `kimi.com`，避免影响当前可正常直连的 Kimi 其他服务。
+- 本次只修改规则提供者文件；OpenClash 最迟约 60 秒自动更新，也可手动更新 `Linyang-Manual-JP`，无需重新更新覆写模块或重启。
+
 ### 删除 Microsoft 与 GitHub 专用分流
 
 - 删除 `GEOSITE,microsoft,DIRECT`、`GEOSITE,onedrive,DIRECT`、`GEOSITE,xbox,DIRECT`。

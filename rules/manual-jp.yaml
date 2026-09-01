@@ -1,2 +1,4 @@
 # 手工指定走“日本”的域名规则；示例：DOMAIN-SUFFIX,example.com
-payload: []
+payload:
+  # Kimi API 开放平台：国内直连到其防护节点时 TLS 握手失败。
+  - DOMAIN,platform.kimi.com

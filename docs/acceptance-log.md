@@ -207,6 +207,23 @@
 
 未覆盖：未连接用户的 OpenClash 实机。更新覆写模块并应用/重启后，需通过连接日志确认 Microsoft 与 GitHub 按通用规则命中。
 
+## 2026-09-01：修复 Kimi API 开放平台无法访问
+
+根因与范围：
+
+- `platform.kimi.com` 的公共 DNS 解析一致指向火山引擎防护节点，排除常见 DNS 污染；Kimi 官方平台和文档从外部网络可正常访问。
+- 本地直连 `platform.kimi.com:443` 在 TLS 握手阶段失败，而 `api.moonshot.cn`、`api.kimi.com`、`www.kimi.com` 可建立连接，故障范围收敛到开放平台域名的当前直连路径。
+- 官方 Mihomo 规则实测确认修改前该域名命中 `GeoSite(cn) using DIRECT`。
+- 在 `rules/manual-jp.yaml` 增加精确规则 `DOMAIN,platform.kimi.com`；不扩大为 `DOMAIN-SUFFIX,kimi.com`，避免改变其他可正常直连的 Kimi 服务。
+
+验收：
+
+- `yq` 成功解析全部 9 个规则文件和测试配置。
+- 官方 Mihomo `v1.19.30` 配置测试成功。
+- 代理请求日志命中 `RuleSet/Linyang-Manual-JP` 并选择“日本”，证明该精确规则位于 `GEOSITE,cn,DIRECT` 之前且已生效。
+- 测试配置中的日本节点为本地不可用占位节点，因此本次功能测试只验收规则匹配，不代表用户订阅节点的真实可用性。
+- 本次仅修改规则提供者文件；实机可等待最多约 60 秒自动更新，或手动更新 `Linyang-Manual-JP`，无需更新覆写模块或重启。
+
 ## 2026-09-01：定位 GitHub 仍命中旧 Microsoft 直连规则
 
 现场证据：
