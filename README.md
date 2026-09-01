@@ -7,7 +7,6 @@
 - `日本`、`美国`、`新加坡`：自动收集订阅中名称匹配的节点；默认自动测速，也可在面板手选节点。
 - 按设备固定 IP 分流：公司、家里等不同局域网只需把地址追加到对应 `device-*.yaml`。
 - 中国大陆域名和 IP 直连。
-- Microsoft、Windows Update、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint 和 Xbox 服务全局直连，不受设备地区策略影响。
 - 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
 - Google、Google Play 和 TikTok 按设备地区保持一致出口，优先于可能重叠的国内域名列表。
 - Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
@@ -18,9 +17,13 @@
 - 开启域名嗅探，识别 TLS/QUIC 纯 IP 连接中的 TikTok 域名。
 - 中国域名使用国内加密 DoH 直连解析；其他域名使用 `DNS-海外` 组查询，不追加 WAN/运营商 DNS。
 - 设备和手工规则每 60 秒检查 GitHub 更新；规则下载继续通过 `DNS-海外`，避免路由器直连 GitHub Raw 失败。
-- GitHub 网页、API、Raw 和静态资源强制代理：登记设备跟随其地区，未登记设备默认走“美国”。
 
 兼容要求：OpenClash `v0.47.081+`，Mihomo `v1.19.28+`，规则模式。订阅节点本身必须支持 UDP。
+
+## 项目更新说明
+
+- [`CHANGELOG.md`](CHANGELOG.md)：实时记录每次发布或功能更新、行为变化和应用要求。
+- [`docs/acceptance-log.md`](docs/acceptance-log.md)：记录对应的技术验收结果。
 
 ## 覆写订阅地址
 
@@ -182,12 +185,6 @@ Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证�
 - `APPEND_WAN_DNS = 0`：不把 WAN/运营商 DNS 加入 Mihomo 查询池。
 - `IPV6_DNS = 0`：普通 DNS 不返回 AAAA，以固定 IPv4 稳定匹配设备规则。
 
-## 微软服务直连
-
-覆写加入 `GEOSITE,microsoft`、`GEOSITE,onedrive` 和 `GEOSITE,xbox`，默认直连 Windows Update、Microsoft Store、微软账号、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint、Xbox 等服务。手工域名规则位于这些内置分类之前，因此仍可显式覆盖默认行为。
-
-注意：当前 MetaCubeX 的 `GEOSITE,microsoft` 实际包含 GitHub 域名。覆写已在微软直连规则之前加入 `GEOSITE,github` 代理例外：登记设备跟随日本/美国/新加坡设备策略，未登记设备默认走“美国”，避免 GitHub 在中国大陆被错误直连。LinkedIn 当前不在该微软分类中。
-
 ## 已知问题判断
 
 ### Windows“手机连接”
@@ -231,6 +228,7 @@ Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证�
 - `rules/manual-*.yaml`：手工域名出口规则。
 - `rules/google-play.yaml`：Google Play 一致出口规则。
 - `rules/tiktok.yaml`：TikTok 主站、API、CDN 和字节海外共享域名规则。
+- `CHANGELOG.md`：项目发布与功能更新说明。
 - `docs/acceptance-log.md`：本地验收记录。
 
 参考：[OpenClash YAML 覆写示例](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 路由规则](https://wiki.metacubex.one/config/rules/)、[Mihomo DNS](https://wiki.metacubex.one/config/dns/)、[Mihomo 域名嗅探](https://wiki.metacubex.one/config/sniff/)、[V2Fly TikTok 域名](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)、[blackmatrix7 TikTok 规则](https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Clash/TikTok/TikTok_No_Resolve.yaml)、[Google 如何使用位置信息](https://policies.google.com/technologies/location-data)、[Microsoft 手机连接排错](https://support.microsoft.com/windows/apps/phonelink/troubleshooting-the-phone-link)、[Google Play 下载排错](https://support.google.com/googleplay/answer/14122894)。

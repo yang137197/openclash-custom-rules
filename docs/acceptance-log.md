@@ -187,3 +187,22 @@
 - 顺序检查通过：手工规则在前，GitHub 例外居中，Microsoft 直连在后；三条设备 GitHub 规则齐全，Git 差异检查通过。
 
 实机更新后应确认：浏览器访问 `github.com`、`raw.githubusercontent.com` 时，日志命中 `GeoSite(github)`，策略为设备对应地区或未登记设备的“美国”，而不是 `DIRECT` 或 `GeoSite(microsoft)`。
+
+## 2026-09-01：撤回 Microsoft 与 GitHub 专用分流
+
+范围：`overwrite/openclash-overwrite.conf`、`README.md`、`CHANGELOG.md`。
+
+变更：
+
+- 删除 Microsoft、OneDrive、Xbox 全局直连规则。
+- 删除 GitHub 按设备地区代理及未登记设备默认美国的专用规则。
+- 保留手工域名规则、国内直连、设备地区规则及第三方订阅原规则；Microsoft 和 GitHub 流量按这些通用规则继续匹配。
+- 新增项目更新日志，并在 README 提供统一入口；以后发布或功能更新同步维护更新说明和验收记录。
+
+验收：
+
+- `yq` 成功解析覆写 YAML 段和全部 9 个规则文件。
+- 静态检查确认 `+rules` 中已不存在 `GEOSITE,microsoft`、`GEOSITE,onedrive`、`GEOSITE,xbox` 或 `GEOSITE,github`。
+- 官方 Mihomo `v1.19.30` 配置测试成功，启动日志未加载上述四个已删除分类；Git 差异检查通过。
+
+未覆盖：未连接用户的 OpenClash 实机。更新覆写模块并应用/重启后，需通过连接日志确认 Microsoft 与 GitHub 按通用规则命中。
