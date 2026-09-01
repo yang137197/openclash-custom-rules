@@ -18,6 +18,7 @@
 - 开启域名嗅探，识别 TLS/QUIC 纯 IP 连接中的 TikTok 域名。
 - 中国域名使用国内加密 DoH 直连解析；其他域名使用 `DNS-海外` 组查询，不追加 WAN/运营商 DNS。
 - 设备和手工规则每 60 秒检查 GitHub 更新；规则下载继续通过 `DNS-海外`，避免路由器直连 GitHub Raw 失败。
+- GitHub 网页、API、Raw 和静态资源强制代理：登记设备跟随其地区，未登记设备默认走“美国”。
 
 兼容要求：OpenClash `v0.47.081+`，Mihomo `v1.19.28+`，规则模式。订阅节点本身必须支持 UDP。
 
@@ -183,9 +184,9 @@ Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证�
 
 ## 微软服务直连
 
-覆写在所有设备地区规则之前依次加入 `GEOSITE,microsoft`、`GEOSITE,onedrive` 和 `GEOSITE,xbox`，统一直连 Windows Update、Microsoft Store、微软账号、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint、Xbox 等服务。设备即使被分配到日本、美国或新加坡，微软服务仍优先走 `DIRECT`。
+覆写加入 `GEOSITE,microsoft`、`GEOSITE,onedrive` 和 `GEOSITE,xbox`，默认直连 Windows Update、Microsoft Store、微软账号、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint、Xbox 等服务。手工域名规则位于这些内置分类之前，因此仍可显式覆盖默认行为。
 
-GitHub 和 LinkedIn 作为独立平台不包含在上述微软基础服务分类中；如需直连，应另行加入 `rules/manual-direct.yaml`。
+注意：当前 MetaCubeX 的 `GEOSITE,microsoft` 实际包含 GitHub 域名。覆写已在微软直连规则之前加入 `GEOSITE,github` 代理例外：登记设备跟随日本/美国/新加坡设备策略，未登记设备默认走“美国”，避免 GitHub 在中国大陆被错误直连。LinkedIn 当前不在该微软分类中。
 
 ## 已知问题判断
 

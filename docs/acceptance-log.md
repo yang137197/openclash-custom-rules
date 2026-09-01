@@ -159,7 +159,7 @@
 
 - 在设备地区和第三方订阅规则之前新增 `GEOSITE,microsoft,DIRECT`、`GEOSITE,onedrive,DIRECT`、`GEOSITE,xbox,DIRECT`。
 - 覆盖 Windows Update、Microsoft Store、微软账号、Microsoft 365/Office、Outlook、Teams、Skype、OneDrive/SharePoint 和 Xbox 等微软服务。
-- GitHub、LinkedIn 保持为独立平台，不因公司所有权被扩大直连。
+- 当时误判 GitHub 不在微软分类中；当前数据实际包含 GitHub，已由下方 2026-09-01 修正记录取代。LinkedIn 当前不在该微软分类中。
 
 验收：
 
@@ -168,3 +168,22 @@
 - 三条微软直连规则位于所有手工地区规则、Google/TikTok/Google Play 设备规则和设备兜底规则之前；Git 差异检查通过。
 
 未覆盖：没有用户路由器实时访问权；更新覆写模块并应用后，应从 OpenClash 日志确认微软域名命中 `GeoSite(microsoft|onedrive|xbox) using DIRECT`。
+
+## 2026-09-01：修复 GitHub 被微软分类错误直连
+
+范围：`overwrite/openclash-overwrite.conf`、`README.md`。
+
+根因与变更：
+
+- 当前 MetaCubeX `GEOSITE,microsoft` 含有 `github.com`、`githubusercontent.com`、`githubassets.com` 等 GitHub 域名；微软直连规则提前命中后，会使中国大陆网络直接连接 GitHub 并失败。
+- 将手工域名规则保持在内置分类之前，确保用户显式规则优先。
+- 在微软直连之前新增 GitHub 例外：登记设备跟随日本、美国或新加坡设备策略；未登记设备默认走“美国”。
+- 规则提供者继续通过 `DNS-海外` 下载 GitHub Raw，不改为直连。
+
+验收：
+
+- `yq` 成功解析覆写的 YAML 段和全部 9 个规则文件。
+- 官方 Mihomo `v1.19.30` 配置测试成功；当前 Geosite 数据加载 GitHub 64 条、Microsoft 751 条，GitHub 目标为设备地区或“美国”，Microsoft 目标为 `DIRECT`。
+- 顺序检查通过：手工规则在前，GitHub 例外居中，Microsoft 直连在后；三条设备 GitHub 规则齐全，Git 差异检查通过。
+
+实机更新后应确认：浏览器访问 `github.com`、`raw.githubusercontent.com` 时，日志命中 `GeoSite(github)`，策略为设备对应地区或未登记设备的“美国”，而不是 `DIRECT` 或 `GeoSite(microsoft)`。
