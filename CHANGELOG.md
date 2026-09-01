@@ -9,6 +9,7 @@
 - 撤回上一版把 `platform.kimi.com` 分配到“日本”的临时绕行规则。
 - 在手工直连规则加入 `DOMAIN-SUFFIX,kimi.com` 和 `DOMAIN-SUFFIX,moonshot.cn`，覆盖 Kimi 官网、开放平台及官方 API。
 - 多个公共 DNS 均返回同一 CNAME 和 IPv4 地址，且目标 TCP 443 可建立连接；当前故障发生在直连 TLS 握手阶段，不应通过海外代理掩盖。
+- 直连规则发布并刷新后，开放平台首页、控制台和文档均返回 HTTP 200；无需修改 MTU、IPv6、证书校验或 Fake-IP 设置。
 - 本次只修改规则提供者文件；OpenClash 最迟约 60 秒自动更新，也可手动更新 `Linyang-Manual-Direct` 和 `Linyang-Manual-JP`，无需更新覆写模块或重启。
 
 ### 修复 Kimi API 开放平台无法访问

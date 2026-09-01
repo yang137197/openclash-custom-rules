@@ -240,7 +240,9 @@
 - `yq` 成功解析全部 9 个规则文件和测试配置。
 - 官方 Mihomo `v1.19.30` 配置测试成功。
 - 功能请求日志确认 `platform.kimi.com` 命中 `RuleSet(Linyang-Manual-Direct) using DIRECT`。
-- 实机更新后仍需继续区分直连出口、TLS 客户端差异、路径 MTU/分片以及火山引擎防护侧访问控制；规则匹配正确不等于目标站点 TLS 已恢复。
+- 直连版本发布并刷新后，OpenSSL TLS 1.2、TLS 1.3、Windows Schannel、固定 IPv4 加 SNI 均成功完成握手，证书验证正常。
+- `platform.kimi.com/`、`/console`、`/docs` 和 `www.kimi.com` 均返回 HTTP 200；`api.moonshot.cn/v1/models` 返回未带 API Key 时预期的 HTTP 401，证明 API 网络和 TLS 可达。
+- 原始 TLS 中断目前已无法复现，证据不支持继续修改 DNS、MTU、IPv6、Fake-IP 或证书校验；保留显式直连规则作为稳定分流边界。
 
 ## 2026-09-01：定位 GitHub 仍命中旧 Microsoft 直连规则
 
