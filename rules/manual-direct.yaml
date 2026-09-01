@@ -9,3 +9,7 @@ payload:
   # 一汽奥迪：一汽-大众业务域名及奥迪中国官方域名。
   - DOMAIN-SUFFIX,faw-vw.com
   - DOMAIN-SUFFIX,audi.cn
+
+  # Kimi：中国大陆官网、开放平台及 Moonshot API 全部直连。
+  - DOMAIN-SUFFIX,kimi.com
+  - DOMAIN-SUFFIX,moonshot.cn

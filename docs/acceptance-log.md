@@ -224,6 +224,24 @@
 - 测试配置中的日本节点为本地不可用占位节点，因此本次功能测试只验收规则匹配，不代表用户订阅节点的真实可用性。
 - 本次仅修改规则提供者文件；实机可等待最多约 60 秒自动更新，或手动更新 `Linyang-Manual-JP`，无需更新覆写模块或重启。
 
+## 2026-09-01：更正 Kimi 为中国大陆直连
+
+本记录取代上方“将开放平台临时分配到日本”的处理结论。
+
+变更与诊断：
+
+- 清空 `rules/manual-jp.yaml` 中的 `platform.kimi.com` 规则。
+- 在 `rules/manual-direct.yaml` 使用 `DOMAIN-SUFFIX,kimi.com` 和 `DOMAIN-SUFFIX,moonshot.cn`，确保 Kimi 官网、开放平台及 Moonshot API 均优先直连。
+- 路由器 DNS、Cloudflare DoH、Google DoH、阿里 DoH 均把 `platform.kimi.com` 解析为 `poevnnxxg2ygauv0f2cc.volcddos.com` 和 `103.143.17.156`，未发现解析分歧；该域名未返回 AAAA。
+- `103.143.17.156:443` 的 TCP 连接成功，失败发生在 TLS ClientHello 之后；因此不能把问题归因于端口不通，也不应继续用日本节点绕行。
+
+验收：
+
+- `yq` 成功解析全部 9 个规则文件和测试配置。
+- 官方 Mihomo `v1.19.30` 配置测试成功。
+- 功能请求日志确认 `platform.kimi.com` 命中 `RuleSet(Linyang-Manual-Direct) using DIRECT`。
+- 实机更新后仍需继续区分直连出口、TLS 客户端差异、路径 MTU/分片以及火山引擎防护侧访问控制；规则匹配正确不等于目标站点 TLS 已恢复。
+
 ## 2026-09-01：定位 GitHub 仍命中旧 Microsoft 直连规则
 
 现场证据：
