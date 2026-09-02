@@ -8,6 +8,7 @@
 
 - 在所有第三方订阅规则之前增加 `GEOSITE,github` 分流，避免 GitHub 被订阅的 `GEOSITE,microsoft,DIRECT` 提前命中。
 - 已登记设备分别跟随日本、美国、新加坡；未登记设备默认“日本”，确保 GitHub 不会直连。
+- README 的一次性恢复地址固定到本次已验收提交 `477dad2`，避免旧运行配置下载 GitHub Raw 时再次被直连阻断。
 - 此为覆写模块变更。更新覆写订阅后，必须应用配置或重启一次 OpenClash；日志应显示 `GeoSite(github)`，而不是 `GeoSite(microsoft) using DIRECT`。
 
 ## 2026-09-01
