@@ -8,6 +8,7 @@
 - 按设备固定 IP 分流：公司、家里等不同局域网只需把地址追加到对应 `device-*.yaml`。
 - 中国大陆域名和 IP 直连。
 - 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
+- GitHub 始终代理：已登记设备跟随所在地区，未登记设备默认日本，避免被第三方 Microsoft 规则错误直连。
 - Google、Google Play 和 TikTok 按设备地区保持一致出口，优先于可能重叠的国内域名列表。
 - Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
 - TikTok 主站、API、CDN 和字节海外共享域名在国内判断前按设备地区代理。
@@ -156,7 +157,7 @@ match RuleSet/Linyang-Manual-Direct using DIRECT
 3. Google、TikTok、Google Play 按设备地区代理。
 4. 中国大陆域名和 IP 直连。
 5. 按设备来源地址走日本、美国或新加坡。
-6. 未指定设备才继续使用第三方订阅原有规则和最终 `MATCH`。
+6. GitHub 未登记设备默认走日本；其他未指定设备才继续使用第三方订阅原有规则和最终 `MATCH`。
 
 “中国大陆全部直连”有两个有意保留的业务例外：Google 和 TikTok。它们必须按设备地区代理；Google 的部分静态或下载域名带 `.cn` 或被国内列表收录，若账号、资源和校验请求出口不一致，Google Play 可能在 99% 停住。
 

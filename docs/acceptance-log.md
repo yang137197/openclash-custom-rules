@@ -1,5 +1,28 @@
 # 验收记录
 
+## 2026-09-02：修复 GitHub 被第三方 Microsoft 规则直连
+
+现场根因：
+
+- 用户实机日志显示 `github.com:443` 命中 `GeoSite(microsoft) using DIRECT` 并连接 `20.205.243.166:443` 超时。
+- 当前覆写已删除自己的 Microsoft 直连规则；该命中来自第三方订阅规则，且位于其自身 GitHub 分类之前。
+
+变更：
+
+- 在本模块 `+rules` 的手工规则之后、所有内置分类和第三方订阅规则之前，新增三条“设备地区 + `GEOSITE,github`”规则。
+- 新增 `GEOSITE,github,日本` 兜底，未登记设备也不会再进入第三方 `GEOSITE,microsoft,DIRECT`。
+
+实机验收要求：
+
+- 更新覆写订阅并应用配置/重启后，访问 `github.com`、`raw.githubusercontent.com`、`githubusercontent.com`，日志必须显示 `GeoSite(github)` 且策略为日本、美国或新加坡，不能再显示 `GeoSite(microsoft) using DIRECT`。
+
+本地验收：
+
+- `yq` 成功解析覆写 YAML 和全部 9 个规则文件；官方 Mihomo `v1.19.30` 配置测试成功。
+- 当前 GeoSite 数据成功加载 GitHub 64 条规则。
+- 以 `192.168.100.216` 发起 GitHub 请求，日志命中 `AND((RuleSet,Linyang-Device-JP),(GeoSite,github)) using 日本`，未命中 Microsoft 或 DIRECT。
+- 测试环境的“日本”节点为本地不可用占位节点；其连接失败仅用于证明不发生故障转移，不能代替用户订阅节点的实际可用性验收。
+
 ## 2026-08-24：设备地区分流、TikTok、手机连接与 Google Play
 
 范围：`overwrite/openclash-overwrite.conf`、`rules/*.yaml`、`README.md`。

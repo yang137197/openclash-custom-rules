@@ -2,6 +2,14 @@
 
 本文件随每次发布或功能更新同步维护，记录实际行为变化和 OpenClash 应用要求。详细验证证据见 [`docs/acceptance-log.md`](docs/acceptance-log.md)。
 
+## 2026-09-02
+
+### 修复 GitHub 被第三方 Microsoft 规则直连
+
+- 在所有第三方订阅规则之前增加 `GEOSITE,github` 分流，避免 GitHub 被订阅的 `GEOSITE,microsoft,DIRECT` 提前命中。
+- 已登记设备分别跟随日本、美国、新加坡；未登记设备默认“日本”，确保 GitHub 不会直连。
+- 此为覆写模块变更。更新覆写订阅后，必须应用配置或重启一次 OpenClash；日志应显示 `GeoSite(github)`，而不是 `GeoSite(microsoft) using DIRECT`。
+
 ## 2026-09-01
 
 ### 更正 Kimi：保持中国大陆直连
