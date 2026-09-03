@@ -36,7 +36,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwri
 一次性恢复地址（固定到已验收提交，不受 jsDelivr 分支缓存影响）：
 
 ```text
-https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@aea596f/overwrite/openclash-overwrite.conf
+https://cdn.jsdelivr.net/gh/yang137197/openclash-custom-rules@edb4098/overwrite/openclash-overwrite.conf
 ```
 
 不要使用 jsDelivr 的 `@main` 地址获取刚提交的覆写：分支地址可能缓存旧内容。GitHub Raw 暂时无法访问时，可用上面的固定提交地址恢复一次；成功应用后再换回主地址，以继续接收后续更新。
