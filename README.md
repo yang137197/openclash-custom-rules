@@ -10,6 +10,7 @@
 - 支持手工指定域名走 `DIRECT`、日本、美国或新加坡。
 - GitHub 始终代理：手工日本规则覆盖核心 GitHub 域名；已登记设备也会按所在地区匹配 GitHub 分类，避免被第三方 Microsoft 规则错误直连。
 - Google、Google Play 和 TikTok 按设备地区保持一致出口，优先于可能重叠的国内域名列表。
+- Docker Hub 的认证、Registry 与镜像 CDN 使用独立 `Docker-自动` 组，并通过海外 DoH 解析；其他未命中流量仍保持默认直连。
 - Google Play 下载链路按设备保持同一出口，避免分流不一致导致更新卡住。
 - TikTok 主站、API、CDN 和字节海外共享域名在国内判断前按设备地区代理。
 - 局域网、链路本地和组播直连，并让 `.lan`、`.local`、`.home.arpa` 绕过 Fake-IP。
@@ -154,10 +155,11 @@ match RuleSet/Linyang-Manual-Direct using DIRECT
 
 1. 局域网、链路本地、组播直连。
 2. 手工域名规则。
-3. Google、TikTok、Google Play 按设备地区代理。
-4. 中国大陆域名和 IP 直连。
-5. 按设备来源地址走日本、美国或新加坡。
-6. 未登记设备和未列出域名默认直连，不使用第三方订阅的最终 `MATCH`。
+3. Docker Hub 链路使用 `Docker-自动`。
+4. Google、TikTok、Google Play 按设备地区代理。
+5. 中国大陆域名和 IP 直连。
+6. 按设备来源地址走日本、美国或新加坡。
+7. 未登记设备和未列出域名默认直连，不使用第三方订阅的最终 `MATCH`。
 
 “中国大陆全部直连”有两个有意保留的业务例外：Google 和 TikTok。它们必须按设备地区代理；Google 的部分静态或下载域名带 `.cn` 或被国内列表收录，若账号、资源和校验请求出口不一致，Google Play 可能在 99% 停住。
 
@@ -230,6 +232,7 @@ Google 打开后出现香港区域或香港域名不是 DNS 泄露的直接证�
 - `rules/device-*.yaml`：设备到地区策略的来源地址映射。
 - `rules/manual-*.yaml`：手工域名出口规则。
 - `rules/google-play.yaml`：Google Play 一致出口规则。
+- `rules/docker.yaml`：Docker Hub 认证、Registry 和镜像 CDN 统一代理规则。
 - `rules/tiktok.yaml`：TikTok 主站、API、CDN 和字节海外共享域名规则。
 - `CHANGELOG.md`：项目发布与功能更新说明。
 - `docs/acceptance-log.md`：本地验收记录。

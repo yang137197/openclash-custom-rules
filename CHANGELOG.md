@@ -2,6 +2,15 @@
 
 本文件随每次发布或功能更新同步维护，记录实际行为变化和 OpenClash 应用要求。详细验证证据见 [`docs/acceptance-log.md`](docs/acceptance-log.md)。
 
+## 2026-09-03
+
+### 修复未登记设备无法访问 Docker Hub
+
+- 新增独立 `Linyang-Docker` 规则集，覆盖 `docker.io`、Docker 官方当前使用的 CloudFront 下载域名，以及现场出现的 Cloudflare/Cloudflare Storage 镜像链路。
+- 新增 `Docker-自动`，仅收集日本、美国、新加坡节点并按 Docker Registry 实际可达性选择，不改变设备地区规则或最终 `MATCH,DIRECT`。
+- Docker 规则集强制通过海外 DoH 解析，避免直连解析路径返回与 Docker 无关的异常地址。
+- 此为覆写模块变更；更新覆写订阅后必须应用配置或重启一次 OpenClash。
+
 ## 2026-09-02
 
 ### 修复 GitHub 被第三方 Microsoft 规则直连

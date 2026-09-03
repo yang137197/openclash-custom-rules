@@ -1,0 +1,7 @@
+# Docker Hub 登录、Registry 与镜像层下载链路统一使用 Docker-自动。
+# production.cloudfront.docker.com 是 Docker 官方当前列出的镜像下载域名；
+# production.cloudflare.docker.com 和 cloudflarestorage.com 兼容实际仍出现的旧链路。
+payload:
+  - DOMAIN-SUFFIX,docker.io
+  - DOMAIN-SUFFIX,docker.com
+  - DOMAIN-SUFFIX,cloudflarestorage.com

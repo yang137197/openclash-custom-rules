@@ -302,3 +302,25 @@
 
 - README 备用地址改为固定提交 `@f78b82c`，并明确禁止用 jsDelivr `@main` 获取刚提交的实时覆写。
 - 实机应只保留一个本仓库模块订阅，使用固定提交地址更新、应用并重启；确认日志不再命中旧 Microsoft 规则后，再恢复 GitHub Raw 主地址。
+
+## 2026-09-03：修复未登记设备无法访问 Docker Hub
+
+现场证据与范围：
+
+- `192.168.100.120` 未登记在任何设备地区规则中，访问 `registry-1.docker.io` 时命中最终 `Match using DIRECT` 并超时。
+- 现场解析结果包含 `202.160.128.16` 和 `2a03:2880:...`，与 Docker Registry 正常链路不符，因此不能只切换业务出口而保留原 DNS 路径。
+- 保留最终 `MATCH,DIRECT`，不改变其他未登记设备流量；修复范围只包含 Docker Hub 认证、Registry 和镜像层下载域名。
+
+变更：
+
+- 新增 `rules/docker.yaml` 与 `Linyang-Docker`，覆盖 `docker.io`、`docker.com` 和 `cloudflarestorage.com`；其中 `docker.com` 同时包含 CloudFront/Cloudflare 镜像下载子域名及 Docker 登录/API 链路。
+- 新增 `Docker-自动`，仅收集日本、美国、新加坡节点，以 `https://registry-1.docker.io/` 的 HTTP 200 为健康检查。
+- 为 `Linyang-Docker` 增加独立海外 DoH 策略，并把 Docker 规则放在手工规则之后、GitHub/国内/设备规则之前。
+
+验收：
+
+- `yq v4.53.6` 成功解析覆写 YAML 段和全部 10 个规则文件。
+- 官方 Mihomo `v1.19.30` 加载隔离合成配置成功；API 回读确认 `Linyang-Docker → Docker-自动` 位于国内、设备和最终 `MATCH,DIRECT` 之前。
+- 隔离命中测试中，`registry-1.docker.io`、`production.cloudflare.docker.com`、`cloudflarestorage.com` 共 3 次命中 `Linyang-Docker`；非目标 `example.net` 仍命中 `MATCH,DIRECT`，证明未扩大其他规则范围。
+
+未覆盖：未连接用户的 OpenClash 实机，也未使用用户真实订阅节点。更新覆写并重启后，确认 Docker 域名命中 `RuleSet(Linyang-Docker) using Docker-自动`，Registry `/v2/` 返回 HTTP 401，实际 `docker pull` 成功。
