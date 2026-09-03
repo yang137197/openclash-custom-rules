@@ -322,5 +322,7 @@
 - `yq v4.53.6` 成功解析覆写 YAML 段和全部 10 个规则文件。
 - 官方 Mihomo `v1.19.30` 加载隔离合成配置成功；API 回读确认 `Linyang-Docker → Docker-自动` 位于国内、设备和最终 `MATCH,DIRECT` 之前。
 - 隔离命中测试中，`registry-1.docker.io`、`production.cloudflare.docker.com`、`cloudflarestorage.com` 共 3 次命中 `Linyang-Docker`；非目标 `example.net` 仍命中 `MATCH,DIRECT`，证明未扩大其他规则范围。
+- 实机进一步确认 Ubuntu 获得 `198.18.9.82` Fake-IP，连接已由 Mihomo 接管，但 TLS ClientHello 后被上游中断。复核发现 Registry 根路径正常返回 HTTP 404，而原 `Docker-自动` 健康检查未声明 404 为有效状态，存在误判可用节点的确定缺陷。
+- 健康检查已改为 `https://registry-1.docker.io/v2/`，并设置 `expected-status: 401`；该状态是 Docker Registry 未携带凭据时的正常响应。
 
 未覆盖：未连接用户的 OpenClash 实机，也未使用用户真实订阅节点。更新覆写并重启后，确认 Docker 域名命中 `RuleSet(Linyang-Docker) using Docker-自动`，Registry `/v2/` 返回 HTTP 401，实际 `docker pull` 成功。

@@ -9,6 +9,7 @@
 - 新增独立 `Linyang-Docker` 规则集，覆盖 `docker.io`、Docker 官方当前使用的 CloudFront 下载域名，以及现场出现的 Cloudflare/Cloudflare Storage 镜像链路。
 - 新增 `Docker-自动`，仅收集日本、美国、新加坡节点并按 Docker Registry 实际可达性选择，不改变设备地区规则或最终 `MATCH,DIRECT`。
 - Docker 规则集强制通过海外 DoH 解析，避免直连解析路径返回与 Docker 无关的异常地址。
+- Docker 自动测速改用 Registry `/v2/`，并将其正常的 HTTP 401 设为预期状态，避免根路径 HTTP 404 把可用节点误判为失败。
 - 此为覆写模块变更；更新覆写订阅后必须应用配置或重启一次 OpenClash。
 
 ## 2026-09-02
