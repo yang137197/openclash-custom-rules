@@ -23,6 +23,29 @@
 - 以 `192.168.100.216` 发起 GitHub 请求，日志命中 `AND((RuleSet,Linyang-Device-JP),(GeoSite,github)) using 日本`，未命中 Microsoft 或 DIRECT。
 - 测试环境的“日本”节点为本地不可用占位节点；其连接失败仅用于证明不发生故障转移，不能代替用户订阅节点的实际可用性验收。
 
+## 2026-09-03：GitHub 应急规则与未登记设备默认直连
+
+现场证据：
+
+- 用户在尝试更新后，`github.com` 仍命中 `GeoSite(microsoft) using DIRECT`，证明覆写模块未进入运行配置。
+- 未登记的 `192.168.100.210` 访问 `tos.lingkeai.vip` 命中第三方 `MATCH` 和“漏网之鱼”，其节点入口返回 HTTP 503。
+
+变更：
+
+- 将 GitHub 核心域名加入现有 `Linyang-Manual-JP` 规则提供者。该提供者在旧覆写中已存在，可独立于覆写模块刷新。
+- 新覆写在设备地区规则之后添加 `MATCH,DIRECT`，落实未登记设备和未列出域名默认直连的项目要求。
+
+实机验收要求：
+
+- 刷新 `Linyang-Manual-JP` 后，GitHub 日志应命中 `RuleSet(Linyang-Manual-JP) using 日本`，即使覆写模块尚未重载。
+- 更新覆写并重启后，`192.168.100.210` 访问未列出域名应命中 `Match using DIRECT`，不再使用“漏网之鱼”。
+
+本地验收：
+
+- `yq` 成功解析覆写 YAML 和全部 9 个规则文件；官方 Mihomo `v1.19.30` 配置测试成功。
+- GitHub 请求命中 `RuleSet(Linyang-Manual-JP) using 日本`，证明它早于 GitHub/Microsoft GeoSite 和设备规则。
+- 模拟未登记设备访问 `tos.lingkeai.vip` 命中 `Match using DIRECT`，并取得服务端 HTTP 403 业务响应；这证明 TLS 网络连通且不再经过“漏网之鱼”。
+
 ## 2026-08-24：设备地区分流、TikTok、手机连接与 Google Play
 
 范围：`overwrite/openclash-overwrite.conf`、`rules/*.yaml`、`README.md`。

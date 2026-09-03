@@ -1,2 +1,10 @@
 # 手工指定走“日本”的域名规则；示例：DOMAIN-SUFFIX,example.com
-payload: []
+payload:
+  # 应急兜底：旧覆写仍把 GitHub 归入 Microsoft 并直连时，本规则提供者优先覆盖。
+  - DOMAIN-SUFFIX,github.com
+  - DOMAIN-SUFFIX,githubusercontent.com
+  - DOMAIN-SUFFIX,githubassets.com
+  - DOMAIN-SUFFIX,githubapp.com
+  - DOMAIN-SUFFIX,github.io
+  - DOMAIN-SUFFIX,github.dev
+  - DOMAIN-SUFFIX,ghcr.io

@@ -11,6 +11,12 @@
 - README 的一次性恢复地址固定到本次已验收提交 `477dad2`，避免旧运行配置下载 GitHub Raw 时再次被直连阻断。
 - 此为覆写模块变更。更新覆写订阅后，必须应用配置或重启一次 OpenClash；日志应显示 `GeoSite(github)`，而不是 `GeoSite(microsoft) using DIRECT`。
 
+### 补充 GitHub 应急规则与默认直连兜底
+
+- 将 GitHub 核心域名加入 `rules/manual-jp.yaml`。即使路由器仍运行旧覆写，只要规则提供者刷新，手工日本规则也会先于第三方 Microsoft 直连规则命中。
+- 在覆写规则结尾新增 `MATCH,DIRECT`，使未登记设备和未列出域名默认直连，不再使用第三方“漏网之鱼”节点。
+- `Linyang-Manual-JP` 可手动刷新或等待约 60 秒；`MATCH,DIRECT` 仍需更新覆写订阅并应用/重启才生效。
+
 ## 2026-09-01
 
 ### 更正 Kimi：保持中国大陆直连
