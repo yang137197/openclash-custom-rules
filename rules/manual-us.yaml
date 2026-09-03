@@ -1,6 +1,2 @@
 # 手工指定走“美国”的域名规则；示例：DOMAIN-SUFFIX,example.com
 payload: 
-  # docker镜像
-  - DOMAIN-SUFFIX,docker.io
-  - DOMAIN-SUFFIX,cloudflare.docker.com
-  - DOMAIN-SUFFIX,cloudflarestorage.com
