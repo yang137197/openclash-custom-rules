@@ -16,6 +16,8 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwri
 
 覆写会强制替换订阅自带的策略组和规则，因此 AI、日本、GLOBAL、故障转移、自动选择等旧组不会继续显示或参与分流。未被美国组匹配的订阅节点仍会随订阅下载，但不会进入任何策略组或被使用。
 
+配置同时提供旧版 `[Overwrite]` 和新版 `[YAML]` 两种覆写方式；即使 OpenClash 不支持 YAML 覆写，最终策略组和规则仍会被替换。
+
 ## 分流顺序
 
 1. 局域网、链路本地、组播和私有地址 → `DIRECT`
