@@ -1,15 +1,63 @@
-# 手工直连统一填写主域名并使用 DOMAIN-SUFFIX，同时覆盖主域名和全部子域名。
+# ============================================================
+# Manual-Direct：手工直连规则
+# ============================================================
+# 用途：
+#   把“必须直连、不允许走美国代理”的域名写在这里。
+#
+# 主配置通过以下规则调用本文件：
+#   RULE-SET,Manual-Direct,DIRECT
+#
+# 常用写法：
+#
+# 1) DOMAIN-SUFFIX
+#    匹配主域名及其全部子域名。
+#    最推荐，绝大多数网站使用这一种即可。
+#    示例：
+#      - DOMAIN-SUFFIX,example.com
+#    可匹配：
+#      example.com
+#      www.example.com
+#      api.example.com
+#
+# 2) DOMAIN
+#    只匹配一个完整域名，不包含其他子域名。
+#    示例：
+#      - DOMAIN,api.example.com
+#
+# 3) DOMAIN-KEYWORD
+#    域名中只要包含关键字就匹配。
+#    容易误匹配，不建议日常使用。
+#    示例：
+#      - DOMAIN-KEYWORD,example
+#
+# 维护规则：
+# - 每个站点尽量写主域名并使用 DOMAIN-SUFFIX，减少漏匹配。
+# - 不要写 http://、https://、路径、端口或参数。
+# - 不要把中国大陆常规网站大量重复加入这里；大陆域名已由 GEOSITE,cn 自动直连。
+# - 本文件只用于“例外直连”，越精简越容易维护。
+# - 修改并提交 GitHub 后，OpenClash 会按 rule-provider 更新周期重新拉取；也可手动更新覆写/规则并重启。
+# ============================================================
+
 payload:
-  # 微信小程序业务域名；覆盖 web、webcdn 等全部 gdwzy.top 子域名。
+  # 微信小程序业务域名；主域名及全部子域名直连。
   - DOMAIN-SUFFIX,gdwzy.top
 
-  # 奥智联数字钥匙：辽宁科大物联自有业务域名。
+  # 奥智联数字钥匙：辽宁科大物联业务域名。
   - DOMAIN-SUFFIX,askdwl.com
 
-  # 一汽奥迪：一汽-大众业务域名及奥迪中国官方域名。
+  # 一汽奥迪 / 一汽-大众业务域名。
   - DOMAIN-SUFFIX,faw-vw.com
   - DOMAIN-SUFFIX,audi.cn
 
-  # Kimi：中国大陆官网、开放平台及 Moonshot API 全部直连。
+  # Kimi / Moonshot 中国大陆业务域名。
   - DOMAIN-SUFFIX,kimi.com
   - DOMAIN-SUFFIX,moonshot.cn
+
+  # ----------------------------------------------------------
+  # 新增规则示例（仅示例，默认注释，不会生效）
+  # ----------------------------------------------------------
+  # 整个 example.com 及其全部子域名直连：
+  # - DOMAIN-SUFFIX,example.com
+
+  # 仅 api.example.com 直连：
+  # - DOMAIN,api.example.com
