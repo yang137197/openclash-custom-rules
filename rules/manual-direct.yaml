@@ -63,6 +63,8 @@ payload:
   # Kimi / Moonshot 中国大陆业务域名。
   - DOMAIN-SUFFIX,kimi.com
   - DOMAIN-SUFFIX,moonshot.cn
+  # 乱七八糟的域名
+  - DOMAIN-SUFFIX,stellarhub.top
 
   # ----------------------------------------------------------
   # 新增规则示例（仅示例，默认注释，不会生效）
