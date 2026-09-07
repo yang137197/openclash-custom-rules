@@ -81,8 +81,6 @@ payload:
   # ----------------------------------------------------------
   # Windows Update / Microsoft Update / Delivery Optimization
   # ----------------------------------------------------------
-  # 微软官方 Windows/Intune 文档明确使用 *.mp.microsoft.com、
-  # *.windowsupdate.com、*.update.microsoft.com 等端点。
   - DOMAIN-SUFFIX,mp.microsoft.com
   - DOMAIN-SUFFIX,windowsupdate.com
   - DOMAIN-SUFFIX,update.microsoft.com
@@ -110,31 +108,59 @@ payload:
   # ----------------------------------------------------------
   # Microsoft Account / Entra 身份认证
   # ----------------------------------------------------------
-  # account.live.com、*.msauth.net、*.msftauth.net 为 Windows/MSA/Entra
-  # 官方身份认证链路；截图中的 acctcdn.msauth.net / acctcdn.msftauth.net
-  # 会由下面的 DOMAIN-SUFFIX 统一覆盖。
   - DOMAIN,account.live.com
   - DOMAIN-SUFFIX,login.live.com
   - DOMAIN,login.microsoftonline.com
   - DOMAIN,login.microsoft.com
+  - DOMAIN,login.windows.net
   - DOMAIN,graph.windows.net
   - DOMAIN-SUFFIX,msauth.net
   - DOMAIN-SUFFIX,msauthimages.net
   - DOMAIN-SUFFIX,msftauth.net
   - DOMAIN-SUFFIX,msftauthimages.net
   - DOMAIN-SUFFIX,microsoftaik.azure.net
+  - DOMAIN,token.cp.microsoft.com
 
   # ----------------------------------------------------------
-  # OneDrive / Windows 账户同步
+  # OneDrive Consumer / Windows 账户同步
   # ----------------------------------------------------------
+  # 依据微软 OneDrive Consumer 官方 Required URLs and ports。
+  # 目标：登录、同步、文件访问、策略、存储/CDN 均走中国大陆公网 DIRECT，
+  # 避免主页面直连但认证/存储子域仍经美国代理，造成异地登录提示。
+  - DOMAIN-SUFFIX,onedrive.com
+  - DOMAIN-SUFFIX,onedrive.live.com
+  - DOMAIN-SUFFIX,files.1drv.com
   - DOMAIN,g.live.com
+  - DOMAIN,p.sfx.ms
   - DOMAIN,oneclient.sfx.ms
   - DOMAIN,api.onedrive.com
-  - DOMAIN,onedrive.live.com
-  - DOMAIN,skyapi.live.net
-  - DOMAIN-SUFFIX,policies.live.net
+  - DOMAIN,spoprod-a.akamaihd.net
+  - DOMAIN-SUFFIX,mesh.com
+
+  # OneDrive Consumer 存储、相册、API、策略与设置
   - DOMAIN-SUFFIX,storage.live.com
+  - DOMAIN-SUFFIX,groups.office.live.com
+  - DOMAIN-SUFFIX,groups.photos.live.com
+  - DOMAIN-SUFFIX,groups.skydrive.live.com
+  - DOMAIN,favorites.live.com
+  - DOMAIN,oauth.live.com
+  - DOMAIN,photos.live.com
+  - DOMAIN,skydrive.live.com
+  - DOMAIN,api.live.net
+  - DOMAIN,apis.live.net
+  - DOMAIN-SUFFIX,docs.live.net
+  - DOMAIN-SUFFIX,policies.live.net
   - DOMAIN-SUFFIX,settings.live.net
+  - DOMAIN,skyapi.live.net
+  - DOMAIN,snapi.live.net
+  - DOMAIN-SUFFIX,livefilestore.com
+  - DOMAIN-SUFFIX,storage.msn.com
+
+  # OneDrive / Office 共享微软基础设施
+  - DOMAIN-SUFFIX,officeapps.live.com
+  - DOMAIN-SUFFIX,aria.microsoft.com
+  - DOMAIN-SUFFIX,mobileengagement.windows.net
+  - DOMAIN-SUFFIX,servicebus.windows.net
 
   # ----------------------------------------------------------
   # Windows 网络检测 / 配置 / 诊断 / 推送
@@ -147,7 +173,6 @@ payload:
   - DOMAIN-SUFFIX,wns.windows.com
   - DOMAIN-SUFFIX,dm.microsoft.com
   - DOMAIN,time.windows.com
-  - DOMAIN-SUFFIX,aria.microsoft.com
 
   # ----------------------------------------------------------
   # Microsoft Defender / SmartScreen / Windows 安全
@@ -185,7 +210,6 @@ payload:
   # ==========================================================
   # Microsoft 365 operated by 21Vianet：中国区专用端点
   # ==========================================================
-  # 微软官方 21Vianet 端点表（2026-07-31）中的中国云域名优先 DIRECT。
   - DOMAIN-SUFFIX,partner.outlook.cn
   - DOMAIN-SUFFIX,protection.partner.outlook.cn
   - DOMAIN-SUFFIX,office365-net.cn
