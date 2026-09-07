@@ -63,8 +63,102 @@ payload:
   # Kimi / Moonshot 中国大陆业务域名。
   - DOMAIN-SUFFIX,kimi.com
   - DOMAIN-SUFFIX,moonshot.cn
+
   # 乱七八糟的域名
   - DOMAIN-SUFFIX,stellarhub.top
+
+  # ==========================================================
+  # Microsoft / Windows：优先本地直连
+  # ==========================================================
+  # 原则：Windows Update、Delivery Optimization、Store、系统认证、
+  # 遥测/配置、推送与微软明确提供的中国区服务优先 DIRECT，
+  # 让微软自身 DNS/CDN 根据中国大陆公网出口进行本地化调度。
+  # 不使用 DOMAIN-SUFFIX,microsoft.com，避免把全部全球微软服务强制直连。
+
+  # Windows Update / Microsoft Update / Delivery Optimization
+  - DOMAIN-SUFFIX,do.dsp.mp.microsoft.com
+  - DOMAIN-SUFFIX,delivery.mp.microsoft.com
+  - DOMAIN-SUFFIX,windowsupdate.com
+  - DOMAIN-SUFFIX,update.microsoft.com
+  - DOMAIN-SUFFIX,api.cdp.microsoft.com
+  - DOMAIN-SUFFIX,definitionupdates.microsoft.com
+  - DOMAIN,tsfe.trafficshaping.dsp.mp.microsoft.com
+  - DOMAIN,adl.windows.com
+  - DOMAIN-SUFFIX,download.microsoft.com
+  - DOMAIN-SUFFIX,packages.microsoft.com
+
+  # Microsoft Store / Windows 激活、授权、设备服务
+  - DOMAIN-SUFFIX,licensing.mp.microsoft.com
+  - DOMAIN-SUFFIX,displaycatalog.mp.microsoft.com
+  - DOMAIN,storesdk.dsx.mp.microsoft.com
+  - DOMAIN-SUFFIX,storequality.microsoft.com
+  - DOMAIN,manage.devcenter.microsoft.com
+  - DOMAIN,activation.sls.microsoft.com
+  - DOMAIN,crl.microsoft.com
+  - DOMAIN,cs.dds.microsoft.com
+  - DOMAIN,dmd.metaservices.microsoft.com
+
+  # Windows 网络检测、账户认证、系统配置、诊断与推送
+  - DOMAIN-SUFFIX,msftconnecttest.com
+  - DOMAIN,login.live.com
+  - DOMAIN,login.microsoftonline.com
+  - DOMAIN-SUFFIX,data.microsoft.com
+  - DOMAIN-SUFFIX,telemetry.microsoft.com
+  - DOMAIN-SUFFIX,activity.windows.com
+  - DOMAIN-SUFFIX,notify.windows.com
+  - DOMAIN-SUFFIX,wns.windows.com
+  - DOMAIN,time.windows.com
+  - DOMAIN,wdcp.microsoft.com
+  - DOMAIN-SUFFIX,s-microsoft.com
+
+  # Edge / Microsoft 365 应用更新所使用的微软内容分发端点
+  - DOMAIN,edge.microsoft.com
+  - DOMAIN-SUFFIX,officecdn.microsoft.com
+  - DOMAIN-SUFFIX,cdn.office.net
+  - DOMAIN-SUFFIX,static.microsoft
+  - DOMAIN-SUFFIX,manage.microsoft.com
+  - DOMAIN,officeclient.microsoft.com
+  - DOMAIN,odc.officeapps.live.com
+  - DOMAIN,shellprod.msocdn.com
+
+  # ==========================================================
+  # Microsoft 365 operated by 21Vianet：中国区专用端点
+  # ==========================================================
+  - DOMAIN-SUFFIX,partner.outlook.cn
+  - DOMAIN-SUFFIX,office365-net.cn
+  - DOMAIN-SUFFIX,sharepoint.cn
+  - DOMAIN-SUFFIX,microsoftonline.cn
+  - DOMAIN-SUFFIX,office365.cn
+  - DOMAIN-SUFFIX,officewebapps.cn
+  - DOMAIN-SUFFIX,onmschina.cn
+  - DOMAIN-SUFFIX,partner.microsoftonline-p.cn
+  - DOMAIN-SUFFIX,partner.microsoftonline-m-i.net.cn
+  - DOMAIN-SUFFIX,partner.microsoftonline-m.net.cn
+  - DOMAIN-SUFFIX,partner.microsoftonline-p.net.cn
+  - DOMAIN-SUFFIX,msauth.cn
+  - DOMAIN-SUFFIX,msauthimages.cn
+  - DOMAIN-SUFFIX,msftauth.cn
+  - DOMAIN-SUFFIX,msftauthimages.cn
+  - DOMAIN-SUFFIX,auth.microsoft.cn
+  - DOMAIN-SUFFIX,aadrm.cn
+  - DOMAIN-SUFFIX,sovcloud.cn
+  - DOMAIN-SUFFIX,sovcloud-static.cn
+  - DOMAIN-SUFFIX,sovcloud-usercontent.cn
+  - DOMAIN-SUFFIX,sovcloud-mx.cn
+  - DOMAIN,portal.partner.microsoftonline.cdnsvc.com
+
+  # ==========================================================
+  # Azure / Entra / Graph：中国区（世纪互联）
+  # ==========================================================
+  - DOMAIN-SUFFIX,chinacloudapi.cn
+  - DOMAIN-SUFFIX,chinacloudapp.cn
+  - DOMAIN-SUFFIX,chinacloud-mobile.cn
+  - DOMAIN-SUFFIX,azure-mobile.cn
+  - DOMAIN-SUFFIX,windowsazure.cn
+  - DOMAIN-SUFFIX,azure.cn
+  - DOMAIN-SUFFIX,azurehdinsight.cn
+  - DOMAIN-SUFFIX,microservices.azure.cn
+  - DOMAIN-SUFFIX,azurecontainerapps-dev.cn
 
   # ----------------------------------------------------------
   # 新增规则示例（仅示例，默认注释，不会生效）
