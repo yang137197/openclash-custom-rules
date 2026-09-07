@@ -89,6 +89,15 @@ payload:
   # ----------------------------------------------------------
   # Microsoft Store / 激活 / 授权 / Windows 设备服务
   # ----------------------------------------------------------
+  # Store 前端、目录、图片/CDN 与 SDK。保持这些请求和下载/授权链路使用同一国内出口。
+  - DOMAIN,storeedge.microsoft.com
+  - DOMAIN,apps.microsoft.com
+  - DOMAIN,store-images.microsoft.com
+  - DOMAIN,images-eds-ssl.xboxlive.com
+  - DOMAIN,assets.onestore.ms
+  - DOMAIN,wcpstatic.microsoft.com
+  - DOMAIN,c1.microsoft.com
+  - DOMAIN,go.microsoft.com
   - DOMAIN,storesdk.dsx.mp.microsoft.com
   - DOMAIN,manage.devcenter.microsoft.com
   - DOMAIN,activation.sls.microsoft.com
