@@ -22,6 +22,8 @@
 - 不整体覆盖 OpenClash 自动生成的 `rule-providers`，避免再次破坏 `oc-cn-domain`。
 - 保持 RFC1918 私网显式 DIRECT。
 - `美国` 策略组保持手工 `select`，除非需求明确改变。
+- TikTok 固定走 `TikTok-ISP`；该组只收集本地模块注入的 `IPRoyal-US-ISP`，不得回落到机场节点。
+- IPRoyal 服务器、端口、用户名和密码只保存在 OpenClash 本地模块，禁止提交到本仓库。
 - 修改后按 `docs/CODEX-HANDOFF.md` 的验收清单验证。
 - 任何新的关键设计决定、已验证故障结论或例外规则，必须同步更新 `docs/CODEX-HANDOFF.md` 和必要的 `CHANGELOG.md`。
 

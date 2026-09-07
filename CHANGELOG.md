@@ -1,5 +1,15 @@
 # 项目更新日志
 
+## 2026-09-07：TikTok 固定使用本地 IPRoyal ISP
+
+- 新增 `TikTok-ISP` 手选组，只收集名称严格等于 `IPRoyal-US-ISP` 的本地 SOCKS5 节点。
+- `TikTok-ISP` 无节点时使用 `REJECT` 失败关闭，不回落到机场美国节点，避免 TikTok 账号混用出口。
+- `美国` 组显式排除 `IPRoyal-US-ISP`，普通 Google、GitHub、ChatGPT 等海外流量继续使用机场美国节点。
+- 新增 `TikTok-IPRoyal` 远程规则集，并同时保留 `GEOSITE,tiktok`，两者都位于 `Manual-Direct` 和中国大陆规则之前。
+- TikTok 域名的 Cloudflare/Google DoH 查询也通过 `TikTok-ISP`，使 DNS 与业务连接保持同一 IPRoyal 出口。
+- README 增加本地保密模块模板、双模块叠加边界、全设备适用范围和域名级分流限制。
+- IPRoyal 服务器、端口、用户名和密码不进入 GitHub；用户仅在 OpenClash 本地模块中维护。
+
 ## 2026-09-05：通用多人多设备重构
 
 - 将整体策略收敛为：局域网/私有地址直连、手工规则直连、中国大陆域名/IP直连、其余全部进入 `美国`。

@@ -11,10 +11,11 @@
 1. 局域网 / 私网 → `DIRECT`
 2. 中国大陆常规域名 / IP → `DIRECT`
 3. `Manual-Direct` 中指定的额外域名 → `DIRECT`
-4. OneDrive Consumer 网页 / 文件链路 → 强制 `美国`
-5. 其他未命中流量 → `美国`
-6. `美国` 为手工 `select`，固定用户手选节点，不自动切换
-7. 不按设备 IP、人员、MAC、手机型号写死规则
+4. TikTok → `TikTok-ISP` → OpenClash 本地模块中的 `IPRoyal-US-ISP`
+5. OneDrive Consumer 网页 / 文件链路 → 强制 `美国`
+6. 其他未命中流量 → `美国`
+7. `美国` 为手工 `select`，固定用户手选机场节点，不自动切换
+8. 不按设备 IP、人员、MAC、手机型号写死规则
 
 当前主配置：
 
@@ -52,6 +53,10 @@
 - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
 - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
 
+# TikTok 专用 ISP；早于所有直连/兜底规则
+- RULE-SET,TikTok-IPRoyal,TikTok-ISP
+- GEOSITE,tiktok,TikTok-ISP
+
 # OneDrive Consumer 例外：强制美国
 - DOMAIN-SUFFIX,onedrive.live.com,美国
 - DOMAIN-SUFFIX,onedrive.com,美国
@@ -73,7 +78,7 @@
 - MATCH,美国
 ```
 
-必须保持 OneDrive Consumer 的美国规则位于 `Manual-Direct` 和 `GEOSITE,cn` 之前，否则可能再次被直连规则抢先命中。
+必须保持 TikTok 规则位于 `Manual-Direct`、`GEOSITE,cn` 和最终 `MATCH` 之前；OneDrive Consumer 的美国规则仍须位于 `Manual-Direct` 和 `GEOSITE,cn` 之前。
 
 ## 4. 为什么显式写 RFC1918 私网
 
@@ -123,6 +128,8 @@
 ```
 
 国外 DNS 连接本身走 `美国`。
+
+TikTok 域名是例外：`geosite:tiktok` 和 `rule-set:TikTok-IPRoyal` 的 DNS 查询通过 `TikTok-ISP`，使解析与业务连接使用同一个 IPRoyal 出口。
 
 关键配置：
 
@@ -429,6 +436,19 @@ proxy: 美国
 
 这只影响 provider 文件下载路径，不改变 `Manual-Direct` 命中后的 `DIRECT` 行为。
 
+## 12.1 TikTok 与 IPRoyal 本地节点
+
+远程仓库只保存公开策略：
+
+- `TikTok-ISP` 通过 `include-all-proxies: true` 和精确 `filter` 收集 `IPRoyal-US-ISP`。
+- `empty-fallback: REJECT`，节点缺失或本地模块未启用时不回落机场。
+- `美国` 使用 `exclude-filter` 排除 `IPRoyal-US-ISP`。
+- `TikTok-IPRoyal` 与 `GEOSITE,tiktok` 共同识别 TikTok 域名。
+
+IPRoyal 的服务器、端口、用户名和密码只允许放在 OpenClash 本地覆写模块的 `proxies+` 中，不得写入 GitHub、日志、Issue 或截图。
+
+这一设计对所有经过该 OpenClash 网关并命中 TikTok 域名的设备统一生效。路由器看不到 Android 包名，只能按域名/IP分流；其他应用如使用相同字节海外共享域名，也可能进入 IPRoyal。设备使用移动数据、其他网关、自己的 VPN/代理或绕过 OpenClash 的 DNS 时不在保证范围内。
+
 ## 13. Codex 修改规则前必须先做的事
 
 每次新会话 / 新任务先读取：
@@ -447,6 +467,8 @@ proxy: 美国
 - 是否会整体覆盖 OpenClash 自动生成 provider？
 - 是否会把范围过大的全球域名强制 DIRECT？
 - 是否有日志证明当前规则确实误匹配，而不是建连 timeout？
+- 是否会把 IPRoyal 密钥或端点写入 GitHub？答案必须为否。
+- TikTok 规则是否仍早于 `Manual-Direct`、`GEOSITE,cn` 和最终 `MATCH`？
 
 原则：**先根据日志定位，再做最小修改。不要看到 timeout 就不断追加域名或重写 DNS。**
 
@@ -461,19 +483,22 @@ proxy: 美国
    not found rule-set
    ```
 3. `Manual-Direct` provider 更新成功。
-4. 私网访问 DIRECT。
-5. 中国常规网站命中 `GeoSite(cn)` / `GeoIP(cn)` → DIRECT。
-6. Google / GitHub / ChatGPT 等海外服务 → 美国。
-7. Microsoft Store 系统端点 → Manual-Direct / DIRECT。
-8. Microsoft Account 认证端点 → Manual-Direct / DIRECT。
-9. `onedrive.live.com` / `www.onedrive.live.com` → 美国。
-10. `gstatic.com` → 美国。
-11. 不要仅看瞬时 `0 B/s` 判断连接失败，应看累计上下行和实际应用表现。
+4. `TikTok-ISP` 只包含 `IPRoyal-US-ISP`，`美国` 不包含该节点。
+5. TikTok 域名 → `TikTok-ISP[IPRoyal-US-ISP]`，TikTok DNS 也走该组。
+6. 私网访问 DIRECT。
+7. 中国常规网站命中 `GeoSite(cn)` / `GeoIP(cn)` → DIRECT。
+8. Google / GitHub / ChatGPT 等海外服务 → 美国。
+9. Microsoft Store 系统端点 → Manual-Direct / DIRECT。
+10. Microsoft Account 认证端点 → Manual-Direct / DIRECT。
+11. `onedrive.live.com` / `www.onedrive.live.com` → 美国。
+12. `gstatic.com` → 美国。
+13. 不要仅看瞬时 `0 B/s` 判断连接失败，应看累计上下行和实际应用表现。
 
 ## 15. 当前已验证的关键结果
 
 2026-09-07：
 
+- TikTok 专用 IPRoyal 结构已纳入远程规则；凭证只保留在 OpenClash 本地模块。
 - OneDrive Consumer 强制美国后，规则命中已验证：
   ```text
   onedrive.live.com -> DomainSuffix(onedrive.live.com) -> 美国
