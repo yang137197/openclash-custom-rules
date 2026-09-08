@@ -1,5 +1,19 @@
 # 项目更新日志
 
+## 2026-09-08：“电脑远程开机卡控制”微信小程序直连
+
+- 根据实机日志，将误入 `MATCH → 美国` 的 `api.rmtsw.siwiot.com` 识别为小程序业务接口。
+- 四个独立 DNS 查询源一致返回中国大陆阿里云 IP；新增 `DOMAIN-SUFFIX,siwiot.com` 到 `Manual-Direct`。
+- 不写死当前 IP，确保服务端地址变化后仍按域名直连。
+- 未修改主规则、DNS、OneDrive、TikTok 或其他策略组。
+
+## 2026-09-08：TikTok / IPRoyal 实机验收
+
+- OpenClash 实机日志确认 TikTok 命中 `TikTok-IPRoyal → TikTok-ISP[IPRoyal-US-ISP]`。
+- CatWrt 对 IPRoyal SOCKS5 服务端口连续 5 次 TCP 建连成功，用户实测 TikTok 可正常联网。
+- 将当天早些时候的 `i/o timeout` 定性为已恢复的短暂建连波动；当前不增加链式代理，也不修改远程分流规则。
+- 真实 IPRoyal 端点及凭证仍只保存在 OpenClash 本地模块，未写入仓库。
+
 ## 2026-09-07：TikTok 固定使用本地 IPRoyal ISP
 
 - 新增 `TikTok-ISP` 手选组，只收集名称严格等于 `IPRoyal-US-ISP` 的本地 SOCKS5 节点。

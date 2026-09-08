@@ -1,5 +1,38 @@
 # 验收记录
 
+## 2026-09-08：“电脑远程开机卡控制”小程序直连修正
+
+### 日志证据
+
+- 客户端 `192.168.100.216` 打开小程序时，`servicewechat.com` 已命中 `GeoSite(cn) → DIRECT`。
+- 同一时间 `api.rmtsw.siwiot.com` 被最终 `MATCH` 规则送入 `美国`，并出现连续多次请求。
+- Google、Cloudflare、阿里和腾讯 DNS 当时均将该域名解析为 `121.41.129.200`；APNIC RDAP 标记为中国大陆 `ALISOFT` 网段。
+
+### 修改与静态验收
+
+- 在 `rules/manual-direct.yaml` 增加 `DOMAIN-SUFFIX,siwiot.com`，覆盖主域名及全部子域名。
+- 不增加固定 IP 规则，避免服务端迁移后规则失效。
+- 本次只修改 `Manual-Direct`，没有改动主 `rules!`、DNS、策略组、OneDrive 或 TikTok 规则。
+- 使用 Mihomo Meta `v1.19.30` 重新合并配置并执行 `mihomo -t`，配置校验成功。
+- 通过本地 Mihomo 发起请求，运行日志确认 `api.rmtsw.siwiot.com → RuleSet(Manual-Direct) → DIRECT`。
+- 更新远程规则后，仍需实机确认日志变为 `api.rmtsw.siwiot.com → RuleSet(Manual-Direct) → DIRECT`，并验证小程序恢复。
+
+## 2026-09-08：TikTok / IPRoyal 实机验收通过
+
+### 实机证据
+
+- OpenClash 运行日志确认 TikTok 域名命中 `RuleSet(TikTok-IPRoyal) → TikTok-ISP[IPRoyal-US-ISP]`，没有落入 `美国`、`DIRECT` 或其他机场节点。
+- CatWrt 对 IPRoyal SOCKS5 服务端口连续进行 5 次 TCP 建连测试，结果均为 `TCP OK`。
+- 用户在同一配置下实际打开 TikTok，联网、页面访问和使用均正常。
+- 验收记录不保存 IPRoyal 的服务器地址、端口、用户名或密码。
+
+### 结论
+
+- GitHub 远程覆写与 OpenClash 本地 `proxies+` 模块的叠加方式可用。
+- `TikTok-ISP` 对本地 `IPRoyal-US-ISP` 的节点收集、规则匹配和真实代理出口链路已完成实机验证。
+- 2026-09-08 09:04 左右曾出现连接 IPRoyal 端点的短暂 `i/o timeout`；随后 CatWrt 连续 5 次建连成功且 TikTok 恢复正常，因此当前证据更符合瞬时建连波动，不支持判定为规则或认证配置错误。
+- 当前无需增加 `dialer-proxy` 或修改远程规则。只有再次出现可稳定复现的持续超时，才继续对 IPRoyal 端点或公网路径做排查。
+
 ## 2026-09-07：TikTok 固定 IPRoyal ISP
 
 ### 验收范围

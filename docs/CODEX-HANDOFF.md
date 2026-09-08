@@ -2,7 +2,7 @@
 
 > 目的：让后续 Codex / AI 开发直接读取仓库即可理解当前设计、已验证行为、历史故障与维护边界，不依赖聊天上下文。
 >
-> 最后整理：2026-09-07
+> 最后整理：2026-09-08
 
 ## 1. 当前目标
 
@@ -167,6 +167,31 @@ example.com:443
 ```
 
 普通中国大陆网站不要重复大量加入 Manual-Direct，已有 `GEOSITE,cn` / `GEOIP,CN`。
+
+### 6.1 “电脑远程开机卡控制”微信小程序
+
+2026-09-08 实际日志显示：
+
+```text
+api.rmtsw.siwiot.com -> MATCH -> 美国
+servicewechat.com -> GeoSite(cn) -> DIRECT
+```
+
+因此微信基础链路正常，异常集中在小程序业务接口 `api.rmtsw.siwiot.com` 未进入大陆规则。Google、Cloudflare、阿里和腾讯四个 DNS 查询源当时均解析为 `121.41.129.200`，APNIC RDAP 将该地址标记为中国大陆 `ALISOFT` 网段。
+
+当前在 `Manual-Direct` 中维护：
+
+```yaml
+- DOMAIN-SUFFIX,siwiot.com
+```
+
+使用主域名后缀是为了同时覆盖当前接口和同一服务以后新增的子域名。不要写死 `121.41.129.200`；服务端 IP 可能变化。
+
+本地使用 Mihomo Meta `v1.19.30` 合并测试通过，模拟请求已确认：
+
+```text
+api.rmtsw.siwiot.com -> RuleSet(Manual-Direct) -> DIRECT
+```
 
 ## 7. Microsoft / Windows 的最终策略
 
@@ -448,6 +473,15 @@ proxy: 美国
 IPRoyal 的服务器、端口、用户名和密码只允许放在 OpenClash 本地覆写模块的 `proxies+` 中，不得写入 GitHub、日志、Issue 或截图。
 
 这一设计对所有经过该 OpenClash 网关并命中 TikTok 域名的设备统一生效。路由器看不到 Android 包名，只能按域名/IP分流；其他应用如使用相同字节海外共享域名，也可能进入 IPRoyal。设备使用移动数据、其他网关、自己的 VPN/代理或绕过 OpenClash 的 DNS 时不在保证范围内。
+
+### 2026-09-08 实机验收结论
+
+- OpenClash 日志确认 TikTok 连接命中 `RuleSet(TikTok-IPRoyal) → TikTok-ISP[IPRoyal-US-ISP]`。
+- CatWrt 对 IPRoyal SOCKS5 服务端口连续 5 次 TCP 建连均成功。
+- 用户实测 TikTok 可正常打开和联网，证明真实节点、认证、策略组与业务链路组合可用。
+- 当天较早日志曾出现短暂 `i/o timeout`，随后自行恢复；没有证据表明远程规则、TikTok 域名识别或本地节点格式存在错误。
+- 当前不增加 `dialer-proxy`，也不因一次短暂超时修改 DNS 或 TikTok 规则。后续只有在持续、可复现失败时才升级排查。
+- 仓库继续禁止记录真实 IPRoyal 服务器、端口和凭证。
 
 ## 13. Codex 修改规则前必须先做的事
 

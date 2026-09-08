@@ -50,6 +50,9 @@ payload:
   # 微信小程序业务域名；主域名及全部子域名直连。
   - DOMAIN-SUFFIX,gdwzy.top
 
+  # “电脑远程开机卡控制”微信小程序；覆盖 api.rmtsw.siwiot.com 及同站其他接口。
+  - DOMAIN-SUFFIX,siwiot.com
+
   # 奥智联数字钥匙：辽宁科大物联业务域名。
   - DOMAIN-SUFFIX,askdwl.com
 
