@@ -8,13 +8,13 @@
 
 | 项目 | 当前值 |
 |---|---|
-| Linux Kernel | `6.12.38` |
-| OpenClash | `0.47.156` |
-| Mihomo | `Mihomo Meta alpha-ge183c58 linux amd64 with go1.26.5 Mon Aug 10 14:33:14 UTC 2026` |
+| Linux 内核 | `6.12.38` |
+| OpenClash 版本 | `0.47.156` |
+| Mihomo 核心 | `Mihomo Meta alpha-ge183c58 linux amd64 with go1.26.5 Mon Aug 10 14:33:14 UTC 2026` |
 
 ## 2. 已实机验证的稳定基线
 
-| 项目 | UCI 参数 | 当前稳定值 | 原始值 |
+| 设置项目 | UCI 参数 | 当前稳定状态 | 保存值 |
 |---|---|---|---|
 | OpenClash 启用 | `openclash.config.enable` | **开启** | `1` |
 | 核心类型 | `openclash.config.core_type` | **Meta** | `Meta` |
@@ -28,16 +28,16 @@
 | 禁用 quic-go GSO | `openclash.config.disable_quic_go_gso` | **开启** | `1` |
 | TCP 并发 | `openclash.config.enable_tcp_concurrent` | **开启** | `1` |
 | 统一延迟 | `openclash.config.enable_unified_delay` | **开启** | `1` |
-| 流量/域名嗅探 | `openclash.config.enable_meta_sniffer` | **开启** | `1` |
-| 纯 IP 嗅探 | `openclash.config.enable_meta_sniffer_pure_ip` | **开启** | `1` |
-| 自定义嗅探 | `openclash.config.enable_meta_sniffer_custom` | **开启** | `1` |
+| 流量（域名）探测 / Sniffer | `openclash.config.enable_meta_sniffer` | **开启** | `1` |
+| 探测（嗅探）纯 IP 连接 | `openclash.config.enable_meta_sniffer_pure_ip` | **开启** | `1` |
+| 自定义嗅探设置 | `openclash.config.enable_meta_sniffer_custom` | **开启** | `1` |
 | IPv6 代理 | `openclash.config.ipv6_enable` | **关闭** | `0` |
 | IPv6 DNS | `openclash.config.ipv6_dns` | **关闭** | `0` |
 | DNS 重定向 | `openclash.config.enable_redirect_dns` | **开启** | `1` |
 | 自定义 DNS | `openclash.config.enable_custom_dns` | **开启** | `1` |
 | DNS 遵循规则 | `openclash.config.enable_respect_rules` | **开启** | `1` |
 | 追加 Default DNS | `openclash.config.append_default_dns` | **关闭** | `0` |
-| 追加 WAN DNS | `openclash.config.append_wan_dns` | **开启** | `1` |
+| 追加 WAN DNS | `openclash.config.append_wan_dns` | **最终未追加，以仓库覆写 `0` 为准** | `1`（本地 UCI 保存值） |
 | Fake-IP 缓存 | `openclash.config.store_fakeip` | **开启** | `1` |
 | 自定义 Fake-IP Filter | `openclash.config.custom_fakeip_filter` | **开启** | `1` |
 | Fake-IP Filter 模式 | `openclash.config.custom_fakeip_filter_mode` | **blacklist（黑名单）** | `blacklist` |
@@ -58,6 +58,7 @@ DNS 增强模式：Fake-IP
 QUIC（UDP/443）：禁用
 quic-go GSO：禁用
 TCP 并发：开启
+统一延迟：开启
 域名嗅探：开启
 纯 IP 嗅探：开启
 自定义嗅探：开启
@@ -66,6 +67,8 @@ IPv6 DNS：关闭
 DNS 重定向：开启
 自定义 DNS：开启
 DNS 遵循规则：开启
+追加 Default DNS：关闭
+追加 WAN DNS：最终不追加，以仓库覆写 APPEND_WAN_DNS=0 为准
 Fake-IP 缓存：开启
 Fake-IP Filter：开启 / blacklist
 ```
@@ -87,23 +90,35 @@ Fake-IP Filter：开启 / blacklist
 | Fake-IP（TUN-混合） | 微信/企业微信语音出现单向无声 |
 | Fake-IP（TUN） + System | 当前稳定基线 |
 
-## 5. 与仓库主覆写的一个差异
+## 5. “追加 WAN DNS”的最终记录
 
-当前 UCI 实际值为：
+路由器 UCI 中曾读取到：
 
 ```text
 append_wan_dns = 1
 ```
 
-而仓库当前 `overwrite/openclash-overwrite.conf` 中写的是：
+但实机最终生成的 `/etc/openclash/config.yaml` 中：
+
+```yaml
+nameserver:
+  - https://1.1.1.1/dns-query#美国
+  - https://8.8.8.8/dns-query#美国
+```
+
+没有出现上游网关 `192.168.5.1`，也没有出现 `dhcp://eth1`。因此当前实际运行结果是：**WAN DNS 没有被追加到 Mihomo 的 `nameserver`**。
+
+仓库远程覆写当前为：
 
 ```text
 APPEND_WAN_DNS = 0
 ```
 
-这两者目前不一致。由于当前实机已稳定，**不要仅为了统一文档而直接改动运行配置**。后续如要让仓库完整复现当前实机状态，应先确认 OpenClash 最终生成配置中 WAN DNS 是否实际被追加，再决定更新主覆写还是只保留为本地差异。
+所以以后重装或恢复时，**按仓库覆写的 `APPEND_WAN_DNS=0` 执行即可，不需要手工开启“追加 WAN DNS”**。UCI 中的 `1` 只作为当时本地保存值保留在原始快照中，不作为恢复目标。
 
 ## 6. 完整 OpenClash UCI 主设置快照（脱敏）
+
+> 本节是 2026-09-15 当时路由器 UCI 的原始脱敏快照，用于追溯。恢复时优先参考上面的“稳定基线”，不要机械照抄与最终生效配置冲突的本地保存值。
 
 ```text
 openclash.config.append_default_dns='0'
