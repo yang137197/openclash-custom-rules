@@ -1,5 +1,87 @@
 # OpenClash 通用分流覆写
 
+> **如果以后忘记 OpenClash 应该怎么设置，先看这里。**
+>
+> - 完整配置向导与全部脱敏参数：[docs/openclash-stable-settings.md](docs/openclash-stable-settings.md)
+> - 配置变更验收记录：[docs/acceptance-log.md](docs/acceptance-log.md)
+> - 安全导出当前设置：[scripts/export-openclash-settings.sh](scripts/export-openclash-settings.sh)
+>
+> 不要凭记忆重新选择运行模式、TUN、DNS、嗅探等参数；优先按下面这套已实机验证的稳定基线恢复。
+
+## OpenClash 配置向导（置顶）
+
+### 当前已实机验证的稳定参数
+
+验证日期：**2026-09-15**
+
+当前环境：
+
+- Linux 内核：`6.12.38`
+- OpenClash：`0.47.156`
+- Mihomo：`Meta alpha-ge183c58 linux amd64`
+
+| OpenClash 设置项目 | 当前稳定设置 |
+|---|---|
+| 运行模式 | **Fake-IP（TUN）** |
+| TUN 网络栈 | **System** |
+| 代理模式 | **Rule** |
+| DNS 增强模式 | **Fake-IP** |
+| 路由器本机代理 | **开启** |
+| 绕过中国大陆 IPv4 | **开启** |
+| 禁用 QUIC（UDP/443） | **开启** |
+| 禁用 quic-go GSO | **开启** |
+| TCP 并发 | **开启** |
+| 统一延迟 | **开启** |
+| 流量（域名）探测 / Sniffer | **开启** |
+| 探测（嗅探）纯 IP 连接 | **开启** |
+| 自定义嗅探设置 | **开启** |
+| IPv6 代理 | **关闭** |
+| IPv6 DNS | **关闭** |
+| DNS 重定向 | **开启** |
+| 自定义 DNS | **开启** |
+| DNS 遵循规则 | **开启** |
+| 追加 Default DNS | **关闭** |
+| Fake-IP 缓存 | **开启** |
+| 自定义 Fake-IP Filter | **开启** |
+| Fake-IP Filter 模式 | **blacklist（黑名单）** |
+| 仅代理命中规则流量 | **关闭** |
+| 旁路网关兼容模式 | **关闭** |
+| 跳过代理服务器地址 | **关闭** |
+| 自定义 Clash 规则 | **开启** |
+| 禁用 MASQ 缓存 | **开启** |
+
+**关于“追加 WAN DNS”**：路由器 UCI 曾保存为 `append_wan_dns=1`，但最终生成的 `/etc/openclash/config.yaml` 中 `dns.nameserver` 并没有追加 WAN DNS/上游网关；本仓库远程覆写仍保持 `APPEND_WAN_DNS=0`。因此恢复配置时以仓库覆写的 **不追加 WAN DNS** 为准，不需要单独把这一项改成开启。
+
+### 已验证正常
+
+- 京东商品图片连续加载正常，无明显白屏或卡顿。
+- 微信语音双向正常。
+- 企业微信语音双向正常。
+- 米家设备正常在线和使用。
+- 中国大陆常规流量正常 `DIRECT`。
+- Google / GitHub / YouTube / ChatGPT 等海外流量正常进入 `美国`。
+- `Manual-Direct`、TikTok 专用分流和局域网私网直连规则均按当前仓库设计工作。
+
+### 已知不要随意切回的组合
+
+| 运行组合 | 实机出现过的问题 |
+|---|---|
+| Fake-IP（增强） | 京东商品图片加载卡顿、白屏 |
+| Fake-IP（TUN-混合） | 微信/企业微信语音接通后，对方听不到本端声音 |
+| **Fake-IP（TUN）+ System** | **当前稳定基线** |
+
+### 重装 / 重置后的恢复顺序
+
+1. 安装并启动 OpenClash。
+2. 按本节表格恢复 OpenClash 运行参数。
+3. 在“覆写设置 → 模块设置”中启用本仓库远程覆写。
+4. 如果需要 TikTok 专用 IPRoyal 出口，再启用本地 `IPRoyal-US-ISP` 模块；凭证只保存在路由器本地。
+5. 更新覆写模块，应用配置并重启 OpenClash。
+6. 至少测试：京东商品图片、微信语音、企业微信语音、米家、国内网站、Google/GitHub/ChatGPT。
+7. 如果要逐项核对 UCI 原始值，打开 [docs/openclash-stable-settings.md](docs/openclash-stable-settings.md)。
+
+---
+
 本仓库用于 OpenClash Meta/Mihomo，目标是保持规则简单、可验证、多人多设备可复用。
 
 当前策略有四类：
@@ -490,12 +572,15 @@ DNS 主结构
 openclash-custom-rules/
 ├── README.md
 ├── CHANGELOG.md
+├── scripts/
+│   └── export-openclash-settings.sh
 ├── overwrite/
 │   └── openclash-overwrite.conf
 ├── rules/
 │   ├── manual-direct.yaml
 │   └── tiktok-iproyal.yaml
 └── docs/
+    ├── openclash-stable-settings.md
     ├── CODEX-HANDOFF.md
     └── acceptance-log.md
 ```
