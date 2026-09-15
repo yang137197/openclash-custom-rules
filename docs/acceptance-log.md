@@ -1,5 +1,47 @@
 # 验收记录
 
+## 2026-09-15：当前稳定 OpenClash 实机基线
+
+### 实机环境
+
+- CatWrt / Linux Kernel：`6.12.38`
+- OpenClash：`0.47.156`
+- Mihomo：`Meta alpha-ge183c58 linux amd64`
+- 运行模式：`fake-ip-tun`
+- TUN 网络栈：`system`
+- 代理模式：`rule`
+- 中国大陆 IPv4 绕过：开启
+- QUIC UDP/443：禁用
+- quic-go GSO：禁用
+- IPv6 / IPv6 DNS：关闭
+- Sniffer、Pure-IP Sniffer、自定义 Sniffer：开启
+- Fake-IP 缓存：开启
+
+完整脱敏 UCI 快照见 `docs/openclash-stable-settings.md`。
+
+### 实机功能验收
+
+- 京东商品图片连续加载正常，无此前增强模式下的明显卡顿/白屏。
+- 微信语音双向正常。
+- 企业微信语音双向正常。
+- 米家设备正常在线和使用。
+- 日志中中国大陆常规域名/IP 正常命中 `DIRECT`。
+- `Manual-Direct` 规则正常命中 `DIRECT`。
+- Google / GitHub / YouTube / ChatGPT 等海外流量正常进入 `美国` 策略组。
+- 本次检查的 1002 行运行日志中只发现 1 条 Microsoft `Manual-Direct` 瞬时 `i/o timeout`，同域名随后正常重新连接；没有证据支持判定为规则或持续网络故障。
+
+### 历史 A/B 结论
+
+- `Fake-IP（增强）`：曾复现京东商品图片加载卡顿/白屏。
+- `Fake-IP（TUN-混合）`：曾复现微信/企业微信语音接通后对方听不到本端声音。
+- `Fake-IP（TUN） + System`：当前稳定基线，现阶段不要无依据切回前两种组合。
+
+### 配置差异提醒
+
+- 当前实机 UCI：`append_wan_dns=1`。
+- 仓库远程主覆写：`APPEND_WAN_DNS=0`。
+- 当前实机已稳定，因此暂不为“配置一致”而直接改动运行环境；后续需先检查 OpenClash 最终生成 DNS 配置，再决定是否同步主覆写。
+
 ## 2026-09-08：“电脑远程开机卡控制”小程序直连修正
 
 ### 日志证据
