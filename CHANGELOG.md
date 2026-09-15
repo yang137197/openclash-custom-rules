@@ -1,5 +1,15 @@
 # 项目更新日志
 
+## 2026-09-15：记录当前稳定 OpenClash 实机参数
+
+- 新增 `docs/openclash-stable-settings.md`，记录 2026-09-15 当前稳定实机基线、完整脱敏 UCI 主设置、历史不稳定组合和恢复后的最低验收。
+- 当前实机基线为 `Fake-IP（TUN） + System + Rule`，开启中国大陆 IPv4 绕过、禁用 QUIC UDP/443、禁用 quic-go GSO，IPv6 与 IPv6 DNS 关闭。
+- 当前实机已验证京东商品图片、微信语音、企业微信语音、米家设备正常；国内规则正常 `DIRECT`，海外流量正常进入 `美国`。
+- 历史实测：`Fake-IP（增强）` 曾出现京东商品图片卡顿/白屏；`Fake-IP（TUN-混合）` 曾出现微信/企业微信语音单向无声，因此当前不默认恢复这两种组合。
+- 新增 `scripts/export-openclash-settings.sh`，用于安全导出 `openclash.config.*` 设置并自动隐藏常见敏感字段。
+- `AGENTS.md` 增加稳定参数文档为 AI/Codex 必读资料，并补充公开仓库的敏感信息边界。
+- 发现当前实机 `append_wan_dns=1`，而远程主覆写仍为 `APPEND_WAN_DNS=0`；暂不为了统一而修改已稳定运行配置，后续先核对最终生成 DNS 配置再决定是否同步主覆写。
+
 ## 2026-09-08：“电脑远程开机卡控制”微信小程序直连
 
 - 根据实机日志，将误入 `MATCH → 美国` 的 `api.rmtsw.siwiot.com` 识别为小程序业务接口。
@@ -10,7 +20,7 @@
 ## 2026-09-08：TikTok / IPRoyal 实机验收
 
 - OpenClash 实机日志确认 TikTok 命中 `TikTok-IPRoyal → TikTok-ISP[IPRoyal-US-ISP]`。
-- CatWrt 对 IPRoyal SOCKS5 服务端口连续 5 次 TCP 建连成功，用户实测 TikTok 可正常联网。
+- CatWrt 对 IPRoyal SOCKS5 服务端口连续进行 5 次 TCP 建连成功，用户实测 TikTok 可正常联网。
 - 将当天早些时候的 `i/o timeout` 定性为已恢复的短暂建连波动；当前不增加链式代理，也不修改远程分流规则。
 - 真实 IPRoyal 端点及凭证仍只保存在 OpenClash 本地模块，未写入仓库。
 
@@ -27,7 +37,7 @@
 ## 2026-09-05：通用多人多设备重构
 
 - 将整体策略收敛为：局域网/私有地址直连、手工规则直连、中国大陆域名/IP直连、其余全部进入 `美国`。
-- `美国` 从 `url-test` 改为 `select`，由用户手动选择美国节点，不再自动切换出口。
+- `美国` 从 `url-test` 改为 `select`，由用户手动选择节点，不再自动切换出口。
 - 非美国节点仍保留在订阅底层，但不进入任何策略组，也不会被规则使用。
 - 将手工直连规则集统一命名为 `Manual-Direct`，对应 `rules/manual-direct.yaml`。
 - 删除会整体覆盖 `rule-providers` 的 `[Overwrite]` Ruby 逻辑，避免删除 OpenClash 自动生成的 `oc-cn-domain` 等内部 provider。
