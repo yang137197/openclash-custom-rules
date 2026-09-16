@@ -1,119 +1,79 @@
-# OpenClash 通用分流覆写
+# OpenClash 最小可维护分流
 
-> **如果以后忘记 OpenClash 应该怎么设置，先看这里。**
->
-> - 完整配置向导与全部脱敏参数：[docs/openclash-stable-settings.md](docs/openclash-stable-settings.md)
-> - 配置变更验收记录：[docs/acceptance-log.md](docs/acceptance-log.md)
-> - 安全导出当前设置：[scripts/export-openclash-settings.sh](scripts/export-openclash-settings.sh)
->
-> 不要凭记忆重新选择运行模式、TUN、DNS、嗅探等参数；优先按下面这套已实机验证的稳定基线恢复。
+本仓库只保留实际配置与规则说明，目标如下：
 
-## OpenClash 配置向导（置顶）
+1. TikTok 域名只走 IPRoyal ISP。
+2. 其他国外流量走手工选择的机场美国节点。
+3. 中国大陆域名/IP直连。
+4. `Manual-Direct` 中长期维护的例外域名直连。
+5. 局域网和私有地址直连。
 
-### 当前已实机验证的稳定参数
-
-验证日期：**2026-09-15**
-
-当前环境：
-
-- Linux 内核：`6.12.38`
-- OpenClash：`0.47.156`
-- Mihomo：`Meta alpha-ge183c58 linux amd64`
-
-| OpenClash 设置项目 | 当前稳定设置 |
-|---|---|
-| 运行模式 | **Fake-IP（TUN）** |
-| TUN 网络栈 | **System** |
-| 代理模式 | **Rule** |
-| DNS 增强模式 | **Fake-IP** |
-| 路由器本机代理 | **开启** |
-| 绕过中国大陆 IPv4 | **开启** |
-| 禁用 QUIC（UDP/443） | **开启** |
-| 禁用 quic-go GSO | **开启** |
-| TCP 并发 | **开启** |
-| 统一延迟 | **开启** |
-| 流量（域名）探测 / Sniffer | **开启** |
-| 探测（嗅探）纯 IP 连接 | **开启** |
-| 自定义嗅探设置 | **开启** |
-| IPv6 代理 | **关闭** |
-| IPv6 DNS | **关闭** |
-| DNS 重定向 | **开启** |
-| 自定义 DNS | **开启** |
-| DNS 遵循规则 | **开启** |
-| 追加 Default DNS | **关闭** |
-| Fake-IP 缓存 | **开启** |
-| 自定义 Fake-IP Filter | **开启** |
-| Fake-IP Filter 模式 | **blacklist（黑名单）** |
-| 仅代理命中规则流量 | **关闭** |
-| 旁路网关兼容模式 | **关闭** |
-| 跳过代理服务器地址 | **关闭** |
-| 自定义 Clash 规则 | **开启** |
-| 禁用 MASQ 缓存 | **开启** |
-
-**关于“追加 WAN DNS”**：路由器 UCI 曾保存为 `append_wan_dns=1`，但最终生成的 `/etc/openclash/config.yaml` 中 `dns.nameserver` 并没有追加 WAN DNS/上游网关；本仓库远程覆写仍保持 `APPEND_WAN_DNS=0`。因此恢复配置时以仓库覆写的 **不追加 WAN DNS** 为准，不需要单独把这一项改成开启。
-
-### 已验证正常
-
-- 京东商品图片连续加载正常，无明显白屏或卡顿。
-- 微信语音双向正常。
-- 企业微信语音双向正常。
-- 米家设备正常在线和使用。
-- 中国大陆常规流量正常 `DIRECT`。
-- Google / GitHub / YouTube / ChatGPT 等海外流量正常进入 `美国`。
-- `Manual-Direct`、TikTok 专用分流和局域网私网直连规则均按当前仓库设计工作。
-
-### 已知不要随意切回的组合
-
-| 运行组合 | 实机出现过的问题 |
-|---|---|
-| Fake-IP（增强） | 京东商品图片加载卡顿、白屏 |
-| Fake-IP（TUN-混合） | 微信/企业微信语音接通后，对方听不到本端声音 |
-| **Fake-IP（TUN）+ System** | **当前稳定基线** |
-
-### 重装 / 重置后的恢复顺序
-
-1. 安装并启动 OpenClash。
-2. 按本节表格恢复 OpenClash 运行参数。
-3. 在“覆写设置 → 模块设置”中启用本仓库远程覆写。
-4. 如果需要 TikTok 专用 IPRoyal 出口，再启用本地 `IPRoyal-US-ISP` 模块；凭证只保存在路由器本地。
-5. 更新覆写模块，应用配置并重启 OpenClash。
-6. 至少测试：京东商品图片、微信语音、企业微信语音、米家、国内网站、Google/GitHub/ChatGPT。
-7. 如果要逐项核对 UCI 原始值，打开 [docs/openclash-stable-settings.md](docs/openclash-stable-settings.md)。
-
----
-
-本仓库用于 OpenClash Meta/Mihomo，目标是保持规则简单、可验证、多人多设备可复用。
-
-当前策略有四类：
-
-1. 中国大陆域名/IP → `DIRECT`
-2. 手工指定的额外直连域名 → `DIRECT`
-3. TikTok → `TikTok-ISP` → 本地 IPRoyal ISP 节点
-4. 其他所有流量 → `美国`
-
-`美国` 为手动选择策略组，只展示订阅中的美国节点，并明确排除 IPRoyal 节点。`TikTok-ISP` 只接受本地模块注入、名称为 `IPRoyal-US-ISP` 的节点；该节点缺失时 TikTok 失败关闭，不回落到机场节点。
-
----
-
-## 1. 覆写地址
+## 仓库文件
 
 ```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwrite/openclash-overwrite.conf
+README.md
+overwrite/openclash-overwrite.conf
+rules/manual-direct.yaml
 ```
 
-OpenClash 中：
+- `openclash-overwrite.conf`：策略组、DNS、运行参数和规则顺序。
+- `manual-direct.yaml`：用户手工维护的直连域名，必须保留。
+- TikTok 不再维护重复的自定义规则文件，统一使用持续更新的 `GEOSITE,tiktok`。
 
-1. 进入“覆写设置 → 模块设置”
-2. 保留并启用上面的远程覆写地址
-3. 如果使用 TikTok 专用出口，再启用下一节的一个本地 IPRoyal 节点模块
-4. 更新覆写模块
-5. 应用配置并重启 OpenClash
+## 为什么使用 Meta
 
-远程模块和本地 IPRoyal 模块可以叠加，不是二选一：远程模块负责 `proxy-groups!`、`rules!`、DNS 和规则提供者；本地模块只用 `proxies+` 添加保密节点。不要再叠加其他会修改 `proxy-groups`、`rules`、`rule-providers` 的完整覆写模块，否则执行顺序可能改变最终结果。
+`Meta` 即 Mihomo。本配置依赖它支持的：
 
-### 本地 IPRoyal 模块
+- `GEOSITE,tiktok`、`GEOSITE,cn`、`GEOIP,CN`；
+- `include-all`、`filter`、`exclude-filter`；
+- `empty-fallback: REJECT`，保证错误出口不静默回退；
+- SOCKS5 TCP/UDP；
+- `respect-rules` 与按策略组发起的 DNS 查询。
 
-在 OpenClash 新建一个本地覆写模块，内容如下。服务器、端口、用户名和密码只填写在路由器本地，禁止提交到 GitHub：
+不使用 Smart：本需求强调固定、可预测的出口，不需要模型自动切换节点。`美国`保持手工 `select`；`TikTok-ISP`只接受名称严格等于 `IPRoyal-US-ISP` 的节点。
+
+## 推荐运行设置
+
+主覆写已固定下列关键值：
+
+| 设置 | 推荐值 |
+| --- | --- |
+| 核心 | Meta |
+| 运行模式 | Fake-IP（TUN） |
+| TUN 网络栈 | System |
+| 代理模式 | Rule |
+| 路由器本机代理 | 开启 |
+| 绕过中国大陆 IPv4 | 开启 |
+| QUIC UDP/443 | 禁用 |
+| quic-go GSO | 禁用 |
+| TCP 并发、统一延迟 | 开启 |
+| 域名、纯 IP、自定义嗅探 | 开启 |
+| DNS 重定向、自定义 DNS、respect-rules | 开启 |
+| 追加 Default/WAN DNS | 关闭 |
+| Fake-IP 缓存、Fake-IP Filter | 开启，blacklist |
+| IPv6代理、IPv6 DNS | 关闭 |
+
+不要改成 Fake-IP（增强）或 Fake-IP（TUN混合）。本机稳定组合是 `Fake-IP（TUN）+ System`。
+
+## 安装与启用
+
+1. 在 OpenClash 添加机场订阅并设为当前配置。
+2. 在“覆写设置 → 模块设置”添加并启用：
+
+   ```text
+   https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwrite/openclash-overwrite.conf
+   ```
+
+3. 适用配置只选择当前机场配置。
+4. 再启用下面的本地 IPRoyal 模块。
+5. 更新覆写，应用配置并重启 OpenClash。
+6. 在`美国`组手工选择一个机场美国节点。
+
+不要叠加其他会修改 `rules`、`proxy-groups`、`rule-providers` 或 DNS 的完整覆写模块。
+
+## 本地 IPRoyal 模块
+
+IPRoyal 地址和凭证只保存在路由器本地：
 
 ```yaml
 [YAML]
@@ -121,468 +81,98 @@ OpenClash 中：
 proxies+:
   - name: IPRoyal-US-ISP
     type: socks5
-    server: "你的 IPRoyal 服务器"
-    port: 你的端口
-    username: "你的用户名"
-    password: "你的密码"
+    server: "IPRoyal 面板显示的服务器或 IP"
+    port: SOCKS5端口
+    username: "用户名"
+    password: "密码"
     udp: true
     ip-version: ipv4
 ```
 
-节点名称 `IPRoyal-US-ISP` 必须完全一致，包括大小写和连字符。保存后同时启用远程模块和这个本地模块，再应用配置并重启。
+要求：
 
-本地模块不要添加 `rules!`、`proxy-groups!`、DNS 或 `rule-providers!`。这些内容由远程模块统一维护。
+- 节点名称必须严格为 `IPRoyal-US-ISP`。
+- 不得把服务器、端口、用户名、密码提交到仓库、聊天、日志或截图。
+- 本地模块不要添加规则、DNS或策略组。
 
----
-
-## 2. 最终分流逻辑
-
-规则按从上到下顺序匹配，第一条命中后停止。
+## 最终规则顺序
 
 ```text
-局域网 / 私有域名 / RFC1918 私有 IP
-        ↓ 命中
-      DIRECT
-
-未命中
-        ↓
-TikTok 域名
-        ↓ 命中
-TikTok-ISP → IPRoyal-US-ISP
-
-未命中
-        ↓
-Manual-Direct 手工直连规则
-        ↓ 命中
-      DIRECT
-
-未命中
-        ↓
-中国大陆域名 GEOSITE,cn
-        ↓ 命中
-      DIRECT
-
-未命中
-        ↓
-中国大陆 IP GEOIP,CN
-        ↓ 命中
-      DIRECT
-
-仍未命中
-        ↓
-     MATCH,美国
-        ↓
-手工选择的美国节点
+私网/LAN                         -> DIRECT
+TikTok GeoSite                  -> TikTok-ISP -> IPRoyal-US-ISP
+OneDrive Consumer、Google Play  -> 美国
+Manual-Direct                   -> DIRECT
+中国大陆域名/IP                 -> DIRECT
+其他所有流量                    -> 美国
 ```
 
-主规则：
+IPRoyal 不存在时 TikTok 进入 `REJECT`；美国组没有合格节点时其他国外流量也进入 `REJECT`。两者都不会静默直连或使用错误地区节点。
 
-```yaml
-rules:
-  - GEOSITE,private,DIRECT
-  - GEOIP,private,DIRECT,no-resolve
+## 维护直连域名
 
-  # RFC1918 私网显式直连，不只依赖 GEOIP,private
-  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
-  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
-  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-
-  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
-  - IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
-  - IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
-  - IP-CIDR6,::1/128,DIRECT,no-resolve
-  - IP-CIDR6,fc00::/7,DIRECT,no-resolve
-  - IP-CIDR6,fe80::/10,DIRECT,no-resolve
-  - IP-CIDR6,ff00::/8,DIRECT,no-resolve
-
-  - RULE-SET,TikTok-IPRoyal,TikTok-ISP
-  - GEOSITE,tiktok,TikTok-ISP
-  - RULE-SET,Manual-Direct,DIRECT
-  - GEOSITE,cn,DIRECT
-  - GEOIP,CN,DIRECT,no-resolve
-  - MATCH,美国
-```
-
-为什么显式写 `10/8`、`172.16/12`、`192.168/16`：实际运行日志曾出现 `192.168.100.1:53` 没有命中 `GEOIP,private`，最终落入 `MATCH,美国`。因此现在对 RFC1918 私网采用明确 CIDR 规则，确保局域网 DNS、PVE、NAS、WireGuard 等私网目标必定 `DIRECT`。
-
----
-
-## 3. `RULE-SET,Manual-Direct,DIRECT` 是什么
-
-这一条：
-
-```yaml
-- RULE-SET,Manual-Direct,DIRECT
-```
-
-意思是：
-
-- `RULE-SET`：调用一个规则集
-- `Manual-Direct`：规则集名称
-- `DIRECT`：命中后直接连接，不经过代理
-
-`Manual-Direct` 对应本仓库：
+以后需要增加直连例外，只修改：
 
 ```text
 rules/manual-direct.yaml
 ```
 
-以后想增加“必须直连”的网站，只修改这个文件，不需要改主配置。
-
----
-
-## 4. 如何新增手工直连域名
-
-文件：
-
-```text
-rules/manual-direct.yaml
-```
-
-### 推荐写法：`DOMAIN-SUFFIX`
-
-```yaml
-payload:
-  - DOMAIN-SUFFIX,example.com
-```
-
-会匹配：
-
-```text
-example.com
-www.example.com
-api.example.com
-任意其他子域名.example.com
-```
-
-这是最推荐的写法。
-
-### 只匹配一个完整域名：`DOMAIN`
-
-```yaml
-payload:
-  - DOMAIN,api.example.com
-```
-
-只匹配：
-
-```text
-api.example.com
-```
-
-不会匹配：
-
-```text
-www.example.com
-example.com
-```
-
-### 关键词匹配：`DOMAIN-KEYWORD`
-
-```yaml
-payload:
-  - DOMAIN-KEYWORD,example
-```
-
-域名中包含 `example` 就可能被匹配。
-
-这种方式容易误伤，不建议日常使用。
-
-### 错误写法
-
-不要写：
-
-```text
-https://example.com
-http://example.com/path
-example.com:443
-https://example.com?a=1
-```
-
-规则中只写域名，不写协议、路径、端口和参数。
-
----
-
-## 5. TikTok 与美国策略组
-
-### TikTok-ISP
-
-`TikTok-ISP` 通过精确节点名只收集 `IPRoyal-US-ISP`。它不包含 `美国` 作为备用；IPRoyal 不可用时 TikTok 会失败，避免同一个账号在 IPRoyal 和机场出口之间切换。
-
-TikTok 同时使用：
-
-- `GEOSITE,tiktok`
-- `rules/tiktok-iproyal.yaml` 补充域名
-- TikTok 专用海外 DNS，并通过 `TikTok-ISP` 发出查询
-
-路由器只能看到来源设备、目标域名/IP和端口，看不到安卓内部的应用包名。因此这里的“TikTok 专用”是域名级分流：命中 TikTok 域名的所有设备都会走 IPRoyal；其他应用如果调用同一个字节海外共享域名，也会走 IPRoyal。若要求严格按安卓包名隔离，只能在安卓设备上使用支持按应用选择的 VPN/代理客户端。
-
-### 美国
-
-当前策略组：
-
-```yaml
-- name: 美国
-  type: select
-  include-all: true
-```
-
-`select` 表示手动选择节点。这样可以固定出口，不会因为延迟波动自动切换美国节点。
-
-适合 Google、ChatGPT 和其他海外服务。TikTok 不再进入本组。
-
-本仓库采用：
-
-```text
-可以测速
-但不自动切换
-```
-
-订阅中日本、香港、新加坡、台湾、欧洲等节点仍保留在底层 `proxies`，但不进入 `美国` 策略组、不被规则引用、实际不会产生流量。`IPRoyal-US-ISP` 虽然名称含 `US`，也通过 `exclude-filter` 从本组排除。
-
----
-
-## 6. 美国节点筛选
-
-当前通过节点名称筛选美国节点，匹配常见名称：
-
-```text
-美国
-美國
-US
-USA
-United States
-America
-Los Angeles
-San Jose
-Seattle
-New York
-Chicago
-Dallas
-```
-
-如果机场未来修改美国节点命名，只需要修改 `overwrite/openclash-overwrite.conf` 中的 `filter`。
-
----
-
-## 7. 中国大陆直连
-
-域名：
-
-```yaml
-- GEOSITE,cn,DIRECT
-```
-
-IP：
-
-```yaml
-- GEOIP,CN,DIRECT,no-resolve
-```
-
-中国大陆常规网站无需重复加入 `manual-direct.yaml`。
-
----
-
-## 8. 局域网与回流
-
-局域网/私网规则优先于所有代理规则。
-
-### RFC1918 IPv4 私网
-
-```yaml
-- IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
-- IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
-- IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-```
-
-分别覆盖：
-
-```text
-10.0.0.0 - 10.255.255.255
-172.16.0.0 - 172.31.255.255
-192.168.0.0 - 192.168.255.255
-```
-
-这些规则确保：
-
-- 路由器/DNS 私网地址直连
-- PVE / NAS / Home Assistant 等内网服务直连
-- WireGuard 私网地址直连
-- 跨网段访问不会落入美国代理
-- 降低 NAT 回流和局域网访问异常概率
-
-同时继续保留：
-
-```yaml
-- GEOSITE,private,DIRECT
-- GEOIP,private,DIRECT,no-resolve
-```
-
-它们作为额外的私有域名/地址识别层，但不再作为 RFC1918 的唯一保障。
-
----
-
-## 9. Fake-IP 与回流域名
-
-当前 `fake-ip-filter+` 追加：
-
-```text
-+.lan
-+.local
-+.home.arpa
-localhost
-pve.yangnas.cn
-auth.yangnas.cn
-nexus.yangnas.cn
-```
-
-这些域名返回真实 IP。
-
-其中自建域名同时存在于 `Manual-Direct` 时，即实现：
-
-```text
-真实 DNS + 明确 DIRECT
-```
-
-`fake-ip-filter` 解决的是“返回真实 IP”问题，是否 `DIRECT` 仍由主规则决定。
-
----
-
-## 10. `oc-cn-domain` 为什么不能删除
-
-OpenClash 某些设置会自动生成：
-
-```text
-oc-cn-domain
-```
-
-并在 Fake-IP 过滤中引用：
-
-```yaml
-rule-set:oc-cn-domain
-```
-
-因此本仓库只增加 `Manual-Direct`，不会整体覆盖 `rule-providers`，避免再次出现：
-
-```text
-Parse config error: not found rule-set: oc-cn-domain
-```
-
----
-
-## 11. DNS 策略
-
-中国大陆 / 私有域名使用：
-
-```text
-223.5.5.5
-1.12.12.12
-```
-
-国外域名使用：
-
-```text
-1.1.1.1
-8.8.8.8
-```
-
-普通国外 DNS 连接通过 `美国`；TikTok 域名的 DNS 查询单独通过 `TikTok-ISP`，使解析和业务连接保持同一 IPRoyal 出口。
-
-`respect-rules: true` 表示 DNS 上游连接本身也遵循分流规则。
-
----
-
-## 12. 多人多设备复用原则
-
-本仓库不按设备 IP、手机型号、用户名、MAC 地址、个人策略写死规则，因此同一局域网中的手机、Windows、Mac、平板、NAS、PVE 虚拟机、智能设备都可共用。凡是通过这台 OpenClash 网关联网并命中 TikTok 域名的设备，都会使用同一个 IPRoyal ISP。
-
-以下流量不受保证：设备改用移动数据、另一个默认网关、设备自己的 VPN/代理或未被 OpenClash 接管的加密 DNS；以及规则库尚未识别的新 TikTok 域名。
-
-如果以后确实需要某台设备固定日本或固定美国，应单独设计设备分流层，不污染当前通用主规则。
-
----
-
-## 13. 日常维护
-
-### 新增必须直连的网站
-
-只修改：
-
-```text
-rules/manual-direct.yaml
-```
-
-优先：
+优先使用：
 
 ```yaml
 - DOMAIN-SUFFIX,example.com
 ```
 
-### 美国节点没有被识别
+只有需要匹配单个完整域名时使用：
 
-修改主覆写中的 `filter`。
-
-### TikTok 没有走 IPRoyal
-
-依次检查：本地模块已启用、节点名称严格等于 `IPRoyal-US-ISP`、`TikTok-ISP` 组中只有该节点、日志命中 `TikTok-IPRoyal` 或 `GeoSite(tiktok)`。不要把 IPRoyal 用户名或密码发到 GitHub Issue、截图或日志中。
-
-### 新增局域网回流域名
-
-加入 `fake-ip-filter+`；如果要求无论解析到内网还是公网都必须直连，同时加入 `Manual-Direct`。
-
-不要随意整体替换：
-
-```text
-rule-providers
-rules!
-proxy-groups!
-DNS 主结构
+```yaml
+- DOMAIN,api.example.com
 ```
 
----
+不要写协议、路径、端口或参数，也不要增加过宽的全球域名后缀。普通中国大陆网站已经由 `GEOSITE,cn` / `GEOIP,CN` 处理，不需要重复加入。
 
-## 14. 验收方法
+`Manual-Direct` 通过 `behavior: classical` 加载，每天更新一次。主覆写只追加它，不整体覆盖 OpenClash 自动生成的 provider。
 
-更新覆写并重启 OpenClash 后：
+## Geo 数据更新
 
-1. 日志不能出现 `Parse config error` / `not found rule-set`。
-2. `TikTok-ISP` 中只能出现 `IPRoyal-US-ISP`；`美国` 组不得出现它。
-3. TikTok 域名应命中 `TikTok-IPRoyal` 或 `GeoSite(tiktok)` → `TikTok-ISP[IPRoyal-US-ISP]`。
-4. `美国` 策略组只展示机场美国节点，并由用户手工选择。
-5. 中国网站应命中 `GeoSite(cn)` 或 `GeoIP(cn)` → `DIRECT`。
-6. 其他国外网站应命中 `MATCH` → `美国`。
-7. `manual-direct.yaml` 域名应命中 `Manual-Direct` → `DIRECT`。
-8. 局域网 DNS、路由器、PVE、NAS、WireGuard 私网地址必须 `DIRECT`。
+主覆写每周更新中国大陆路由、GeoIP 和 GeoSite 数据。TikTok 使用上游 `GEOSITE,tiktok`，避免自定义 `.snssdk.com` 等共享字节域名误伤国内抖音。
 
-特别检查：
+如果日志确认一个新的 TikTok 域名漏到`美国`，先核对 GeoSite 更新是否成功；不要直接添加宽泛关键词规则。
+
+## 验收
+
+启动日志不得出现：
 
 ```text
-192.168.x.x:53
-10.x.x.x
-172.16-31.x.x
+Parse config error
+not found rule-set
+not found proxy
 ```
 
-这些目标不应再显示 `Match using 美国`。
+必须确认：
 
----
+1. `TikTok-ISP`只有`IPRoyal-US-ISP`。
+2. `美国`只有机场美国节点，不含 IPRoyal。
+3. TikTok → `GeoSite(tiktok)` → `TikTok-ISP[IPRoyal-US-ISP]`。
+4. `manual-direct.yaml`中的域名 → `Manual-Direct` → `DIRECT`。
+5. 中国大陆网站 → `GeoSite(cn)` / `GeoIP(CN)` → `DIRECT`。
+6. Google、GitHub、ChatGPT等 → `美国`。
+7. OneDrive Consumer与Google Play下载正常走`美国`。
+8. 私网、路由器、NAS、PVE、WireGuard地址 → `DIRECT`。
+9. 京东图片、微信/企业微信语音、米家设备工作正常。
 
-## 15. 仓库文件
+首次测试时关闭终端设备自己的VPN、代理、浏览器安全DNS和Android私人DNS，避免绕过OpenClash。
 
-```text
-openclash-custom-rules/
-├── README.md
-├── CHANGELOG.md
-├── scripts/
-│   └── export-openclash-settings.sh
-├── overwrite/
-│   └── openclash-overwrite.conf
-├── rules/
-│   ├── manual-direct.yaml
-│   └── tiktok-iproyal.yaml
-└── docs/
-    ├── openclash-stable-settings.md
-    ├── CODEX-HANDOFF.md
-    └── acceptance-log.md
-```
+## 能力边界
 
-参考：[OpenClash YAML 覆写操作符](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)、[Mihomo 代理组](https://wiki.metacubex.one/config/proxy-groups/)、[Mihomo SOCKS5 节点](https://wiki.metacubex.one/config/proxies/socks/)、[Mihomo DNS](https://wiki.metacubex.one/config/dns/)、[MetaCubeX 规则数据库](https://github.com/MetaCubeX/meta-rules-dat)、[V2Fly TikTok 域名](https://github.com/v2fly/domain-list-community/blob/master/data/tiktok)、[IPRoyal 协议支持](https://help.iproyal.com/en/articles/7222799-which-internet-protocols-does-iproyal-support)。
+路由器只能按域名/IP分流，不能识别局域网设备上的Android/iOS应用包名。如果其他应用调用相同TikTok专用域名，也会使用IPRoyal；如果TikTok启用尚未进入GeoSite的新域名，该连接可能暂时进入`美国`。
+
+任何配置都不能保证永远没有缺陷。本方案通过已验证稳定的运行组合、最少外部规则文件、失败关闭和固定手选出口，降低错误回退、节点自动切换和provider覆盖风险。
+
+## 官方参考
+
+- OpenClash模块参数：<https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default>
+- Mihomo策略组：<https://wiki.metacubex.one/config/proxy-groups/>
+- Mihomo Rule-Providers：<https://wiki.metacubex.one/config/rule-providers/>
+- Mihomo SOCKS5：<https://wiki.metacubex.one/config/proxies/socks/>
+- Mihomo DNS：<https://wiki.metacubex.one/config/dns/>
+- MetaCubeX TikTok GeoSite：<https://github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/tiktok.yaml>
