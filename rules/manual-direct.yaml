@@ -74,8 +74,7 @@ payload:
   # 1. Windows Update、Delivery Optimization、Store、激活、Defender、NCSI、
   #    Microsoft Account / Entra 登录及 Windows 自身基础服务优先 DIRECT。
   # 2. Microsoft 365 / Azure / Entra 的中国区（21Vianet）端点全部 DIRECT。
-  # 3. OneDrive Consumer 网页/文件链路不在本规则集中，统一由主覆写强制走“美国”。
-  # 4. 不使用 DOMAIN-SUFFIX,microsoft.com / live.com / windows.net 这种过宽规则。
+  # 3. 不使用 DOMAIN-SUFFIX,microsoft.com / live.com / windows.net 这种过宽规则。
 
   # ----------------------------------------------------------
   # Windows Update / Microsoft Update / Delivery Optimization
