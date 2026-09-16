@@ -37,12 +37,32 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 | 运行模式 | Fake-IP | 使用 OpenClash 当前默认基础模式，不启用 TUN |
 | 代理模式 | Rule | 按规则决定出口 |
 | 中国大陆 IPv4 绕过 | 关闭 | 让流量进入核心后按域名/IP规则判断，避免防火墙提前绕过 |
+| 中国大陆 IP 列表自动更新 | 关闭 | 防火墙绕过已关闭，这份列表不参与当前分流 |
+| OpenClash 本地自定义规则 | 关闭 | 只使用本仓库定义的规则，避免旧规则混入 |
 | UDP代理 | 开启 | TikTok 和 IPRoyal SOCKS5 可以使用 UDP |
 | QUIC UDP/443 | 允许 | 本需求没有禁用 QUIC 的依据 |
 | IPv6代理和IPv6 DNS | 关闭 | 避免未纳入规则的 IPv6 流量旁路 |
 | 自定义 DNS、DNS重定向、respect-rules | 开启 | DNS连接与最终策略保持一致 |
 
 没有固定 TUN 网络栈、TCP并发、统一延迟、GSO等与本分流目标无关的参数。
+
+配置文件中的英文参数与中文界面含义如下：
+
+```text
+CHINA_IP_ROUTE = 0            → “绕过中国大陆 IPv4”关闭
+CHNR_AUTO_UPDATE = 0          → “中国大陆 IP 列表自动更新”关闭
+ENABLE_CUSTOM_CLASH_RULES = 0 → “OpenClash 本地自定义规则”关闭
+```
+
+这里的`0`表示关闭，`1`表示打开。关闭“中国大陆 IPv4 绕过”不等于中国流量走代理；中国流量仍会进入 Meta 核心，并由`GEOSITE,cn`和`GEOIP,CN`规则直连。
+
+应用覆写后，可通过路由器 SSH 用一条命令查询实际值：
+
+```sh
+printf '绕过中国大陆 IPv4=%s\n中国大陆 IP 列表自动更新=%s\nOpenClash 本地自定义规则=%s\n' "$(uci -q get openclash.config.china_ip_route)" "$(uci -q get openclash.config.chnr_auto_update)" "$(uci -q get openclash.config.enable_custom_clash_rules)"
+```
+
+三项预期都输出`0`。
 
 ## 安装
 
@@ -59,6 +79,8 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 6. 在`美国`组手工选择一个机场美国节点。
 
 不要叠加其他会修改 `rules`、`proxy-groups`、`rule-providers` 或 DNS 的完整覆写模块。
+
+`美国`组只接收带有`🇺🇸`、`美国`、`美國`、`United States`、`USA`或独立`US`标识的节点。仅写城市名或`America`的节点不会自动进入该组，避免误收耶路撒冷、南美洲等非美国节点。
 
 ## 本地 IPRoyal 模块
 
