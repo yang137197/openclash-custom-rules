@@ -29,12 +29,14 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 
 ## 推荐设置
 
-主覆写设置为：
+在 OpenClash“插件设置”中手动选择运行模式。主覆写不写入 `EN_MODE`，避免覆写后的实际模式与插件设置页面显示不一致。
+
+推荐设置为：
 
 | 设置 | 值 | 原因 |
 | --- | --- | --- |
 | 核心 | Meta | 支持本配置使用的规则和策略组能力 |
-| 运行模式 | Fake-IP | 使用 OpenClash 当前默认基础模式，不启用 TUN |
+| 运行模式 | Fake-IP（增强）模式，手动选择 | 不启用 TUN；插件设置页面与实际运行模式保持一致 |
 | 代理模式 | Rule | 按规则决定出口 |
 | 中国大陆 IPv4 绕过 | 关闭 | 让流量进入核心后按域名/IP规则判断，避免防火墙提前绕过 |
 | 中国大陆 IP 列表自动更新 | 关闭 | 防火墙绕过已关闭，这份列表不参与当前分流 |
@@ -61,24 +63,25 @@ SKIP_PROXY_ADDRESS = 1        → “绕过代理服务器地址”开启
 应用覆写后，可通过路由器 SSH 用一条命令查询实际值：
 
 ```sh
-printf '绕过中国大陆 IPv4=%s\n中国大陆 IP 列表自动更新=%s\nOpenClash 本地自定义规则=%s\n绕过代理服务器地址=%s\n' "$(uci -q get openclash.config.china_ip_route)" "$(uci -q get openclash.config.chnr_auto_update)" "$(uci -q get openclash.config.enable_custom_clash_rules)" "$(uci -q get openclash.config.skip_proxy_address)"
+printf '运行模式=%s\n绕过中国大陆 IPv4=%s\n中国大陆 IP 列表自动更新=%s\nOpenClash 本地自定义规则=%s\n绕过代理服务器地址=%s\n' "$(uci -q get openclash.config.en_mode)" "$(uci -q get openclash.config.china_ip_route)" "$(uci -q get openclash.config.chnr_auto_update)" "$(uci -q get openclash.config.enable_custom_clash_rules)" "$(uci -q get openclash.config.skip_proxy_address)"
 ```
 
-前三项预期输出`0`，“绕过代理服务器地址”预期输出`1`。
+“运行模式”预期输出`fake-ip`；随后三项预期输出`0`，“绕过代理服务器地址”预期输出`1`。
 
 ## 安装
 
 1. 在 OpenClash 添加机场订阅并设为当前配置。
-2. 在“覆写设置 → 模块设置”添加并启用：
+2. 在“插件设置 → 运行模式”手动选择“Fake-IP（增强）模式”，不要选择 TUN 或 TUN-混合模式。
+3. 在“覆写设置 → 模块设置”添加并启用：
 
    ```text
    https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwrite/openclash-overwrite.conf
    ```
 
-3. 适用配置只选择当前机场配置。
-4. 添加并启用下面的本地 IPRoyal 模块。
-5. 更新覆写，应用配置并重启 OpenClash。
-6. 在`美国`组手工选择一个机场美国节点。
+4. 适用配置只选择当前机场配置。
+5. 添加并启用下面的本地 IPRoyal 模块。
+6. 更新覆写，应用配置并重启 OpenClash。
+7. 在`美国`组手工选择一个机场美国节点。
 
 不要叠加其他会修改 `rules`、`proxy-groups`、`rule-providers` 或 DNS 的完整覆写模块。
 
