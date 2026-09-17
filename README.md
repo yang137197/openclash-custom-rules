@@ -2,11 +2,12 @@
 
 本仓库只实现以下规则：
 
-1. TikTok 域名只走本地 IPRoyal ISP 节点。
-2. 其他国外域名和流量走手工选择的机场美国节点。
-3. 中国大陆域名和 IP 直连。
-4. `rules/manual-direct.yaml` 中手工维护的域名直连。
-5. 局域网和私有地址直连。
+1. TikTok 只由三星手机上的 SocksTun 通过 IPRoyal ISP 代理。
+2. 任何泄漏到 OpenClash 的 TikTok 域名、DNS 或可识别连接一律拒绝，不允许改走机场美国节点或直连。
+3. 其他国外域名和流量走手工选择的机场美国节点。
+4. 中国大陆域名和 IP 直连。
+5. `rules/manual-direct.yaml` 中手工维护的域名直连。
+6. 局域网和私有地址直连。
 
 仓库仅保留：
 
@@ -16,68 +17,98 @@ overwrite/openclash-overwrite.conf
 rules/manual-direct.yaml
 ```
 
+## 分工边界
+
+- 手机 SocksTun：识别 TikTok 应用，并把该应用全部流量送入 IPRoyal SOCKS5。
+- OpenClash：不再配置、选择或测速 IPRoyal；只处理中国直连、其他国外流量走`美国`，并拒绝泄漏出来的 TikTok。
+- IPRoyal 服务器 IP：在 OpenClash 的“本地 IPv4 网络绕过列表”中手工直连，避免手机到 SOCKS5 入口的外层连接再次被 OpenClash 送入机场。
+
+路由器只能看到连接目标，不能识别 Android 应用包名。因此“只代理 TikTok”的主约束必须由 SocksTun 的应用列表实现；OpenClash 的 TikTok 拒绝规则是防泄漏措施。
+
 ## 为什么选择 Meta
 
 OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 
 - `GEOSITE,tiktok`、`GEOSITE,cn` 和 `GEOIP,CN` 规则；
-- 按名称过滤订阅节点的 `include-all`、`filter` 和 `exclude-filter`；
-- 策略组为空时使用 `empty-fallback: REJECT`，避免错误回退；
-- SOCKS5 UDP，以及让 DNS 连接遵循分流规则的能力。
+- DNS `nameserver-policy` 及 `rcode://success` 空响应，用于阻断泄漏的 TikTok DNS；
+- 按名称筛选机场美国节点的 `include-all`、`filter`；
+- 策略组为空时使用 `empty-fallback: REJECT`，避免错误回退。
 
-这里不使用 Smart。`美国`必须由用户手工选择机场节点；`TikTok-ISP`只能包含名称严格等于 `IPRoyal-US-ISP` 的本地节点，不需要自动选路或模型切换。
+这里不使用 Smart。`美国`由用户手工选择机场节点，不自动切换；OpenClash 中不再存在 `TikTok-ISP` 策略组。
+
+## 手机 SocksTun 设置
+
+1. 协议选择 `SOCKS5`，填写 IPRoyal 面板提供的服务器、SOCKS5 端口、用户名和密码。
+2. 应用代理模式选择“仅允许所选应用”，列表中只选择 TikTok。
+3. SocksTun 的 `DNS IPv4` 保持软件固定的 `8.8.8.8`。
+4. 允许 SocksTun 后台运行，并在三星电池设置中设为“不受限制”，避免系统休眠后关闭 VPN。
+5. IPRoyal 账号、密码和服务器信息只保存在手机，不提交到本仓库。
+
+如果 SocksTun 关闭或 TikTok 未被加入应用列表，TikTok 应被 OpenClash 拒绝。这是预期的失败关闭行为。
 
 ## OpenClash 中文界面建议配置
 
-这是一份针对本仓库分流规则的相对稳定基线。下表中的 OpenClash 插件选项必须全部在中文界面中手动设置，远程覆写不会修改这些选项。
-
-远程覆写模块有意不包含 `[General]`，只保留 `[YAML]` 配置。这样可以避免不同 OpenClash 版本解析 `[General]` 时的兼容问题，并确保插件设置页面与实际运行设置一致。
+远程覆写只包含 `[YAML]`，以下插件选项全部在中文界面手工设置。
 
 ### 基础设置
 
 | 中文设置项 | 建议值 | 说明 |
 | --- | --- | --- |
-| 运行内核 | Meta | 支持本配置使用的规则、策略组、SOCKS5 UDP 和 DNS 分流能力 |
+| 运行内核 | Meta | 支持本配置使用的 GeoSite、DNS 策略和策略组过滤 |
 | 运行模式 | Fake-IP（增强）模式 | 手动选择；不使用 TUN 或 TUN 混合模式 |
-| 代理模式 | 规则模式 | 严格按本仓库的规则顺序选择出口 |
-| 路由器本机代理 | 开启 | 让路由器自身的受管流量也按规则处理 |
-| UDP 代理 | 开启 | TikTok 和 IPRoyal SOCKS5 可以使用 UDP |
-| 禁用 QUIC | 关闭 | 允许 UDP/443；当前需求没有禁用 QUIC 的依据 |
-| IPv6 代理 | 关闭 | 避免未纳入规则的 IPv6 流量旁路 |
-| IPv6 DNS | 关闭 | 与仅使用 IPv4 的分流基线保持一致 |
-| 域名嗅探 | 开启 | 提高纯 IP 或目标信息不完整连接的域名识别率 |
-| 纯 IP 连接嗅探 | 开启 | 配合域名规则识别纯 IP 连接 |
-| 进程查找模式 | 关闭 | 路由器按域名/IP分流，不依赖终端应用进程 |
+| 代理模式 | 规则模式 | 严格按规则顺序选择出口 |
+| 路由器本机代理 | 开启 | 让路由器自身受管流量也按规则处理 |
+| UDP 代理 | 开启 | 保留机场节点和其他国外应用的 UDP 能力；TikTok 由手机 SocksTun 处理 |
+| 禁用 QUIC | 关闭 | 不全局阻断其他应用的 UDP/443 |
+| IPv6 代理 | 关闭 | 避免未纳入规则的 IPv6 旁路 |
+| IPv6 DNS | 关闭 | 与 IPv4 分流保持一致 |
+| 域名嗅探 | 开启 | 识别泄漏到 OpenClash 的 TikTok 域名 |
+| 纯 IP 连接嗅探 | 开启 | 尽量识别目标信息不完整的连接 |
+| 进程查找模式 | 关闭 | 路由器无法依靠进程名识别手机应用 |
 
 ### 防火墙与分流设置
 
 | 中文设置项 | 建议值 | 说明 |
 | --- | --- | --- |
 | 仅允许内网访问 | 开启 | 不向外网开放 OpenClash 代理端口 |
-| 旁路网关兼容模式 | 关闭 | 当前规则不需要额外的旁路网关兼容处理 |
-| 绕过常用端口 | 关闭 | 避免 80、443 等流量在进入规则判断前被跳过 |
-| 绕过中国大陆 IPv4 | 关闭 | 让国内流量进入核心后由中国域名和中国 IP 规则直连 |
-| 绕过中国大陆 IPv6 | 关闭 | IPv6 已关闭，不额外维护 IPv6 绕过链路 |
+| 旁路网关兼容模式 | 关闭 | 当前规则不需要额外兼容处理 |
+| 绕过常用端口 | 关闭 | 避免 80、443 等流量跳过规则判断 |
+| 绕过中国大陆 IPv4 | 关闭 | 国内流量进入核心后由中国规则直连 |
+| 绕过中国大陆 IPv6 | 关闭 | IPv6 已关闭 |
 | 中国大陆 IP 列表自动更新 | 关闭 | 中国大陆防火墙绕过已关闭，该列表不参与当前分流 |
-| 仅代理命中规则流量 | 关闭 | 未命中特例的国外流量必须继续进入最终“美国”策略 |
-| OpenClash 本地自定义规则 | 关闭 | 避免路由器上残留的旧规则改变本仓库规则顺序 |
-| 绕过代理服务器地址 | 开启 | 机场和 IPRoyal 服务器的连接直接建立，避免再次进入代理链路 |
+| 仅代理命中规则流量 | 关闭 | 其他国外流量必须进入最终`美国`策略 |
+| OpenClash 本地自定义规则 | 关闭 | 避免旧规则改变本仓库的规则顺序 |
+| 绕过代理服务器地址 | 开启 | 机场服务器连接直接建立，避免重复代理 |
 
-关闭“绕过中国大陆 IPv4”不等于中国流量走代理。中国域名和 IP 仍由本配置中的中国大陆规则直连。
+“OpenClash 本地自定义规则”关闭不影响下面的“本地 IPv4 网络绕过列表”；两者不是同一个功能。
+
+### IPRoyal 入口直连
+
+进入“插件设置 → 流量控制”，在“本地 IPv4 网络绕过列表”末尾增加一行：
+
+```text
+IPRoyal面板显示的服务器IPv4/32
+```
+
+例如服务器是 `203.0.113.10`，写成 `203.0.113.10/32`。不要把真实 IPRoyal 地址提交到公开仓库。
+
+该列表只让手机到 IPRoyal SOCKS5 入口的外层连接绕过 OpenClash，不会把手机的普通流量整体直连。修改后保存并重启 OpenClash。
+
+删除或停用原来的本地 IPRoyal 覆写模块；OpenClash 中不应再保留带账号密码的 `IPRoyal-US-ISP` 节点，也不应手工选择它。
 
 ### DNS 设置
 
 | 中文设置项 | 建议值 | 说明 |
 | --- | --- | --- |
-| 自定义 DNS | 开启 | 使用本覆写中定义的国内、美国和 TikTok DNS 分流 |
-| DNS 重定向 | 开启，选择 Dnsmasq 转发 | 统一接管局域网常规 DNS 请求 |
-| 遵循分流规则 | 开启 | DNS 连接使用与目标流量一致的策略 |
-| 自动追加默认 DNS | 关闭 | 避免额外 DNS 混入既定配置 |
+| 自定义 DNS | 开启 | 使用覆写中定义的国内、美国及 TikTok 泄漏阻断策略 |
+| DNS 重定向 | 开启，选择 Dnsmasq 转发 | 接管局域网常规 DNS 请求 |
+| 遵循分流规则 | 开启 | DNS 连接遵循目标流量策略 |
+| 自动追加默认 DNS | 关闭 | 避免额外 DNS 混入配置 |
 | 追加上游分配 DNS | 关闭 | 避免运营商 DNS 改变解析路径 |
 | Fake-IP 持久化缓存 | 开启 | 减少重启后重复建立映射 |
 | Fake-IP 过滤 | 开启，黑名单模式 | 保留局域网和自建服务域名的真实 IP 解析 |
 
-DNS 服务器、策略组和 Fake-IP 过滤内容由远程覆写的 `[YAML]` 部分写入，不需要在 OpenClash 页面重复添加；本节表格中的插件开关仍需手动设置。
+泄漏到 OpenClash 的 TikTok DNS 使用 `rcode://success` 返回空结果；SocksTun 内部的 TikTok DNS 应随手机 VPN 处理，不经过此规则。
 
 ### 更新和高级设置
 
@@ -86,70 +117,43 @@ DNS 服务器、策略组和 Fake-IP 过滤内容由远程覆写的 `[YAML]` 部
 | GeoIP 数据库 | 开启 | 中国 IP 直连规则需要 |
 | GeoIP 自动更新 | 开启 | 保持中国 IP 数据更新 |
 | GeoSite 自动更新 | 开启 | 保持 TikTok 和中国域名分类更新 |
-| TCP 并发 | 保持默认 | 当前分流目标不需要强制修改 |
-| 统一延迟 | 保持默认 | 不影响手工选择的“美国”策略 |
+| TCP 并发 | 保持默认 | 当前规则不要求强制修改 |
+| 统一延迟 | 保持默认 | 不影响手工选择的`美国`策略 |
 | TUN 网络栈 | 保持默认 | 当前使用增强模式，不启用 TUN |
-| GSO 相关选项 | 保持默认 | 没有针对当前设备的验证依据，不强制修改 |
+| GSO 相关选项 | 保持默认 | 没有当前设备的验证依据，不强制修改 |
 
-不要叠加其他会修改规则、策略组、规则集或 DNS 的完整覆写模块。`美国`策略组保持手工选择，不开启自动切换。
-
-本配置只能保证分流关系和失败时不回退到错误出口。单个 IPRoyal ISP 节点仍然是单点；其入口或线路超时不能通过修改 OpenClash 规则解决。
+不要叠加其他会修改规则、策略组、规则集或 DNS 的完整覆写模块。
 
 ## 安装
 
-1. 在 OpenClash 添加机场订阅并设为当前配置。
-2. 按“OpenClash 中文界面建议配置”中的表格手动设置全部插件选项。
-3. 确认“插件设置 → 运行模式”为“Fake-IP（增强）模式”，不要选择 TUN 或 TUN-混合模式。
-4. 在“覆写设置 → 模块设置”添加并启用：
+1. 在手机完成 SocksTun 配置，并确保只有 TikTok 被加入代理应用列表。
+2. 在 OpenClash 添加机场订阅并设为当前配置。
+3. 按本 README 手工设置 OpenClash，并把 IPRoyal 服务器 IPv4 加入“本地 IPv4 网络绕过列表”。
+4. 删除或停用旧的本地 IPRoyal 覆写模块。
+5. 在“覆写设置 → 模块设置”添加并启用：
 
    ```text
    https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwrite/openclash-overwrite.conf
    ```
 
-5. 适用配置只选择当前机场配置。
-6. 添加并启用下面的本地 IPRoyal 模块。
+6. 适用配置只选择当前机场配置。
 7. 更新覆写，应用配置并重启 OpenClash。
 8. 在`美国`组手工选择一个机场美国节点。
 
-不要叠加其他会修改 `rules`、`proxy-groups`、`rule-providers` 或 DNS 的完整覆写模块。
-
-`美国`组只接收带有`🇺🇸`、`美国`、`美國`、`United States`、`USA`或独立`US`标识的节点。仅写城市名或`America`的节点不会自动进入该组，避免误收耶路撒冷、南美洲等非美国节点。
-
-## 本地 IPRoyal 模块
-
-IPRoyal 地址和凭证只保存在路由器本地：
-
-```yaml
-[YAML]
-
-proxies+:
-  - name: IPRoyal-US-ISP
-    type: socks5
-    server: "IPRoyal 面板显示的服务器或 IP"
-    port: SOCKS5端口
-    username: "用户名"
-    password: "密码"
-    udp: true
-    ip-version: ipv4
-```
-
-要求：
-
-- 节点名称必须严格为 `IPRoyal-US-ISP`。
-- 服务器、端口、用户名和密码不得提交到仓库、聊天、日志或截图。
-- 本地模块不要添加规则、DNS或策略组。
+`美国`组只接收带有`🇺🇸`、`美国`、`美國`、`United States`、`USA`或独立`US`标识的节点。没有合格节点时使用 `REJECT`，不会静默直连。
 
 ## 规则顺序
 
 ```text
-私网/LAN              -> DIRECT
-TikTok GeoSite        -> TikTok-ISP -> IPRoyal-US-ISP
-Manual-Direct         -> DIRECT
-中国大陆域名/IP       -> DIRECT
-其他所有流量          -> 美国
+私网/LAN                    -> DIRECT
+TikTok DNS 泄漏            -> 空响应
+TikTok 可识别连接          -> REJECT
+Manual-Direct              -> DIRECT
+中国大陆域名/IP            -> DIRECT
+其他所有流量               -> 美国
 ```
 
-IPRoyal 节点不存在时，TikTok 使用 `REJECT`；`美国`组没有合格节点时，其他国外流量使用 `REJECT`。两者都不会静默直连或切换到错误出口。
+OpenClash 不能把普通 TikTok 流量“转交给手机 SocksTun”；SocksTun 必须先在手机系统层接管 TikTok。仓库规则的职责是确保未被接管的 TikTok 不会使用任何其他出口。
 
 ## 维护直连域名
 
@@ -171,28 +175,23 @@ rules/manual-direct.yaml
 - DOMAIN,api.example.com
 ```
 
-不要写协议、路径、端口或参数。普通中国大陆网站已经由 `GEOSITE,cn` / `GEOIP,CN` 处理，不需要重复加入。
+不要写协议、路径、端口或参数。普通中国大陆网站已由 `GEOSITE,cn` / `GEOIP,CN` 处理，不需要重复加入。
 
 ## 应用后检查
 
-只检查当前目标：
+1. OpenClash 中不存在 `TikTok-ISP` 策略组，`美国`组中也没有 IPRoyal 节点。
+2. 开启 SocksTun 后，TikTok 可以访问；OpenClash 连接日志不应出现 TikTok 命中`美国`或`DIRECT`。
+3. 关闭 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
+4. 其他国外网站命中最终 `MATCH` 并走`美国`。
+5. 中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
+6. `manual-direct.yaml` 中的域名命中 `Manual-Direct` 并直连。
 
-1. `TikTok-ISP`只有`IPRoyal-US-ISP`。
-2. `美国`只有机场美国节点，不包含 IPRoyal。
-3. TikTok 命中`TikTok-ISP`。
-4. `manual-direct.yaml`中的域名命中`Manual-Direct`并直连。
-5. 中国大陆网站命中`GEOSITE,cn`或`GEOIP,CN`并直连。
-6. 其他国外网站命中最终`MATCH`并走`美国`。
-
-测试时关闭终端设备自身的 VPN、代理、浏览器安全 DNS 和 Android 私人 DNS，避免绕过 OpenClash。
-
-路由器只能按域名/IP分流，不能识别终端上的 Android/iOS 应用包名。任何配置也不能保证不存在未知上游变化；发现异常时应以当时的 OpenClash 命中日志为准，只修改对应域名规则。
+纯 IP、未被嗅探且尚未收录进 GeoSite 的新 TikTok 目标，路由器无法单独判断它属于 TikTok。因此最终保证仍来自手机 SocksTun 的“仅允许 TikTok”应用级 VPN 配置；若关闭 SocksTun 后 TikTok 仍能访问，应立即停止测试并检查 SocksTun 的应用选择和手机上的其他 VPN/代理。
 
 ## 官方参考
 
-- [OpenClash 模块参数](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/root/etc/openclash/overwrite/default)
-- [Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)
-- [Mihomo Rule-Providers](https://wiki.metacubex.one/config/rule-providers/)
-- [Mihomo SOCKS5](https://wiki.metacubex.one/config/proxies/socks/)
+- [Android 每应用 VPN](https://developer.android.com/develop/connectivity/vpn#per-app)
+- [OpenClash 设置中的本地 IPv4 网络绕过列表](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/luasrc/model/cbi/openclash/settings.lua)
 - [Mihomo DNS](https://wiki.metacubex.one/config/dns/)
+- [Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)
 - [MetaCubeX TikTok GeoSite](https://github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/tiktok.yaml)
