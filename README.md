@@ -109,7 +109,7 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 | 代理模式 | 规则模式 | 严格按规则顺序选择出口 |
 | 路由器本机代理 | 开启 | 让路由器自身受管流量也按规则处理 |
 | UDP 代理 | 开启 | 保留机场节点和其他国外应用的 UDP 能力；TikTok 由手机 SocksTun 处理 |
-| 禁用 QUIC | **关闭** | 当前手机 SocksTun + TikTok 方案的必选值；必须允许 UDP/443 |
+| 禁用 QUIC | 保持 OpenClash 默认（开启） | 与手机 SocksTun 能否连接 IPRoyal 无关；只控制是否阻断 UDP/443 |
 | IPv6 代理 | 关闭 | 避免未纳入规则的 IPv6 旁路 |
 | IPv6 DNS | 关闭 | 与 IPv4 分流保持一致 |
 | 域名嗅探 | 开启 | 识别泄漏到 OpenClash 的 TikTok 域名 |
@@ -125,9 +125,11 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 
 QUIC 是基于 UDP 的加密传输协议，常用于降低连接建立延迟并支持网络路径切换。OpenClash 提供这个开关，主要用于强制支持回退的应用改用 TCP，或者规避特定网络、代理节点不支持 UDP/QUIC 的情况；它不是普通的代理总开关。
 
-当前方案已经确认：开启“禁用 QUIC”时，手机 SocksTun 下的 TikTok 无法访问并出现超时；关闭后恢复正常。因此本仓库固定建议为**关闭“禁用 QUIC”**。这说明当前 TikTok/SocksTun 实际链路需要未被防火墙拦截的 UDP/443；尚未进行数据包捕获，不能进一步断言被拦截的是 TikTok 原生 QUIC 还是 SOCKS5 UDP 转发链路。
+OpenClash 当前官方默认开启“禁用 QUIC”。本仓库不在远程覆写中强制修改该开关；普通情况下保持默认即可。只有在代理节点完整支持 UDP，并且其他应用确实需要 QUIC 时，才按实际需求关闭。
 
-“禁用 QUIC”和 SocksTun 的 `UDP relay over TCP` 是两个不同功能：前者是 OpenClash 对 UDP/443 的防火墙阻断，后者是 SocksTun 与兼容 Hev 服务端之间的非标准 UDP-over-TCP 封装。本方案要求两者都保持关闭。
+手机 SocksTun 曾出现“开启 OpenClash 后连接 IPRoyal 超时、关闭 OpenClash 后正常”的现象，现已确认原因是 IPRoyal 服务器 IP 没有加入“本地 IPv4 网络绕过列表”，与“禁用 QUIC”开启或关闭无关。不要通过切换 QUIC 开关解决 IPRoyal 入口连接问题。
+
+“禁用 QUIC”和 SocksTun 的 `UDP relay over TCP` 是两个不同功能：前者是 OpenClash 对 UDP/443 的防火墙阻断，后者是 SocksTun 与兼容 Hev 服务端之间的非标准 UDP-over-TCP 封装。IPRoyal 没有确认支持后者，因此 SocksTun 的 `UDP relay over TCP` 仍保持关闭。
 
 ### 防火墙与分流设置
 
@@ -155,7 +157,9 @@ IPRoyal面板显示的服务器IPv4/32
 
 例如服务器是 `203.0.113.10`，写成 `203.0.113.10/32`。不要把真实 IPRoyal 地址提交到公开仓库。
 
-该列表只让手机到 IPRoyal SOCKS5 入口的外层连接绕过 OpenClash，不会把手机的普通流量整体直连。修改后保存并重启 OpenClash。
+这是当前方案的必要条件，不是可选优化。由于 IPRoyal 已不再作为 OpenClash 节点存在，“绕过代理服务器地址”不会自动识别手机 SocksTun 使用的 IPRoyal 入口；必须在此处显式填写。
+
+该列表只让手机到 IPRoyal SOCKS5 入口的外层连接绕过 OpenClash，不会把手机的普通流量整体直连。如果遗漏，外层连接可能被 OpenClash 再次接管并送入机场，表现为开启 OpenClash 时 SocksTun 连接超时、关闭 OpenClash 后恢复。修改后保存并重启 OpenClash。
 
 删除或停用原来的本地 IPRoyal 覆写模块；OpenClash 中不应再保留带账号密码的 `IPRoyal-US-ISP` 节点，也不应手工选择它。
 
