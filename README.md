@@ -13,6 +13,7 @@
 | R5 | 局域网和私有地址直连 | 私网 GeoSite、GeoIP 和 CIDR 规则位于最前 | 私网流量进入机场代理 |
 | R6 | Google 与 Google Play 稳定走机场美国节点 | Google 路由和 DNS 位于中国规则之前；Play 下载域名有显式规则 | `services.googleapis.cn` 或 `xn--ngstr-lra8j.com` 被中国规则抢先直连 |
 | R7 | 插件运行选项由用户在中文界面手工设置 | 覆写只包含 `[YAML]` | 在覆写中加入 `[General]` 或强制改变运行模式 |
+| R8 | 国内应用在 Fake-IP（增强）模式下稳定使用 | “禁用 QUIC”不勾选，允许 UDP/443；淘宝已完成实际刷新验证 | 重新勾选“禁用 QUIC”而导致淘宝等国内应用间歇性加载失败 |
 
 仓库仅保留：
 
@@ -26,6 +27,8 @@ rules/manual-direct.yaml
 
 - 运行配置基线：提交 `ab5e683`。
 - 2026-09-17 已确认：OpenClash 能正常加载该覆写，Google Play 应用下载恢复正常，不再卡在 0%、31% 或 98%。
+- 2026-09-17 已确认：淘宝此前间歇性提示网络异常、刷新失败；将 OpenClash 的“禁用 QUIC”改为**不勾选**并重启后，当前实际刷新恢复正常。该中文界面设置是稳定基线的一部分，远程覆写不强制写入。
+- “绕过中国大陆 IPv4”仍保持**不勾选**。本次淘宝恢复来自允许 QUIC，没有证据表明勾选区域绕过是必要条件。
 - Google Play 故障的已确认原因：旧规则把部分 Google 流量送往`美国`，同时把 `services.googleapis.cn` 和 `xn--ngstr-lra8j.com` 判为中国直连；后者解析到 `58.63.233.x`、`113.108.239.x` 后持续连接超时，破坏了同一次下载流程的出口一致性。
 - 已验证修复：Google 分类和 `xn--ngstr-lra8j.com` 都优先走`美国`，并通过`美国`策略连接公共 DNS 解析。
 - `nameserver-policy` 中 `geosite:google` 与 `+.xn--ngstr-lra8j.com` 必须是两个独立键。把两者写进同一个 `geosite:` 组合键，会导致 Mihomo 把普通域名当作 GeoSite 列表名并报 `list +.xn--ngstr-lra8j.com not found in GeoSite.dat`，OpenClash 无法启动。
@@ -41,7 +44,7 @@ rules/manual-direct.yaml
 3. 调整规则顺序、DNS、运行模式、TikTok 出口、`美国`组或删除 `manual-direct.yaml`，都必须先说明影响并取得用户明确同意。
 4. 优先最小改动；不得顺带恢复旧的测试设置、完整覆写、TUN、GSO、TCP 并发或其他没有当前证据支持的选项。
 5. 配置提交前至少完成 YAML 解析、DNS 策略键检查和差异检查；配置只有在 OpenClash 实际加载成功并完成下面的应用验收后，才能标记为稳定。
-6. 重构必须保持 R1–R7 全部成立，并逐项完成回归检查；不能以“结构更简单”为理由改变已有行为。
+6. 重构必须保持 R1–R8 全部成立，并逐项完成回归检查；不能以“结构更简单”为理由改变已有行为。
 7. 新的稳定结论写回本 README，注明验证日期、对应配置和验证结果；只记录长期有效的结论，不保存冗长排查日志。
 
 ## 分工边界
@@ -102,15 +105,15 @@ IPRoyal 是可选服务商之一，不是本仓库的依赖或保证。其官方
 
 | 设置项 | 建议值 | 说明 |
 | --- | --- | --- |
-| `UDP relay over TCP` | 关闭 | 这是 Hev 服务端使用的 UDP-over-TCP 扩展；IPRoyal 只明确支持标准 SOCKS5 TCP/UDP，没有确认支持该扩展 |
-| `Remote DNS` | 开启 | 让所选应用的 DNS 随 SocksTun 处理，减少 DNS 旁路 |
+| `UDP relay over TCP` | 不勾选 | 这是 Hev 服务端使用的 UDP-over-TCP 扩展；IPRoyal 只明确支持标准 SOCKS5 TCP/UDP，没有确认支持该扩展 |
+| `Remote DNS` | 勾选 | 让所选应用的 DNS 随 SocksTun 处理，减少 DNS 旁路 |
 | `DNS IPv4` | `8.8.8.8` | 保持 SocksTun 默认值；当前版本不支持修改时无需处理 |
-| `IPv4` | 开启 | 当前 IPRoyal 与 OpenClash 方案均以 IPv4 为基线 |
-| `IPv6` | 关闭 | 避免 TikTok 通过未纳入代理的 IPv6 旁路 |
-| `Global` | 关闭 | 不代理整台手机，只使用按应用代理 |
+| `IPv4` | 勾选 | 当前 IPRoyal 与 OpenClash 方案均以 IPv4 为基线 |
+| `IPv6` | 不勾选 | 避免 TikTok 通过未纳入代理的 IPv6 旁路 |
+| `Global` | 不勾选 | 不代理整台手机，只使用按应用代理 |
 | `Apps` | 只选择 TikTok | 其他应用继续使用手机原有网络和 OpenClash 分流 |
 
-关闭 `UDP relay over TCP` 后使用标准 SOCKS5 UDP 转发。只有代理服务商明确确认兼容 Hev UDP-in-TCP 扩展时，才考虑开启；不要把它作为普通的“启用 UDP”开关。
+不勾选 `UDP relay over TCP` 时使用标准 SOCKS5 UDP 转发。只有代理服务商明确确认兼容 Hev UDP-in-TCP 扩展时，才考虑勾选；不要把它误认为标准 UDP 转发的总开关。
 
 ## 为什么选择 Meta
 
@@ -127,6 +130,8 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 
 远程覆写只包含 `[YAML]`，以下插件选项全部在中文界面手工设置。
 
+下表中的“勾选/不勾选”专指中文界面的复选框状态；运行服务本身使用“启动/停止”，避免把双重否定选项理解反。
+
 ### 基础设置
 
 | 中文设置项 | 建议值 | 说明 |
@@ -134,45 +139,53 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 | 运行内核 | Meta | 支持本配置使用的 GeoSite、DNS 策略和策略组过滤 |
 | 运行模式 | Fake-IP（增强）模式 | 手动选择；不使用 TUN 或 TUN 混合模式 |
 | 代理模式 | 规则模式 | 严格按规则顺序选择出口 |
-| 路由器本机代理 | 开启 | 让路由器自身受管流量也按规则处理 |
-| UDP 代理 | 开启 | 保留机场节点和其他国外应用的 UDP 能力；TikTok 由手机 SocksTun 处理 |
-| 禁用 QUIC | 保持 OpenClash 默认（开启） | 与手机 SocksTun 能否连接 IPRoyal 无关；只控制是否阻断 UDP/443 |
-| IPv6 代理 | 关闭 | 避免未纳入规则的 IPv6 旁路 |
-| IPv6 DNS | 关闭 | 与 IPv4 分流保持一致 |
-| 域名嗅探 | 开启 | 识别泄漏到 OpenClash 的 TikTok 域名 |
-| 纯 IP 连接嗅探 | 开启 | 尽量识别目标信息不完整的连接 |
-| 进程查找模式 | 关闭 | 路由器无法依靠进程名识别手机应用 |
+| 路由器本机代理 | 勾选 | 让路由器自身受管流量也按规则处理 |
+| UDP 代理 | 勾选 | 保留机场节点和其他国外应用的 UDP 能力；TikTok 由手机 SocksTun 处理 |
+| 禁用 QUIC | **不勾选** | 允许 UDP/443；当前环境已验证淘宝恢复正常 |
+| IPv6 代理 | 不勾选 | 避免未纳入规则的 IPv6 旁路 |
+| IPv6 DNS | 不勾选 | 与 IPv4 分流保持一致 |
+| 域名嗅探 | 勾选 | 识别泄漏到 OpenClash 的 TikTok 域名 |
+| 纯 IP 连接嗅探 | 勾选 | 尽量识别目标信息不完整的连接 |
+| 进程查找模式 | 不勾选 | 路由器无法依靠进程名识别手机应用 |
 
 ### “禁用 QUIC”开关说明
 
 这是一个双重否定开关：
 
-- **开启“禁用 QUIC”**：OpenClash 在防火墙层拒绝适用范围内的 UDP/443，阻止应用使用 QUIC。
-- **关闭“禁用 QUIC”**：不添加这项 UDP/443 阻断，允许 QUIC 和其他使用 UDP/443 的连接通过。
+- **勾选“禁用 QUIC”**：OpenClash 在防火墙层拒绝适用范围内的 UDP/443，阻止应用使用 QUIC。
+- **不勾选“禁用 QUIC”**：不添加这项 UDP/443 阻断，允许 QUIC 和其他使用 UDP/443 的连接通过。
 
 QUIC 是基于 UDP 的加密传输协议，常用于降低连接建立延迟并支持网络路径切换。OpenClash 提供这个开关，主要用于强制支持回退的应用改用 TCP，或者规避特定网络、代理节点不支持 UDP/QUIC 的情况；它不是普通的代理总开关。
 
-OpenClash 当前官方默认开启“禁用 QUIC”。本仓库不在远程覆写中强制修改该开关；普通情况下保持默认即可。只有在代理节点完整支持 UDP，并且其他应用确实需要 QUIC 时，才按实际需求关闭。
+本仓库当前明确要求**不勾选“禁用 QUIC”**。2026-09-17 的实际验证中，勾选时淘宝间歇性提示网络异常或刷新失败，不勾选并重启 OpenClash 后恢复正常。OpenClash 社区也有 Fake-IP 下 QUIC 阻断影响手机淘宝的相近报告，但该报告没有形成官方根因结论，因此本仓库只把当前设备的实测结果作为配置依据。
 
-手机 SocksTun 曾出现“开启 OpenClash 后连接 IPRoyal 超时、关闭 OpenClash 后正常”的现象，现已确认原因是 IPRoyal 服务器 IP 没有加入“本地 IPv4 网络绕过列表”，与“禁用 QUIC”开启或关闭无关。不要通过切换 QUIC 开关解决 IPRoyal 入口连接问题。
+覆写中的 `dns.prefer-h3: false` 只表示 Mihomo 自身的 DoH 查询不优先使用 HTTP/3，不会阻断客户端的 UDP/443，与“不勾选禁用 QUIC”不冲突。
 
-“禁用 QUIC”和 SocksTun 的 `UDP relay over TCP` 是两个不同功能：前者是 OpenClash 对 UDP/443 的防火墙阻断，后者是 SocksTun 与兼容 Hev 服务端之间的非标准 UDP-over-TCP 封装。IPRoyal 没有确认支持后者，因此 SocksTun 的 `UDP relay over TCP` 仍保持关闭。
+手机 SocksTun 曾出现“启动 OpenClash 后连接 IPRoyal 超时、停止 OpenClash 后正常”的现象，现已确认原因是 IPRoyal 服务器 IP 没有加入“本地 IPv4 网络绕过列表”，与“禁用 QUIC”是否勾选无关。不要通过切换 QUIC 复选框解决 IPRoyal 入口连接问题。
+
+“禁用 QUIC”和 SocksTun 的 `UDP relay over TCP` 是两个不同功能：前者是 OpenClash 对 UDP/443 的防火墙阻断，后者是 SocksTun 与兼容 Hev 服务端之间的非标准 UDP-over-TCP 封装。IPRoyal 没有确认支持后者，因此 SocksTun 的 `UDP relay over TCP` 仍保持不勾选。
 
 ### 防火墙与分流设置
 
 | 中文设置项 | 建议值 | 说明 |
 | --- | --- | --- |
-| 仅允许内网访问 | 开启 | 不向外网开放 OpenClash 代理端口 |
-| 旁路网关兼容模式 | 关闭 | 当前规则不需要额外兼容处理 |
-| 绕过常用端口 | 关闭 | 避免 80、443 等流量跳过规则判断 |
-| 绕过中国大陆 IPv4 | 关闭 | 国内流量进入核心后由中国规则直连 |
-| 绕过中国大陆 IPv6 | 关闭 | IPv6 已关闭 |
-| 中国大陆 IP 列表自动更新 | 关闭 | 中国大陆防火墙绕过已关闭，该列表不参与当前分流 |
-| 仅代理命中规则流量 | 关闭 | 其他国外流量必须进入最终`美国`策略 |
-| OpenClash 本地自定义规则 | 关闭 | 避免旧规则改变本仓库的规则顺序 |
-| 绕过代理服务器地址 | 开启 | 机场服务器连接直接建立，避免重复代理 |
+| 仅允许内网访问 | 勾选 | 不向外网开放 OpenClash 代理端口 |
+| 旁路网关兼容模式 | 不勾选 | 当前规则不需要额外兼容处理 |
+| 绕过常用端口 | 不勾选 | 避免 80、443 等流量跳过规则判断 |
+| 绕过中国大陆 IPv4 | **不勾选** | 国内流量进入核心后由中国规则直连 |
+| 绕过中国大陆 IPv6 | 不勾选 | IPv6 未纳入当前分流基线 |
+| 中国大陆 IP 列表自动更新 | 不勾选 | 中国大陆防火墙绕过未启用，该列表不参与当前分流 |
+| 仅代理命中规则流量 | 不勾选 | 其他国外流量必须进入最终`美国`策略 |
+| OpenClash 本地自定义规则 | 不勾选 | 避免旧规则改变本仓库的规则顺序 |
+| 绕过代理服务器地址 | 勾选 | 机场服务器连接直接建立，避免重复代理 |
 
-“OpenClash 本地自定义规则”关闭不影响下面的“本地 IPv4 网络绕过列表”；两者不是同一个功能。
+“OpenClash 本地自定义规则”不勾选，不影响下面的“本地 IPv4 网络绕过列表”；两者不是同一个功能。
+
+### 为什么区域绕过仍不勾选
+
+“绕过中国大陆 IPv4”是防火墙层的中国 IP 段旁路，不是 `GeoSite/cn` 的完整替代。它只能覆盖目标地址属于中国 IP 段的连接，无法覆盖淘宝系应用通过 HTTPDNS 获得境外 CDN 纯 IP 的情况；OpenClash 社区已有勾选区域绕过后仍出现该类问题的记录。
+
+当前规则让国内流量进入 Mihomo 后按 `GEOSITE,cn`、`GEOIP,CN` 直连，并保留 `rules/manual-direct.yaml` 处理已确认的漏分域名。这样可以维持统一、可记录的规则顺序，也避免防火墙提前旁路影响已验证的 Google Play 专用规则。只有出现明确日志证明的大量国内域名漏分，并完成 TikTok、Google Play、淘宝和人工直连规则回归验证后，才重新评估区域绕过；不能仅因担心 `GeoSite/cn` 可能不完整而勾选。
 
 ### IPRoyal 入口直连
 
@@ -186,7 +199,7 @@ IPRoyal面板显示的服务器IPv4/32
 
 这是当前方案的必要条件，不是可选优化。由于 IPRoyal 已不再作为 OpenClash 节点存在，“绕过代理服务器地址”不会自动识别手机 SocksTun 使用的 IPRoyal 入口；必须在此处显式填写。
 
-该列表只让手机到 IPRoyal SOCKS5 入口的外层连接绕过 OpenClash，不会把手机的普通流量整体直连。如果遗漏，外层连接可能被 OpenClash 再次接管并送入机场，表现为开启 OpenClash 时 SocksTun 连接超时、关闭 OpenClash 后恢复。修改后保存并重启 OpenClash。
+该列表只让手机到 IPRoyal SOCKS5 入口的外层连接绕过 OpenClash，不会把手机的普通流量整体直连。如果遗漏，外层连接可能被 OpenClash 再次接管并送入机场，表现为 OpenClash 运行时 SocksTun 连接超时、OpenClash 停止后恢复。修改后保存并重启 OpenClash。
 
 删除或停用原来的本地 IPRoyal 覆写模块；OpenClash 中不应再保留带账号密码的 `IPRoyal-US-ISP` 节点，也不应手工选择它。
 
@@ -194,13 +207,13 @@ IPRoyal面板显示的服务器IPv4/32
 
 | 中文设置项 | 建议值 | 说明 |
 | --- | --- | --- |
-| 自定义 DNS | 开启 | 使用覆写中定义的国内、美国及 TikTok 泄漏阻断策略 |
-| DNS 重定向 | 开启，选择 Dnsmasq 转发 | 接管局域网常规 DNS 请求 |
-| 遵循分流规则 | 开启 | DNS 连接遵循目标流量策略 |
-| 自动追加默认 DNS | 关闭 | 避免额外 DNS 混入配置 |
-| 追加上游分配 DNS | 关闭 | 避免运营商 DNS 改变解析路径 |
-| Fake-IP 持久化缓存 | 开启 | 减少重启后重复建立映射 |
-| Fake-IP 过滤 | 开启，黑名单模式 | 保留局域网和自建服务域名的真实 IP 解析 |
+| 自定义 DNS | 勾选 | 使用覆写中定义的国内、美国及 TikTok 泄漏阻断策略 |
+| DNS 重定向 | 勾选，并选择 Dnsmasq 转发 | 接管局域网常规 DNS 请求 |
+| 遵循分流规则 | 勾选 | DNS 连接遵循目标流量策略 |
+| 自动追加默认 DNS | 不勾选 | 避免额外 DNS 混入配置 |
+| 追加上游分配 DNS | 不勾选 | 避免运营商 DNS 改变解析路径 |
+| Fake-IP 持久化缓存 | 勾选 | 减少重启后重复建立映射 |
+| Fake-IP 过滤 | 勾选，并选择黑名单模式 | 保留局域网和自建服务域名的真实 IP 解析 |
 
 泄漏到 OpenClash 的 TikTok DNS 使用 `rcode://success` 返回空结果；SocksTun 内部的 TikTok DNS 应随手机 VPN 处理，不经过此规则。
 
@@ -246,9 +259,9 @@ rules:
 
 | 中文设置项 | 建议值 | 说明 |
 | --- | --- | --- |
-| GeoIP 数据库 | 开启 | 中国 IP 直连规则需要 |
-| GeoIP 自动更新 | 开启 | 保持中国 IP 数据更新 |
-| GeoSite 自动更新 | 开启 | 保持 TikTok 和中国域名分类更新 |
+| GeoIP 数据库 | 勾选 | 中国 IP 直连规则需要 |
+| GeoIP 自动更新 | 勾选 | 保持中国 IP 数据更新 |
+| GeoSite 自动更新 | 勾选 | 保持 TikTok 和中国域名分类更新 |
 | TCP 并发 | 保持默认 | 当前规则不要求强制修改 |
 | 统一延迟 | 保持默认 | 不影响手工选择的`美国`策略 |
 | TUN 网络栈 | 保持默认 | 当前使用增强模式，不启用 TUN |
@@ -315,16 +328,17 @@ rules/manual-direct.yaml
 ## 应用后检查
 
 1. R1：OpenClash 中不存在 `TikTok-ISP` 策略组，`美国`组中也没有 IPRoyal 节点。
-2. R1：开启 SocksTun 后，TikTok 可以访问，IPRoyal 面板或 SocksTun 连接记录能看到对应流量；OpenClash 日志不应出现 TikTok 命中`美国`或`DIRECT`。
-3. R1：关闭 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
+2. R1：启动 SocksTun 后，TikTok 可以访问，IPRoyal 面板或 SocksTun 连接记录能看到对应流量；OpenClash 日志不应出现 TikTok 命中`美国`或`DIRECT`。
+3. R1：停止 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
 4. R2：其他国外网站命中最终 `MATCH` 并走`美国`。
 5. R6：使用 Google Play 完整下载一个应用；`services.googleapis.cn` 应命中 `GeoSite(google)` 并走`美国`，`xn--ngstr-lra8j.com` 应命中 `DomainSuffix` 并走`美国`，二者都不能命中 `GeoSite(cn) using DIRECT`。
 6. R3：普通中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
 7. R4：`manual-direct.yaml` 中的域名命中 `Manual-Direct` 并直连。
 8. R5：路由器、局域网服务和私有地址保持直连。
 9. R7：覆写文件只有 `[YAML]`，运行模式仍由 OpenClash 中文界面手工设置。
+10. R8：“禁用 QUIC”不勾选；重启 OpenClash 后，淘宝应能连续刷新内容，不出现此前的间歇性网络异常。
 
-纯 IP、未被嗅探且尚未收录进 GeoSite 的新 TikTok 目标，路由器无法单独判断它属于 TikTok。因此最终保证仍来自手机 SocksTun 的“仅允许 TikTok”应用级 VPN 配置；若关闭 SocksTun 后 TikTok 仍能访问，应立即停止测试并检查 SocksTun 的应用选择和手机上的其他 VPN/代理。
+纯 IP、未被嗅探且尚未收录进 GeoSite 的新 TikTok 目标，路由器无法单独判断它属于 TikTok。因此最终保证仍来自手机 SocksTun 的“仅允许 TikTok”应用级 VPN 配置；若停止 SocksTun 后 TikTok 仍能访问，应立即停止测试并检查 SocksTun 的应用选择和手机上的其他 VPN/代理。
 
 ## 官方参考
 
@@ -336,6 +350,8 @@ rules/manual-direct.yaml
 - [Mihomo DNS](https://wiki.metacubex.one/config/dns/)
 - [Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)
 - [OpenClash：Google Play 无法下载的同类案例](https://github.com/vernesong/OpenClash/discussions/3131)
+- [OpenClash：Fake-IP 下 QUIC 阻断影响手机淘宝的相近报告](https://github.com/vernesong/OpenClash/issues/4775)
+- [OpenClash：淘宝系 HTTPDNS 境外 CDN 纯 IP 不受区域绕过覆盖的案例](https://github.com/vernesong/OpenClash/issues/5310)
 - [MetaCubeX：Google 域名同时进入 Google/CN 分类的问题](https://github.com/MetaCubeX/meta-rules-dat/issues/84)
 - [MetaCubeX TikTok GeoSite](https://github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/tiktok.yaml)
 - [RFC 9000：QUIC 是基于 UDP 的传输协议](https://www.rfc-editor.org/rfc/rfc9000.html)
