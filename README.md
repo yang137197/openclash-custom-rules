@@ -8,6 +8,7 @@
 4. 中国大陆域名和 IP 直连。
 5. `rules/manual-direct.yaml` 中手工维护的域名直连。
 6. 局域网和私有地址直连。
+7. Google 与 Google Play 属于国外流量，优先走`美国`；不会因 `.cn` 域名或中国 CDN 地址被误判为中国直连。
 
 仓库仅保留：
 
@@ -177,6 +178,8 @@ IPRoyal面板显示的服务器IPv4/32
 
 泄漏到 OpenClash 的 TikTok DNS 使用 `rcode://success` 返回空结果；SocksTun 内部的 TikTok DNS 应随手机 VPN 处理，不经过此规则。
 
+Google 分类和 Google Play 下载域名 `xn--ngstr-lra8j.com` 使用经`美国`策略连接的公共 DNS。该策略必须位于中国 DNS 策略之前，避免 `googleapis.cn` 等 Google 域名先命中中国分类并返回当前网络无法直连的中国 CDN 地址。
+
 ### 更新和高级设置
 
 | 中文设置项 | 建议值 | 说明 |
@@ -215,6 +218,7 @@ IPRoyal面板显示的服务器IPv4/32
 私网/LAN                    -> DIRECT
 TikTok DNS 泄漏            -> 空响应
 TikTok 可识别连接          -> REJECT
+Google/Google Play          -> 美国
 Manual-Direct              -> DIRECT
 中国大陆域名/IP            -> DIRECT
 其他所有流量               -> 美国
@@ -250,8 +254,9 @@ rules/manual-direct.yaml
 2. 开启 SocksTun 后，TikTok 可以访问，IPRoyal 面板或 SocksTun 连接记录能看到对应流量；OpenClash 日志不应出现 TikTok 命中`美国`或`DIRECT`。
 3. 关闭 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
 4. 其他国外网站命中最终 `MATCH` 并走`美国`。
-5. 中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
-6. `manual-direct.yaml` 中的域名命中 `Manual-Direct` 并直连。
+5. Google Play 开始下载应用后，`xn--ngstr-lra8j.com` 命中 `DomainSuffix` 并走`美国`，不能再命中 `GeoSite(cn) using DIRECT`。
+6. 中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
+7. `manual-direct.yaml` 中的域名命中 `Manual-Direct` 并直连。
 
 纯 IP、未被嗅探且尚未收录进 GeoSite 的新 TikTok 目标，路由器无法单独判断它属于 TikTok。因此最终保证仍来自手机 SocksTun 的“仅允许 TikTok”应用级 VPN 配置；若关闭 SocksTun 后 TikTok 仍能访问，应立即停止测试并检查 SocksTun 的应用选择和手机上的其他 VPN/代理。
 
@@ -264,5 +269,7 @@ rules/manual-direct.yaml
 - [OpenClash 设置中的本地 IPv4 网络绕过列表](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/luasrc/model/cbi/openclash/settings.lua)
 - [Mihomo DNS](https://wiki.metacubex.one/config/dns/)
 - [Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)
+- [OpenClash：Google Play 无法下载的同类案例](https://github.com/vernesong/OpenClash/discussions/3131)
+- [MetaCubeX：Google 域名同时进入 Google/CN 分类的问题](https://github.com/MetaCubeX/meta-rules-dat/issues/84)
 - [MetaCubeX TikTok GeoSite](https://github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/tiktok.yaml)
 - [RFC 9000：QUIC 是基于 UDP 的传输协议](https://www.rfc-editor.org/rfc/rfc9000.html)
