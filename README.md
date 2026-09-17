@@ -109,12 +109,25 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 | 代理模式 | 规则模式 | 严格按规则顺序选择出口 |
 | 路由器本机代理 | 开启 | 让路由器自身受管流量也按规则处理 |
 | UDP 代理 | 开启 | 保留机场节点和其他国外应用的 UDP 能力；TikTok 由手机 SocksTun 处理 |
-| 禁用 QUIC | 关闭 | 不全局阻断其他应用的 UDP/443 |
+| 禁用 QUIC | **关闭** | 当前手机 SocksTun + TikTok 方案的必选值；必须允许 UDP/443 |
 | IPv6 代理 | 关闭 | 避免未纳入规则的 IPv6 旁路 |
 | IPv6 DNS | 关闭 | 与 IPv4 分流保持一致 |
 | 域名嗅探 | 开启 | 识别泄漏到 OpenClash 的 TikTok 域名 |
 | 纯 IP 连接嗅探 | 开启 | 尽量识别目标信息不完整的连接 |
 | 进程查找模式 | 关闭 | 路由器无法依靠进程名识别手机应用 |
+
+### “禁用 QUIC”开关说明
+
+这是一个双重否定开关：
+
+- **开启“禁用 QUIC”**：OpenClash 在防火墙层拒绝适用范围内的 UDP/443，阻止应用使用 QUIC。
+- **关闭“禁用 QUIC”**：不添加这项 UDP/443 阻断，允许 QUIC 和其他使用 UDP/443 的连接通过。
+
+QUIC 是基于 UDP 的加密传输协议，常用于降低连接建立延迟并支持网络路径切换。OpenClash 提供这个开关，主要用于强制支持回退的应用改用 TCP，或者规避特定网络、代理节点不支持 UDP/QUIC 的情况；它不是普通的代理总开关。
+
+当前方案已经确认：开启“禁用 QUIC”时，手机 SocksTun 下的 TikTok 无法访问并出现超时；关闭后恢复正常。因此本仓库固定建议为**关闭“禁用 QUIC”**。这说明当前 TikTok/SocksTun 实际链路需要未被防火墙拦截的 UDP/443；尚未进行数据包捕获，不能进一步断言被拦截的是 TikTok 原生 QUIC 还是 SOCKS5 UDP 转发链路。
+
+“禁用 QUIC”和 SocksTun 的 `UDP relay over TCP` 是两个不同功能：前者是 OpenClash 对 UDP/443 的防火墙阻断，后者是 SocksTun 与兼容 Hev 服务端之间的非标准 UDP-over-TCP 封装。本方案要求两者都保持关闭。
 
 ### 防火墙与分流设置
 
@@ -248,3 +261,4 @@ rules/manual-direct.yaml
 - [Mihomo DNS](https://wiki.metacubex.one/config/dns/)
 - [Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)
 - [MetaCubeX TikTok GeoSite](https://github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/tiktok.yaml)
+- [RFC 9000：QUIC 是基于 UDP 的传输协议](https://www.rfc-editor.org/rfc/rfc9000.html)
