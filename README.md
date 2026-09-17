@@ -2,7 +2,7 @@
 
 本仓库只实现以下规则：
 
-1. TikTok 只由三星手机上的 SocksTun 通过 IPRoyal ISP 代理。
+1. 所有设备的 TikTok 都只由设备本机的 SocksTun 通过 IPRoyal ISP 代理。
 2. 任何泄漏到 OpenClash 的 TikTok 域名、DNS 或可识别连接一律拒绝，不允许改走机场美国节点或直连。
 3. 其他国外域名和流量走手工选择的机场美国节点。
 4. 中国大陆域名和 IP 直连。
@@ -19,11 +19,26 @@ rules/manual-direct.yaml
 
 ## 分工边界
 
-- 手机 SocksTun：识别 TikTok 应用，并把该应用全部流量送入 IPRoyal SOCKS5。
+- 每台需要使用 TikTok 的手机：安装并持续运行 SocksTun，只选择 TikTok 应用，并把该应用全部流量送入 IPRoyal SOCKS5。
 - OpenClash：不再配置、选择或测速 IPRoyal；只处理中国直连、其他国外流量走`美国`，并拒绝泄漏出来的 TikTok。
 - IPRoyal 服务器 IP：在 OpenClash 的“本地 IPv4 网络绕过列表”中手工直连，避免手机到 SOCKS5 入口的外层连接再次被 OpenClash 送入机场。
 
 路由器只能看到连接目标，不能识别 Android 应用包名。因此“只代理 TikTok”的主约束必须由 SocksTun 的应用列表实现；OpenClash 的 TikTok 拒绝规则是防泄漏措施。
+
+### 唯一允许的 TikTok 路径
+
+```text
+TikTok 应用 → 手机 SocksTun → IPRoyal SOCKS5 → TikTok
+```
+
+本方案不提供以下例外：
+
+- 不允许任何设备的 TikTok 使用机场`美国`策略组；
+- 不允许 TikTok 直连；
+- 不允许 OpenClash 代替手机连接 IPRoyal；
+- 不建立“允许部分设备的 TikTok 走机场”的设备白名单。
+
+没有安装、没有启动或没有正确接管 TikTok 的 SocksTun 设备，应当无法访问 TikTok。这是设计目标，不是故障。
 
 ## 为什么选择 Meta
 
@@ -37,6 +52,8 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 这里不使用 Smart。`美国`由用户手工选择机场节点，不自动切换；OpenClash 中不再存在 `TikTok-ISP` 策略组。
 
 ## 手机 SocksTun 设置
+
+每台需要使用 TikTok 的手机都必须分别完成以下设置：
 
 1. 协议选择 `SOCKS5`，填写 IPRoyal 面板提供的服务器、SOCKS5 端口、用户名和密码。
 2. 应用代理模式选择“仅允许所选应用”，列表中只选择 TikTok。
@@ -126,7 +143,7 @@ IPRoyal面板显示的服务器IPv4/32
 
 ## 安装
 
-1. 在手机完成 SocksTun 配置，并确保只有 TikTok 被加入代理应用列表。
+1. 在每台需要使用 TikTok 的手机上完成 SocksTun 配置，并确保只有 TikTok 被加入代理应用列表。
 2. 在 OpenClash 添加机场订阅并设为当前配置。
 3. 按本 README 手工设置 OpenClash，并把 IPRoyal 服务器 IPv4 加入“本地 IPv4 网络绕过列表”。
 4. 删除或停用旧的本地 IPRoyal 覆写模块。
