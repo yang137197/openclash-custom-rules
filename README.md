@@ -71,6 +71,20 @@ IPRoyal 是可选服务商之一，不是本仓库的依赖或保证。其官方
 9. 每次先确认 SocksTun 已连接，再打开 TikTok。Wi-Fi、移动数据或网络发生切换后，先确认 SocksTun 已重新连接。
 10. 如果 SocksTun 断开，先退出 TikTok，恢复代理连接后再重新打开；不要让 TikTok 在无代理状态下继续重试。
 
+### SocksTun 建议设置
+
+| 设置项 | 建议值 | 说明 |
+| --- | --- | --- |
+| `UDP relay over TCP` | 关闭 | 这是 Hev 服务端使用的 UDP-over-TCP 扩展；IPRoyal 只明确支持标准 SOCKS5 TCP/UDP，没有确认支持该扩展 |
+| `Remote DNS` | 开启 | 让所选应用的 DNS 随 SocksTun 处理，减少 DNS 旁路 |
+| `DNS IPv4` | `8.8.8.8` | 保持 SocksTun 默认值；当前版本不支持修改时无需处理 |
+| `IPv4` | 开启 | 当前 IPRoyal 与 OpenClash 方案均以 IPv4 为基线 |
+| `IPv6` | 关闭 | 避免 TikTok 通过未纳入代理的 IPv6 旁路 |
+| `Global` | 关闭 | 不代理整台手机，只使用按应用代理 |
+| `Apps` | 只选择 TikTok | 其他应用继续使用手机原有网络和 OpenClash 分流 |
+
+关闭 `UDP relay over TCP` 后使用标准 SOCKS5 UDP 转发。只有代理服务商明确确认兼容 Hev UDP-in-TCP 扩展时，才考虑开启；不要把它作为普通的“启用 UDP”开关。
+
 ## 为什么选择 Meta
 
 OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
@@ -227,6 +241,7 @@ rules/manual-direct.yaml
 ## 官方参考
 
 - [Android 每应用 VPN](https://developer.android.com/develop/connectivity/vpn#per-app)
+- [SocksTun 官方仓库与 UDP 转发说明](https://github.com/heiher/sockstun)
 - [IPRoyal ISP 代理说明](https://iproyal.com/isp-proxies/)
 - [IPRoyal ISP 快速入门](https://iproyal.com/quick-start-guides/static-residential-proxies/)
 - [OpenClash 设置中的本地 IPv4 网络绕过列表](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/luasrc/model/cbi/openclash/settings.lua)
