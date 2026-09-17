@@ -40,6 +40,37 @@ TikTok 应用 → 手机 SocksTun → IPRoyal SOCKS5 → TikTok
 
 没有安装、没有启动或没有正确接管 TikTok 的 SocksTun 设备，应当无法访问 TikTok。这是设计目标，不是故障。
 
+## TikTok 稳定使用建议
+
+如需长期使用 TikTok，建议购买 IPRoyal 或其他正规服务商提供的**专用、静态 ISP 代理**，并选择符合实际使用地区的节点。本仓库当前按美国 ISP 使用场景编写。
+
+不建议把机场订阅节点作为 TikTok 出口。机场节点通常不能保证出口 IP 专用、长期不变或具备 ISP/住宅网络属性，也可能存在多人共享、地区变化或线路切换。上述情况会降低网络身份的一致性，并可能增加登录验证、地区异常或平台风控的概率。
+
+这里的建议只用于提高出口一致性，不代表任何 ISP 代理都能避免平台风控。TikTok 的具体风控规则并未公开，账号状态、设备环境和使用行为等因素也可能产生影响。
+
+选择代理服务时建议确认：
+
+- 产品类型明确为静态 ISP / 静态住宅代理，而不是轮换住宅代理或共享数据中心代理；
+- IP 为专用或独享，并能在订阅周期内保持不变；
+- 支持 `SOCKS5`，并明确支持手机代理工具所需的 TCP/UDP；
+- 国家和地区固定，不在日常使用中频繁更换；
+- 服务商能够提供清晰的服务器、端口、认证方式和有效期信息。
+
+IPRoyal 是可选服务商之一，不是本仓库的依赖或保证。其官方资料将 ISP 代理描述为静态住宅代理，并提供专用 IP 与 SOCKS5 支持；其他服务商只要满足以上条件，也可以替换。
+
+### 固定操作步骤
+
+1. 购买并固定一个符合目标地区的专用静态 ISP IP；同一台设备日常使用同一个出口，不频繁切换 IP、国家或代理协议。
+2. 在手机安装 SocksTun 或其他支持 Android 每应用 VPN 与 SOCKS5 的可信工具。
+3. 在工具中填写 ISP 代理的服务器、SOCKS5 端口、用户名和密码；IPRoyal 当前使用 SOCKS5，不使用 HTTP 入口。凭据只保存在手机，不提交到仓库、聊天、日志或截图。
+4. 代理范围选择“仅允许所选应用”，并且只选择 TikTok。不要选择“所有应用”。
+5. 保持工具规定的 DNS 设置；本方案中 SocksTun 的 `DNS IPv4` 保持默认 `8.8.8.8`。
+6. 允许代理工具后台运行，在手机电池管理中设为“不受限制”，并避免同时运行其他 VPN 或全局代理工具。
+7. 将 ISP 代理服务器 IPv4 的 `/32` 地址加入 OpenClash“本地 IPv4 网络绕过列表”，防止手机到代理入口的连接再次进入机场代理。
+8. 删除 OpenClash 中旧的 IPRoyal 节点和本地 IPRoyal 覆写模块；OpenClash 只负责阻断 TikTok 泄漏。
+9. 每次先确认 SocksTun 已连接，再打开 TikTok。Wi-Fi、移动数据或网络发生切换后，先确认 SocksTun 已重新连接。
+10. 如果 SocksTun 断开，先退出 TikTok，恢复代理连接后再重新打开；不要让 TikTok 在无代理状态下继续重试。
+
 ## 为什么选择 Meta
 
 OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
@@ -50,18 +81,6 @@ OpenClash 中的 `Meta` 是 Mihomo 核心。本配置需要它提供的：
 - 策略组为空时使用 `empty-fallback: REJECT`，避免错误回退。
 
 这里不使用 Smart。`美国`由用户手工选择机场节点，不自动切换；OpenClash 中不再存在 `TikTok-ISP` 策略组。
-
-## 手机 SocksTun 设置
-
-每台需要使用 TikTok 的手机都必须分别完成以下设置：
-
-1. 协议选择 `SOCKS5`，填写 IPRoyal 面板提供的服务器、SOCKS5 端口、用户名和密码。
-2. 应用代理模式选择“仅允许所选应用”，列表中只选择 TikTok。
-3. SocksTun 的 `DNS IPv4` 保持软件固定的 `8.8.8.8`。
-4. 允许 SocksTun 后台运行，并在三星电池设置中设为“不受限制”，避免系统休眠后关闭 VPN。
-5. IPRoyal 账号、密码和服务器信息只保存在手机，不提交到本仓库。
-
-如果 SocksTun 关闭或 TikTok 未被加入应用列表，TikTok 应被 OpenClash 拒绝。这是预期的失败关闭行为。
 
 ## OpenClash 中文界面建议配置
 
@@ -197,7 +216,7 @@ rules/manual-direct.yaml
 ## 应用后检查
 
 1. OpenClash 中不存在 `TikTok-ISP` 策略组，`美国`组中也没有 IPRoyal 节点。
-2. 开启 SocksTun 后，TikTok 可以访问；OpenClash 连接日志不应出现 TikTok 命中`美国`或`DIRECT`。
+2. 开启 SocksTun 后，TikTok 可以访问，IPRoyal 面板或 SocksTun 连接记录能看到对应流量；OpenClash 日志不应出现 TikTok 命中`美国`或`DIRECT`。
 3. 关闭 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
 4. 其他国外网站命中最终 `MATCH` 并走`美国`。
 5. 中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
@@ -208,6 +227,8 @@ rules/manual-direct.yaml
 ## 官方参考
 
 - [Android 每应用 VPN](https://developer.android.com/develop/connectivity/vpn#per-app)
+- [IPRoyal ISP 代理说明](https://iproyal.com/isp-proxies/)
+- [IPRoyal ISP 快速入门](https://iproyal.com/quick-start-guides/static-residential-proxies/)
 - [OpenClash 设置中的本地 IPv4 网络绕过列表](https://github.com/vernesong/OpenClash/blob/master/luci-app-openclash/luasrc/model/cbi/openclash/settings.lua)
 - [Mihomo DNS](https://wiki.metacubex.one/config/dns/)
 - [Mihomo 策略组](https://wiki.metacubex.one/config/proxy-groups/)
