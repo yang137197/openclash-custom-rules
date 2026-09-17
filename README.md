@@ -1,5 +1,25 @@
 # OpenClash 最小分流配置
 
+## 当前方案与版本
+
+| 项目 | 当前值 |
+| --- | --- |
+| 方案 ID | `tiktok-sockstun-us` |
+| 稳定版本 | `v1.0.0` |
+| 对应需求 | R1–R8 |
+| 版本状态 | 稳定 |
+| 固定版本覆写 | `profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf` |
+| 兼容覆写入口 | `overwrite/openclash-overwrite.conf` |
+| 共享人工直连规则 | `rules/manual-direct.yaml` |
+
+仓库是配置、需求和维护约束的唯一事实来源，不依赖任何一台开发电脑的本地记录。开始维护前依次阅读：
+
+1. [`AGENTS.md`](AGENTS.md)：任何人工或 AI 维护者必须遵守的边界；
+2. [`MAINTENANCE.md`](MAINTENANCE.md)：版本规则、变更流程、回滚和换机恢复；
+3. [`profiles/catalog.json`](profiles/catalog.json)：当前方案与版本的机器可读索引；
+4. [`profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md)：`v1.0.0` 的冻结需求和验收标准；
+5. [`CHANGELOG.md`](CHANGELOG.md)：只记录已经形成版本的长期变更。
+
 ## 需求基线（不得擅自改变）
 
 以下内容是本仓库的需求合同。后续修复、调整或重构必须先核对这些需求；没有用户新的明确授权时，行为必须保持不变。
@@ -15,17 +35,25 @@
 | R7 | 插件运行选项由用户在中文界面手工设置 | 覆写只包含 `[YAML]` | 在覆写中加入 `[General]` 或强制改变运行模式 |
 | R8 | 国内应用在 Fake-IP（增强）模式下稳定使用 | “禁用 QUIC”不勾选，允许 UDP/443；淘宝已完成实际刷新验证 | 重新勾选“禁用 QUIC”而导致淘宝等国内应用间歇性加载失败 |
 
-仓库仅保留：
+仓库结构：
 
 ```text
+AGENTS.md
+CHANGELOG.md
+MAINTENANCE.md
 README.md
-overwrite/openclash-overwrite.conf
-rules/manual-direct.yaml
+overwrite/openclash-overwrite.conf                 # 当前稳定版本的兼容入口
+profiles/catalog.json                              # 方案和版本索引
+profiles/tiktok-sockstun-us/README.md              # 当前方案入口
+profiles/tiktok-sockstun-us/versions/v1.0.0/       # 不再修改的版本快照
+rules/manual-direct.yaml                           # 当前人工直连规则
+scripts/validate_repository.py                     # 跨电脑一致性校验
+.github/workflows/validate.yml                     # GitHub 自动校验
 ```
 
 ## 当前稳定基线
 
-- 运行配置基线：提交 `ab5e683`。
+- 当前整体稳定基线：方案 `tiktok-sockstun-us`，版本 `v1.0.0`。Git 标签保存该版本的完整仓库快照；运行配置、中文界面设置、人工直连规则和验收要求必须作为一个整体理解。
 - 2026-09-17 已确认：OpenClash 能正常加载该覆写，Google Play 应用下载恢复正常，不再卡在 0%、31% 或 98%。
 - 2026-09-17 已确认：淘宝此前间歇性提示网络异常、刷新失败；将 OpenClash 的“禁用 QUIC”改为**不勾选**并重启后，当前实际刷新恢复正常。该中文界面设置是稳定基线的一部分，远程覆写不强制写入。
 - “绕过中国大陆 IPv4”仍保持**不勾选**。本次淘宝恢复来自允许 QUIC，没有证据表明勾选区域绕过是必要条件。
@@ -275,11 +303,19 @@ rules:
 2. 在 OpenClash 添加机场订阅并设为当前配置。
 3. 按本 README 手工设置 OpenClash，并把 IPRoyal 服务器 IPv4 加入“本地 IPv4 网络绕过列表”。
 4. 删除或停用旧的本地 IPRoyal 覆写模块。
-5. 在“覆写设置 → 模块设置”添加并启用：
+5. 在“覆写设置 → 模块设置”添加并启用固定版本地址：
+
+   ```text
+   https://raw.githubusercontent.com/yang137197/openclash-custom-rules/v1.0.0/profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf
+   ```
+
+   旧安装使用的兼容地址继续保留，不会因本次仓库重构失效：
 
    ```text
    https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/overwrite/openclash-overwrite.conf
    ```
+
+   固定版本地址不会自动跨版本升级；兼容地址只在用户明确批准新稳定版本后才指向新版本。两者只选一个，不要重复添加。
 
 6. 适用配置只选择当前机场配置。
 7. 更新覆写，应用配置并重启 OpenClash。

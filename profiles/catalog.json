@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "currentProfile": "tiktok-sockstun-us",
+  "profiles": {
+    "tiktok-sockstun-us": {
+      "title": "手机 SocksTun + IPRoyal，美国机场处理其他国外流量",
+      "status": "stable",
+      "currentVersion": "1.0.0",
+      "tag": "v1.0.0",
+      "requirements": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"],
+      "versionDirectory": "profiles/tiktok-sockstun-us/versions/v1.0.0",
+      "modulePath": "profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf",
+      "requirementsPath": "profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md",
+      "profileReadmePath": "profiles/tiktok-sockstun-us/README.md",
+      "compatibilityModulePath": "overwrite/openclash-overwrite.conf",
+      "sharedManualRulesPath": "rules/manual-direct.yaml",
+      "moduleSha256": "2a441db9a7725de98d9d5f14ae2e94dfd68c1e846c62006c4a72c4ca476464a6",
+      "manualRulesSha256": "441d5dd1fb04c1234199e1f694251994551822ac7b4e0dd85d2d3aa266418873",
+      "manualRuleCount": 124
+    }
+  }
+}
