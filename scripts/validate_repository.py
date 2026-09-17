@@ -53,8 +53,16 @@ if profile.get("status") != "stable":
     fail("current profile must be stable")
 
 version = profile.get("currentVersion")
-if profile.get("tag") != f"v{version}":
-    fail("tag must match currentVersion")
+if catalog.get("tagConvention") != "{profileId}-v{version}":
+    fail("tagConvention must keep profile tags independent")
+
+expected_tag = (
+    f"v{version}"
+    if profile.get("legacyTag") is True
+    else f"{profile_id}-v{version}"
+)
+if profile.get("tag") != expected_tag:
+    fail(f"tag must be profile-specific; expected {expected_tag}")
 
 requirements = profile.get("requirements", [])
 baseline_requirements = [f"R{number}" for number in range(1, 9)]

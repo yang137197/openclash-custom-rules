@@ -20,6 +20,14 @@
 4. [`profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md)：`v1.0.0` 的冻结需求和验收标准；
 5. [`CHANGELOG.md`](CHANGELOG.md)：只记录已经形成版本的长期变更。
 
+### 多方案隔离原则
+
+本仓库可以维护 A–D 等多套不同需求，但每套需求必须分别建立独立的方案 ID、需求合同、版本目录、完整覆写模块和固定 URL。任何一个 OpenClash 配置同一时间只能启用其中一个方案覆写，不得叠加、混用或让多个方案共用同一个固定 URL。
+
+`main/overwrite/openclash-overwrite.conf` 只表示 `profiles/catalog.json` 中的 `currentProfile`，不是所有方案共用的入口。未来标签统一使用 `<方案ID>-v<版本号>`，例如 `profile-b-v1.0.0`；现有 `v1.0.0` 仅作为当前方案首次版本的历史兼容标签保留。
+
+`rules/manual-direct.yaml` 只有在多个方案的人工直连需求完全相同时才能共享。如果某个方案的直连范围不同，必须为该方案建立独立规则文件，不能借共享规则把 A 的行为带入 B。
+
 ## 需求基线（不得擅自改变）
 
 以下内容是本仓库的需求合同。后续修复、调整或重构必须先核对这些需求；没有用户新的明确授权时，行为必须保持不变。
