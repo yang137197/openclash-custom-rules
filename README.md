@@ -1,14 +1,18 @@
 # OpenClash 最小分流配置
 
-本仓库只实现以下规则：
+## 需求基线（不得擅自改变）
 
-1. 所有设备的 TikTok 都只由设备本机的 SocksTun 通过 IPRoyal ISP 代理。
-2. 任何泄漏到 OpenClash 的 TikTok 域名、DNS 或可识别连接一律拒绝，不允许改走机场美国节点或直连。
-3. 其他国外域名和流量走手工选择的机场美国节点。
-4. 中国大陆域名和 IP 直连。
-5. `rules/manual-direct.yaml` 中手工维护的域名直连。
-6. 局域网和私有地址直连。
-7. Google 与 Google Play 属于国外流量，优先走`美国`；不会因 `.cn` 域名或中国 CDN 地址被误判为中国直连。
+以下内容是本仓库的需求合同。后续修复、调整或重构必须先核对这些需求；没有用户新的明确授权时，行为必须保持不变。
+
+| 编号 | 需求 | 当前实现 | 不允许出现的回退 |
+| --- | --- | --- | --- |
+| R1 | TikTok 只由手机 SocksTun 通过 IPRoyal ISP 代理 | OpenClash 对 TikTok DNS 返回空结果，并拒绝可识别的 TikTok 连接 | TikTok 改走机场`美国`、直连或重新由 OpenClash 连接 IPRoyal |
+| R2 | 除 TikTok 外的国外流量走机场美国节点 | 最终 `MATCH,美国`，`美国`组由用户手工选择节点 | 自动切换到其他国家、直连或把 IPRoyal 加入该组 |
+| R3 | 中国大陆域名和 IP 直连 | `GEOSITE,cn,DIRECT`、`GEOIP,CN,DIRECT` | 中国流量无条件走机场 |
+| R4 | 保留用户人工维护的额外直连域名 | `rules/manual-direct.yaml` 位于 TikTok/Google 专用规则之后、中国规则之前 | 删除、清空、改名、批量改写或用自动规则替代该文件 |
+| R5 | 局域网和私有地址直连 | 私网 GeoSite、GeoIP 和 CIDR 规则位于最前 | 私网流量进入机场代理 |
+| R6 | Google 与 Google Play 稳定走机场美国节点 | Google 路由和 DNS 位于中国规则之前；Play 下载域名有显式规则 | `services.googleapis.cn` 或 `xn--ngstr-lra8j.com` 被中国规则抢先直连 |
+| R7 | 插件运行选项由用户在中文界面手工设置 | 覆写只包含 `[YAML]` | 在覆写中加入 `[General]` 或强制改变运行模式 |
 
 仓库仅保留：
 
@@ -17,6 +21,28 @@ README.md
 overwrite/openclash-overwrite.conf
 rules/manual-direct.yaml
 ```
+
+## 当前稳定基线
+
+- 运行配置基线：提交 `ab5e683`。
+- 2026-09-17 已确认：OpenClash 能正常加载该覆写，Google Play 应用下载恢复正常，不再卡在 0%、31% 或 98%。
+- Google Play 故障的已确认原因：旧规则把部分 Google 流量送往`美国`，同时把 `services.googleapis.cn` 和 `xn--ngstr-lra8j.com` 判为中国直连；后者解析到 `58.63.233.x`、`113.108.239.x` 后持续连接超时，破坏了同一次下载流程的出口一致性。
+- 已验证修复：Google 分类和 `xn--ngstr-lra8j.com` 都优先走`美国`，并通过`美国`策略连接公共 DNS 解析。
+- `nameserver-policy` 中 `geosite:google` 与 `+.xn--ngstr-lra8j.com` 必须是两个独立键。把两者写进同一个 `geosite:` 组合键，会导致 Mihomo 把普通域名当作 GeoSite 列表名并报 `list +.xn--ngstr-lra8j.com not found in GeoSite.dat`，OpenClash 无法启动。
+
+“稳定基线”表示上述行为已经在当前环境验证，不代表任何未来改动可以跳过复核。后续以仓库当前配置为起点，不重新假设需求，也不恢复已废弃的旧方案。
+
+## 变更规则
+
+任何后续修改都必须遵守：
+
+1. 修改前先阅读本节需求基线和当前生效的 `overwrite/openclash-overwrite.conf`，列出受影响的需求编号。
+2. 未涉及的需求必须保持行为等价；不能为了修复一个服务而改变 TikTok、国内直连、人工直连或其他国外流量的出口。
+3. 调整规则顺序、DNS、运行模式、TikTok 出口、`美国`组或删除 `manual-direct.yaml`，都必须先说明影响并取得用户明确同意。
+4. 优先最小改动；不得顺带恢复旧的测试设置、完整覆写、TUN、GSO、TCP 并发或其他没有当前证据支持的选项。
+5. 配置提交前至少完成 YAML 解析、DNS 策略键检查和差异检查；配置只有在 OpenClash 实际加载成功并完成下面的应用验收后，才能标记为稳定。
+6. 重构必须保持 R1–R7 全部成立，并逐项完成回归检查；不能以“结构更简单”为理由改变已有行为。
+7. 新的稳定结论写回本 README，注明验证日期、对应配置和验证结果；只记录长期有效的结论，不保存冗长排查日志。
 
 ## 分工边界
 
@@ -180,6 +206,42 @@ IPRoyal面板显示的服务器IPv4/32
 
 Google 分类和 Google Play 下载域名 `xn--ngstr-lra8j.com` 使用经`美国`策略连接的公共 DNS。该策略必须位于中国 DNS 策略之前，避免 `googleapis.cn` 等 Google 域名先命中中国分类并返回当前网络无法直连的中国 CDN 地址。
 
+### Google Play 稳定规则
+
+Google Play 不是一条连接完成全部下载。商店接口、图片和安装包下载可能使用不同 Google 域名；这些域名如果一部分走`美国`、另一部分直连，可能出现页面正常但下载卡住。
+
+当前稳定配置必须同时满足：
+
+```yaml
+dns:
+  nameserver-policy:
+    '+.xn--ngstr-lra8j.com':
+      - 'https://1.1.1.1/dns-query#美国'
+      - 'https://8.8.8.8/dns-query#美国'
+    'geosite:google':
+      - 'https://1.1.1.1/dns-query#美国'
+      - 'https://8.8.8.8/dns-query#美国'
+    'geosite:cn,private':
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
+
+rules:
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国
+  - GEOSITE,google,美国
+  - RULE-SET,Manual-Direct,DIRECT
+  - GEOSITE,cn,DIRECT
+  - GEOIP,CN,DIRECT,no-resolve
+  - MATCH,美国
+```
+
+这里展示的是生效顺序；覆写文件中的实际键名是 `rules!`。不得把 Google 两条路由移动到 `Manual-Direct` 或中国规则之后，也不得把两个 DNS 匹配器合并成一个 `geosite:` 键。
+
+如果以后需要改变 Google 的出口，必须先重新确认以下三项：
+
+1. `services.googleapis.cn`、`xn--ngstr-lra8j.com` 和其他 Google 下载域名采用同一条可用出口；
+2. DNS 解析路径与流量出口一致；
+3. 使用真实 Google Play 应用下载完成测试，不能只以商店页面能够打开作为验收。
+
 ### 更新和高级设置
 
 | 中文设置项 | 建议值 | 说明 |
@@ -248,15 +310,19 @@ rules/manual-direct.yaml
 
 不要写协议、路径、端口或参数。普通中国大陆网站已由 `GEOSITE,cn` / `GEOIP,CN` 处理，不需要重复加入。
 
+`manual-direct.yaml` 的现有有效条目属于需要保留的用户配置。未经用户明确要求，不得批量删除、重新分类、去重或替换。新增直连域名只修改该文件；TikTok 防泄漏规则和 Google Play 稳定规则仍具有更高优先级，不能通过在此文件增加同名域名绕过 R1 或 R6。
+
 ## 应用后检查
 
-1. OpenClash 中不存在 `TikTok-ISP` 策略组，`美国`组中也没有 IPRoyal 节点。
-2. 开启 SocksTun 后，TikTok 可以访问，IPRoyal 面板或 SocksTun 连接记录能看到对应流量；OpenClash 日志不应出现 TikTok 命中`美国`或`DIRECT`。
-3. 关闭 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
-4. 其他国外网站命中最终 `MATCH` 并走`美国`。
-5. Google Play 开始下载应用后，`xn--ngstr-lra8j.com` 命中 `DomainSuffix` 并走`美国`，不能再命中 `GeoSite(cn) using DIRECT`。
-6. 中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
-7. `manual-direct.yaml` 中的域名命中 `Manual-Direct` 并直连。
+1. R1：OpenClash 中不存在 `TikTok-ISP` 策略组，`美国`组中也没有 IPRoyal 节点。
+2. R1：开启 SocksTun 后，TikTok 可以访问，IPRoyal 面板或 SocksTun 连接记录能看到对应流量；OpenClash 日志不应出现 TikTok 命中`美国`或`DIRECT`。
+3. R1：关闭 SocksTun 后，TikTok 无法访问；若 OpenClash 识别到连接，应命中 `GeoSite(tiktok) using REJECT`，绝不能命中`美国`或`DIRECT`。
+4. R2：其他国外网站命中最终 `MATCH` 并走`美国`。
+5. R6：使用 Google Play 完整下载一个应用；`services.googleapis.cn` 应命中 `GeoSite(google)` 并走`美国`，`xn--ngstr-lra8j.com` 应命中 `DomainSuffix` 并走`美国`，二者都不能命中 `GeoSite(cn) using DIRECT`。
+6. R3：普通中国大陆网站命中 `GEOSITE,cn` 或 `GEOIP,CN` 并直连。
+7. R4：`manual-direct.yaml` 中的域名命中 `Manual-Direct` 并直连。
+8. R5：路由器、局域网服务和私有地址保持直连。
+9. R7：覆写文件只有 `[YAML]`，运行模式仍由 OpenClash 中文界面手工设置。
 
 纯 IP、未被嗅探且尚未收录进 GeoSite 的新 TikTok 目标，路由器无法单独判断它属于 TikTok。因此最终保证仍来自手机 SocksTun 的“仅允许 TikTok”应用级 VPN 配置；若关闭 SocksTun 后 TikTok 仍能访问，应立即停止测试并检查 SocksTun 的应用选择和手机上的其他 VPN/代理。
 
