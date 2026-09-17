@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from argparse import ArgumentParser
@@ -75,8 +76,35 @@ if sha256(module_text) != profile.get("moduleSha256"):
 if sha256(manual_rules_text) != profile.get("manualRulesSha256"):
     fail("manual-direct rules changed without a version/catalog update")
 
-if any(line.strip() == "[General]" for line in module_text.splitlines()):
-    fail("overwrite must not contain [General]")
+section_headers = [
+    line.strip()
+    for line in module_text.splitlines()
+    if re.fullmatch(r"\[[^\]]+\]", line.strip())
+]
+if section_headers != ["[YAML]"]:
+    fail(
+        "overwrite must contain exactly one section header, [YAML]; "
+        f"found: {section_headers}"
+    )
+
+module_lines = module_text.splitlines()
+yaml_header_index = module_lines.index("[YAML]")
+unexpected_prefix_lines = [
+    line
+    for line in module_lines[:yaml_header_index]
+    if line.strip() and not line.lstrip().startswith("#")
+]
+if unexpected_prefix_lines:
+    fail("only comments are allowed before [YAML]")
+
+for forbidden_text in [
+    "uci set ",
+    "uci -q set ",
+    "openclash.config.",
+    "overwrite_restart_flag",
+]:
+    if forbidden_text in module_text.lower():
+        fail(f"overwrite contains forbidden OpenClash setting text: {forbidden_text}")
 
 required_module_fragments = [
     "'geosite:tiktok': rcode://success",

@@ -35,6 +35,16 @@
 
 版本覆写继续引用 `main/rules/manual-direct.yaml`，让人工维护的域名能够正常更新。每个 Git 标签同时保存当时的 `manual-direct.yaml`，因此历史状态仍可追溯和恢复。
 
+## 覆写模块边界
+
+- 覆写模块只能出现一个配置段：`[YAML]`；
+- `[YAML]` 只维护 Mihomo 最终配置中的 DNS、策略组、规则集和规则；
+- 绝对不得加入 `[General]`；
+- 不得写入 UCI 命令、OpenClash 插件选项或自动改变运行模式、QUIC、区域绕过、IPv6、TUN 等界面设置的脚本；
+- 所有 OpenClash 插件选项必须由用户依据 README 和版本 `REQUIREMENTS.md` 在中文界面手工设置。
+
+该边界不因版本升级或方案新增而改变。若未来插件格式发生变化，也必须先由用户明确确认新的手工设置方式，不能默认改为自动写入。
+
 ## 状态定义
 
 - `candidate`：配置已经进入仓库，但真实 OpenClash 或应用验收尚未完成；
