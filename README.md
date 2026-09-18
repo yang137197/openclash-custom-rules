@@ -6,11 +6,13 @@
 | --- | --- |
 | 方案 ID | `tiktok-sockstun-us` |
 | 稳定版本 | `v1.0.0` |
-| 对应需求 | R1–R8 |
-| 版本状态 | 稳定 |
+| 候选版本 | `v1.1.0`（待真实设备验收） |
+| 稳定版需求 | R1–R8 |
+| 稳定版状态 | 稳定 |
 | 固定版本覆写 | `profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf` |
 | 兼容覆写入口 | `overwrite/openclash-overwrite.conf` |
 | 共享人工直连规则 | `rules/manual-direct.yaml` |
+| 候选人工日本规则 | `rules/manual-japan.yaml` |
 
 仓库是配置、需求和维护约束的唯一事实来源，不依赖任何一台开发电脑的本地记录。开始维护前依次阅读：
 
@@ -18,7 +20,8 @@
 2. [`MAINTENANCE.md`](MAINTENANCE.md)：版本规则、变更流程、回滚和换机恢复；
 3. [`profiles/catalog.json`](profiles/catalog.json)：当前方案与版本的机器可读索引；
 4. [`profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md)：`v1.0.0` 的冻结需求和验收标准；
-5. [`CHANGELOG.md`](CHANGELOG.md)：只记录已经形成版本的长期变更。
+5. [`profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md)：`v1.1.0` 候选新增需求和验收标准；
+6. [`CHANGELOG.md`](CHANGELOG.md)：只记录已经形成版本的长期变更。
 
 ### 多方案隔离原则
 
@@ -54,7 +57,9 @@ overwrite/openclash-overwrite.conf                 # 当前稳定版本的兼容
 profiles/catalog.json                              # 方案和版本索引
 profiles/tiktok-sockstun-us/README.md              # 当前方案入口
 profiles/tiktok-sockstun-us/versions/v1.0.0/       # 不再修改的版本快照
+profiles/tiktok-sockstun-us/versions/v1.1.0/       # 日本策略组候选版本
 rules/manual-direct.yaml                           # 当前人工直连规则
+rules/manual-japan.yaml                            # 候选人工日本代理规则
 scripts/validate_repository.py                     # 跨电脑一致性校验
 .github/workflows/validate.yml                     # GitHub 自动校验
 ```
@@ -70,6 +75,15 @@ scripts/validate_repository.py                     # 跨电脑一致性校验
 - `nameserver-policy` 中 `geosite:google` 与 `+.xn--ngstr-lra8j.com` 必须是两个独立键。把两者写进同一个 `geosite:` 组合键，会导致 Mihomo 把普通域名当作 GeoSite 列表名并报 `list +.xn--ngstr-lra8j.com not found in GeoSite.dat`，OpenClash 无法启动。
 
 “稳定基线”表示上述行为已经在当前环境验证，不代表任何未来改动可以跳过复核。后续以仓库当前配置为起点，不重新假设需求，也不恢复已废弃的旧方案。
+
+## 当前候选版本
+
+`v1.1.0` 是兼容新增需求的候选版本，继承 R1–R8，并新增：
+
+- R9：`日本`手选策略组自动收录名称匹配的日本机场节点，空组时 `REJECT`；
+- R10：`rules/manual-japan.yaml` 中的特殊网站通过 `Manual-Japan` 走`日本`。
+
+候选版本未修改 DNS、TikTok、Google/Google Play、人工直连、最终美国出口或 OpenClash 中文界面设置。真实设备完成 R1–R10 验收前，`v1.0.0` 仍是唯一稳定版本，兼容覆写入口保持不变。
 
 ## 变更规则
 

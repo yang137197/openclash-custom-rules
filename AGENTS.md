@@ -8,8 +8,11 @@
 - 当前稳定版本：`v1.0.0`
 - 当前需求：R1–R8
 - 当前版本覆写：`profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf`
+- 当前候选版本：`v1.1.0`（R1–R10，日本策略组与人工日本规则，尚未经过真实设备验收）
+- 当前候选覆写：`profiles/tiktok-sockstun-us/versions/v1.1.0/openclash-overwrite.conf`
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
+- 候选人工日本规则：`rules/manual-japan.yaml`
 
 若上述信息与 `profiles/catalog.json` 不一致，以通过仓库校验的 `profiles/catalog.json` 为准，并修正文档漂移。
 

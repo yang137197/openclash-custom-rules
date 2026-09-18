@@ -1,0 +1,23 @@
+# ============================================================
+# Manual-Japan：手工日本代理规则
+# ============================================================
+# 用途：
+#   把“必须走日本策略组”的特殊域名写在这里。
+#
+# 主配置通过以下规则调用本文件：
+#   RULE-SET,Manual-Japan,日本
+#
+# 维护规则：
+# - 根域名及全部子域名使用 DOMAIN-SUFFIX。
+# - 只匹配一个明确主机名时使用 DOMAIN。
+# - 不要写协议、路径、端口或参数。
+# - 本文件不得加入 TikTok；TikTok 必须继续由手机 SocksTun 承载。
+# ============================================================
+
+payload:
+  - DOMAIN,t27.cdn2020.com
+  - DOMAIN-SUFFIX,hscangku.com
+  - DOMAIN,222.0cck.cc
+  - DOMAIN-SUFFIX,51cg1.com
+  - DOMAIN,tx.doudou520.online
+  - DOMAIN,mts.hhjd.mobi

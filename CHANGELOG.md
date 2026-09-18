@@ -2,6 +2,25 @@
 
 只记录形成版本的长期变化。临时命令、失败尝试和排查流水不写入本文件。
 
+## v1.1.0 — 2026-09-18
+
+状态：候选，待真实 OpenClash 设备验收
+
+方案：`tiktok-sockstun-us`
+
+需求：R1–R10
+
+在保持 v1.0.0 的 R1–R8 行为不变的基础上：
+
+- 新增手选`日本`策略组，自动收录名称带日本、东京、大阪、JP、Japan 等标识的机场节点；
+- 日本组没有匹配节点时回退 `REJECT`，且排除名称以 `IPRoyal-` 开头的节点；
+- 新增 `rules/manual-japan.yaml` 和 `Manual-Japan` 规则集；
+- `t27.cdn2020.com`、`hscangku.com`、`222.0cck.cc`、`51cg1.com`、`tx.doudou520.online`、`mts.hhjd.mobi` 优先走`日本`；
+- 日本规则位于 Google/Google Play 之后、人工直连和中国规则之前；
+- DNS、TikTok、Google、人工直连、最终美国出口和 OpenClash 中文界面设置均未修改。
+
+本候选不更新当前稳定版本、兼容覆写入口或 Git 标签。
+
 ## v1.0.0 — 2026-09-17
 
 状态：稳定

@@ -175,6 +175,140 @@ if (ROOT / profile["modulePath"]).resolve().parent != version_directory:
 if (ROOT / profile["requirementsPath"]).resolve().parent != version_directory:
     fail("requirementsPath is outside the declared versionDirectory")
 
+immutable_version_directories = profile.get("immutableVersionDirectories", [])
+if profile["versionDirectory"] not in immutable_version_directories:
+    fail("current stable version directory must be immutable")
+
+candidate_versions = profile.get("candidateVersions", {})
+if not isinstance(candidate_versions, dict):
+    fail("candidateVersions must be an object")
+
+for candidate_version, candidate in candidate_versions.items():
+    if candidate.get("status") != "candidate":
+        fail(f"v{candidate_version} candidate must have status=candidate")
+
+    candidate_requirements = candidate.get("requirements", [])
+    expected_candidate_requirements = [f"R{number}" for number in range(1, 11)]
+    if candidate_requirements != expected_candidate_requirements:
+        fail(f"v{candidate_version} must preserve R1-R8 and add R9-R10")
+
+    candidate_module_text = read_text(candidate["modulePath"])
+    candidate_requirements_text = read_text(candidate["requirementsPath"])
+    manual_japan_text = read_text(candidate["manualJapanRulesPath"])
+
+    if sha256(candidate_module_text) != candidate.get("moduleSha256"):
+        fail(f"v{candidate_version} candidate module hash differs from catalog")
+    if sha256(manual_japan_text) != candidate.get("manualJapanRulesSha256"):
+        fail("manual-japan rules changed without a candidate/catalog update")
+
+    candidate_headers = [
+        line.strip()
+        for line in candidate_module_text.splitlines()
+        if re.fullmatch(r"\[[^\]]+\]", line.strip())
+    ]
+    if candidate_headers != ["[YAML]"]:
+        fail(
+            f"v{candidate_version} overwrite must contain exactly [YAML]; "
+            f"found: {candidate_headers}"
+        )
+
+    candidate_lines = candidate_module_text.splitlines()
+    candidate_yaml_index = candidate_lines.index("[YAML]")
+    candidate_unexpected_prefix = [
+        line
+        for line in candidate_lines[:candidate_yaml_index]
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    if candidate_unexpected_prefix:
+        fail(f"v{candidate_version} allows only comments before [YAML]")
+
+    for forbidden_text in [
+        "uci set ",
+        "uci -q set ",
+        "openclash.config.",
+        "overwrite_restart_flag",
+    ]:
+        if forbidden_text in candidate_module_text.lower():
+            fail(
+                f"v{candidate_version} overwrite contains forbidden text: "
+                f"{forbidden_text}"
+            )
+
+    candidate_required_fragments = required_module_fragments + [
+        "- name: 日本",
+        "RULE-SET,Manual-Japan,日本",
+        "/main/rules/manual-japan.yaml",
+        "./rule_provider/manual-japan.yaml",
+    ]
+    for fragment in candidate_required_fragments:
+        if fragment not in candidate_module_text:
+            fail(f"v{candidate_version} is missing protected fragment: {fragment}")
+
+    candidate_ordered_rules = [
+        "GEOSITE,tiktok,REJECT",
+        "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国",
+        "GEOSITE,google,美国",
+        "RULE-SET,Manual-Japan,日本",
+        "RULE-SET,Manual-Direct,DIRECT",
+        "GEOSITE,cn,DIRECT",
+        "GEOIP,CN,DIRECT,no-resolve",
+        "MATCH,美国",
+    ]
+    candidate_positions = [
+        candidate_module_text.index(rule) for rule in candidate_ordered_rules
+    ]
+    if candidate_positions != sorted(candidate_positions):
+        fail(f"v{candidate_version} protected routing order changed")
+
+    if candidate_module_text.count("'geosite:google':") != 1:
+        fail(f"v{candidate_version} must keep one independent Google DNS key")
+    if candidate_module_text.count("'+.xn--ngstr-lra8j.com':") != 1:
+        fail(f"v{candidate_version} must keep one independent Google Play DNS key")
+    if candidate_module_text.count("empty-fallback: REJECT") != 2:
+        fail(f"v{candidate_version} US and Japan groups must both fail closed")
+    if candidate_module_text.count("exclude-filter: '(?i)^IPRoyal-'") != 2:
+        fail(f"v{candidate_version} US and Japan groups must exclude IPRoyal")
+
+    manual_japan_entries = [
+        line.strip()
+        for line in manual_japan_text.splitlines()
+        if line.lstrip().startswith("- ")
+    ]
+    expected_japan_entries = [
+        "- DOMAIN,t27.cdn2020.com",
+        "- DOMAIN-SUFFIX,hscangku.com",
+        "- DOMAIN,222.0cck.cc",
+        "- DOMAIN-SUFFIX,51cg1.com",
+        "- DOMAIN,tx.doudou520.online",
+        "- DOMAIN,mts.hhjd.mobi",
+    ]
+    if manual_japan_entries != expected_japan_entries:
+        fail("manual-japan rules differ from the approved domain set")
+    if len(manual_japan_entries) != candidate.get("manualJapanRuleCount"):
+        fail("manual-japan entry count differs from catalog")
+
+    for requirement in candidate_requirements:
+        if requirement not in candidate_requirements_text:
+            fail(
+                f"v{candidate_version} requirements file does not mention {requirement}"
+            )
+
+    candidate_directory = (ROOT / candidate["versionDirectory"]).resolve()
+    if (ROOT / candidate["modulePath"]).resolve().parent != candidate_directory:
+        fail(f"v{candidate_version} modulePath is outside its versionDirectory")
+    if (ROOT / candidate["requirementsPath"]).resolve().parent != candidate_directory:
+        fail(f"v{candidate_version} requirementsPath is outside its versionDirectory")
+
+    candidate_marker = f"v{candidate_version}"
+    for relative_path, text in [
+        ("README.md", read_text("README.md")),
+        ("AGENTS.md", read_text("AGENTS.md")),
+        ("CHANGELOG.md", read_text("CHANGELOG.md")),
+        (profile["profileReadmePath"], profile_readme_text),
+    ]:
+        if candidate_marker not in text:
+            fail(f"{relative_path} does not mention candidate {candidate_marker}")
+
 if args.base_ref and set(args.base_ref) != {"0"}:
     result = subprocess.run(
         [
@@ -183,7 +317,7 @@ if args.base_ref and set(args.base_ref) != {"0"}:
             "--name-status",
             f"{args.base_ref}...HEAD",
             "--",
-            "profiles/*/versions/*",
+            *immutable_version_directories,
         ],
         cwd=ROOT,
         check=True,
@@ -205,3 +339,19 @@ print(
 print(f"OK: module sha256={sha256(module_text)}")
 print(f"OK: manual-direct entries={len(manual_entries)} sha256={sha256(manual_rules_text)}")
 print("OK: protected DNS keys and routing order")
+for candidate_version, candidate in candidate_versions.items():
+    candidate_module_text = read_text(candidate["modulePath"])
+    manual_japan_text = read_text(candidate["manualJapanRulesPath"])
+    manual_japan_entries = [
+        line.strip()
+        for line in manual_japan_text.splitlines()
+        if line.lstrip().startswith("- ")
+    ]
+    print(
+        f"OK: candidate=v{candidate_version} "
+        f"module_sha256={sha256(candidate_module_text)}"
+    )
+    print(
+        f"OK: manual-japan entries={len(manual_japan_entries)} "
+        f"sha256={sha256(manual_japan_text)}"
+    )
