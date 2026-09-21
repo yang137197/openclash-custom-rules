@@ -39,3 +39,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/v1.0.0/profi
 - 人工日本规则：[`../../rules/manual-japan.yaml`](../../rules/manual-japan.yaml)
 
 候选版本保持 `candidate`；真实 OpenClash 验收通过并获得明确批准前，不更新兼容覆写入口，不创建稳定标签。
+
+## 互斥的按设备方案
+
+若需要让指定设备的 TikTok 使用机场`美国`策略组，应改用独立候选方案 [`tiktok-hybrid-device-us`](../tiktok-hybrid-device-us/README.md)。该方案与本方案的 TikTok 唯一路径要求互斥，两个完整覆写不能同时启用。

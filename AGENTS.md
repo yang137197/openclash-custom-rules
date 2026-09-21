@@ -10,6 +10,8 @@
 - 当前版本覆写：`profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf`
 - 当前候选版本：`v1.1.0`（R1–R10，日本策略组与人工日本规则，尚未经过真实设备验收）
 - 当前候选覆写：`profiles/tiktok-sockstun-us/versions/v1.1.0/openclash-overwrite.conf`
+- 独立候选方案：`tiktok-hybrid-device-us v1.0.0`（H1–H9，`192.168.100.248/32` 的 TikTok 走机场`美国`，尚未经过真实设备验收）
+- 独立候选覆写：`profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf`
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
 - 候选人工日本规则：`rules/manual-japan.yaml`
@@ -29,6 +31,7 @@
 9. 不同需求方案必须使用不同的方案 ID、版本目录、完整覆写和固定 URL；单个 OpenClash 配置只能启用一个方案覆写，禁止叠加或混用。
 10. 根目录兼容覆写只对应 `profiles/catalog.json` 的 `currentProfile`，不得作为 A–D 多个方案的共用入口。
 11. `rules/manual-direct.yaml` 只允许需求完全一致的方案共享；直连范围不同必须拆分为方案专属规则文件。
+12. `tiktok-hybrid-device-us` 只能放行需求合同中明确列出的固定来源 IP；未列出的设备必须继续命中 TikTok 拒绝规则。不得把整个网段、所有设备或 TikTok 直连作为回退。
 
 ## 允许直接修改
 

@@ -40,6 +40,7 @@
 - `profiles/catalog.json`：当前方案、版本、状态和文件映射的机器可读事实来源；
 - `profiles/<方案>/versions/<版本>/openclash-overwrite.conf`：发布后不再修改的完整覆写；
 - `profiles/<方案>/versions/<版本>/REQUIREMENTS.md`：该版本的冻结需求、界面设置和验收标准；
+- `profiles/tiktok-hybrid-device-us/`：按设备区分 TikTok 出口的独立候选方案；不得与 `tiktok-sockstun-us` 的覆写混用；
 - `overwrite/openclash-overwrite.conf`：兼容入口，内容必须与当前稳定版本覆写一致；
 - `rules/manual-direct.yaml`：当前生效的人工直连数据；每次修改都必须形成新版本，以便由 Git 标签恢复历史快照；
 - `CHANGELOG.md`：版本级长期记录，不保存排查流水；
@@ -99,6 +100,10 @@
 4. 重新执行该版本 `REQUIREMENTS.md` 中的验收。
 
 禁止通过删除新版本、重写旧标签或修改旧版本目录来“回滚”。
+
+## 按设备分流的版本边界
+
+按来源 IP 放行 TikTok 属于路由行为，不是普通运行参数。设备必须先通过 DHCP 固定地址；增加、删除或更换授权 IP 时，必须创建该方案的新候选版本，更新需求合同、目录、目录索引和变更记录，再进行真实设备验收。不得直接改写已经发布的版本，也不得使用整个局域网网段替代精确 `/32` 地址。
 
 ## 更换开发电脑
 

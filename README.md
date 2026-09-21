@@ -6,7 +6,8 @@
 | --- | --- |
 | 方案 ID | `tiktok-sockstun-us` |
 | 稳定版本 | `v1.0.0` |
-| 候选版本 | `v1.1.0`（待真实设备验收） |
+| 同方案候选版本 | `tiktok-sockstun-us v1.1.0`（待真实设备验收） |
+| 独立候选方案 | `tiktok-hybrid-device-us v1.0.0`（按设备分流 TikTok，待真实设备验收） |
 | 稳定版需求 | R1–R8 |
 | 稳定版状态 | 稳定 |
 | 固定版本覆写 | `profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf` |
@@ -22,6 +23,7 @@
 4. [`profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md)：`v1.0.0` 的冻结需求和验收标准；
 5. [`profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md)：`v1.1.0` 候选新增需求和验收标准；
 6. [`CHANGELOG.md`](CHANGELOG.md)：只记录已经形成版本的长期变更。
+7. [`profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md)：按设备分流 TikTok 的独立候选需求和验收标准。
 
 ### 多方案隔离原则
 
@@ -58,6 +60,7 @@ profiles/catalog.json                              # 方案和版本索引
 profiles/tiktok-sockstun-us/README.md              # 当前方案入口
 profiles/tiktok-sockstun-us/versions/v1.0.0/       # 不再修改的版本快照
 profiles/tiktok-sockstun-us/versions/v1.1.0/       # 日本策略组候选版本
+profiles/tiktok-hybrid-device-us/                  # 按设备分流 TikTok 的独立候选方案
 rules/manual-direct.yaml                           # 当前人工直连规则
 rules/manual-japan.yaml                            # 候选人工日本代理规则
 scripts/validate_repository.py                     # 跨电脑一致性校验
@@ -84,6 +87,29 @@ scripts/validate_repository.py                     # 跨电脑一致性校验
 - R10：`rules/manual-japan.yaml` 中的特殊网站通过 `Manual-Japan` 走`日本`。
 
 候选版本未修改 DNS、TikTok、Google/Google Play、人工直连、最终美国出口或 OpenClash 中文界面设置。真实设备完成 R1–R10 验收前，`v1.0.0` 仍是唯一稳定版本，兼容覆写入口保持不变。
+
+## 独立候选方案：按设备分流 TikTok
+
+`tiktok-hybrid-device-us v1.0.0` 用于以下互斥需求组合：
+
+- 固定来源 `192.168.100.248/32` 的 TikTok 走现有机场`美国`策略组；
+- 其他设备继续使用手机 SocksTun + IPRoyal；泄漏到 OpenClash 的可识别 TikTok 连接继续 `REJECT`；
+- Google/Google Play、中国直连、Manual-Direct、局域网直连和当前中文界面设置继承稳定基线；
+- 不包含 `tiktok-sockstun-us v1.1.0` 的日本候选规则。
+
+因为该需求允许部分设备使用机场访问 TikTok，与当前稳定方案的 R1 互斥，所以必须使用独立方案 ID 和独立覆写，不能修改或叠加在稳定方案上。
+
+候选测试 URL：
+
+```text
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf
+```
+
+使用前必须在路由器 DHCP 中把目标设备固定为 `192.168.100.248`。测试时只启用该候选覆写，不得同时启用根目录兼容覆写、稳定版本覆写或日本候选覆写。
+
+为了让指定设备解析 TikTok，本候选对 `geosite:tiktok` 使用经`美国`策略连接的公共 DNS。其他设备也可能解析出 TikTok IP，但解析成功不等于可以连接；随后可识别的 TikTok 连接仍由通用 `REJECT` 规则阻断。本需求不要求划分 VLAN 或独立 DNS。
+
+详细规则、设置与九项验收见 [`profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md)。真实设备验收前，该方案保持候选状态，不更新兼容覆写入口，也不创建稳定标签。
 
 ## 变更规则
 
