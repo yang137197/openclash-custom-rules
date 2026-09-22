@@ -38,8 +38,10 @@
     },
     "tiktok-hybrid-device-us": {
       "title": "指定设备 TikTok 走机场美国，其他设备使用 SocksTun/IPRoyal",
-      "status": "candidate",
-      "candidateVersion": "1.0.0",
+      "status": "stable",
+      "currentVersion": "1.0.0",
+      "tag": "tiktok-hybrid-device-us-v1.0.0",
+      "legacyTag": false,
       "requirements": ["H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9"],
       "versionDirectory": "profiles/tiktok-hybrid-device-us/versions/v1.0.0",
       "modulePath": "profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf",
@@ -47,7 +49,10 @@
       "profileReadmePath": "profiles/tiktok-hybrid-device-us/README.md",
       "sharedManualRulesPath": "rules/manual-direct.yaml",
       "moduleSha256": "5834926a6c220feaff8f0f6eccd68b5bff420a1665e6f668e55c76ab7d03289d",
-      "authorizedTikTokUsDevices": ["192.168.100.248/32"]
+      "authorizedTikTokUsDevices": ["192.168.100.248/32"],
+      "immutableVersionDirectories": [
+        "profiles/tiktok-hybrid-device-us/versions/v1.0.0"
+      ]
     }
   }
 }

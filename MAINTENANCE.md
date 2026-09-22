@@ -40,7 +40,7 @@
 - `profiles/catalog.json`：当前方案、版本、状态和文件映射的机器可读事实来源；
 - `profiles/<方案>/versions/<版本>/openclash-overwrite.conf`：发布后不再修改的完整覆写；
 - `profiles/<方案>/versions/<版本>/REQUIREMENTS.md`：该版本的冻结需求、界面设置和验收标准；
-- `profiles/tiktok-hybrid-device-us/`：按设备区分 TikTok 出口的独立候选方案；不得与 `tiktok-sockstun-us` 的覆写混用；
+- `profiles/tiktok-hybrid-device-us/`：按设备区分 TikTok 出口的独立稳定方案；不得与 `tiktok-sockstun-us` 的覆写混用；
 - `overwrite/openclash-overwrite.conf`：兼容入口，内容必须与当前稳定版本覆写一致；
 - `rules/manual-direct.yaml`：当前生效的人工直连数据；每次修改都必须形成新版本，以便由 Git 标签恢复历史快照；
 - `CHANGELOG.md`：版本级长期记录，不保存排查流水；

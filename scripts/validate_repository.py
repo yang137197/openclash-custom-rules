@@ -312,11 +312,15 @@ for candidate_version, candidate in candidate_versions.items():
 hybrid_profile_id = "tiktok-hybrid-device-us"
 hybrid_profile = profiles.get(hybrid_profile_id)
 if not isinstance(hybrid_profile, dict):
-    fail(f"missing candidate profile: {hybrid_profile_id}")
-if hybrid_profile.get("status") != "candidate":
-    fail(f"{hybrid_profile_id} must remain candidate before device acceptance")
-if hybrid_profile.get("candidateVersion") != "1.0.0":
-    fail(f"{hybrid_profile_id} candidateVersion must be 1.0.0")
+    fail(f"missing stable profile: {hybrid_profile_id}")
+if hybrid_profile.get("status") != "stable":
+    fail(f"{hybrid_profile_id} must be stable after device acceptance")
+if hybrid_profile.get("currentVersion") != "1.0.0":
+    fail(f"{hybrid_profile_id} currentVersion must be 1.0.0")
+if hybrid_profile.get("tag") != "tiktok-hybrid-device-us-v1.0.0":
+    fail(f"{hybrid_profile_id} stable tag differs from the profile tag convention")
+if hybrid_profile.get("legacyTag") is not False:
+    fail(f"{hybrid_profile_id} must use the profile-specific tag convention")
 
 hybrid_requirements = hybrid_profile.get("requirements", [])
 expected_hybrid_requirements = [f"H{number}" for number in range(1, 10)]
@@ -415,6 +419,10 @@ if (ROOT / hybrid_profile["modulePath"]).resolve().parent != hybrid_directory:
     fail(f"{hybrid_profile_id} modulePath is outside its versionDirectory")
 if (ROOT / hybrid_profile["requirementsPath"]).resolve().parent != hybrid_directory:
     fail(f"{hybrid_profile_id} requirementsPath is outside its versionDirectory")
+if hybrid_profile.get("immutableVersionDirectories") != [
+    hybrid_profile["versionDirectory"]
+]:
+    fail(f"{hybrid_profile_id} stable version directory must be immutable")
 
 for relative_path, text in [
     ("README.md", read_text("README.md")),
@@ -426,6 +434,26 @@ for relative_path, text in [
         fail(f"{relative_path} does not mention {hybrid_profile_id} v1.0.0")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
+    try:
+        base_catalog_result = subprocess.run(
+            ["git", "show", f"{args.base_ref}:profiles/catalog.json"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        base_catalog = json.loads(base_catalog_result.stdout)
+    except (subprocess.CalledProcessError, json.JSONDecodeError) as error:
+        fail(f"cannot read base catalog from {args.base_ref}: {error}")
+
+    protected_at_base = []
+    for base_profile in base_catalog.get("profiles", {}).values():
+        if base_profile.get("status") == "stable":
+            protected_at_base.extend(
+                base_profile.get("immutableVersionDirectories", [])
+            )
+
     result = subprocess.run(
         [
             "git",
@@ -433,7 +461,7 @@ if args.base_ref and set(args.base_ref) != {"0"}:
             "--name-status",
             f"{args.base_ref}...HEAD",
             "--",
-            *immutable_version_directories,
+            *protected_at_base,
         ],
         cwd=ROOT,
         check=True,
@@ -472,7 +500,7 @@ for candidate_version, candidate in candidate_versions.items():
         f"sha256={sha256(manual_japan_text)}"
     )
 print(
-    f"OK: candidate_profile={hybrid_profile_id} version=v1.0.0 "
+    f"OK: stable_profile={hybrid_profile_id} version=v1.0.0 "
     f"module_sha256={sha256(hybrid_module_text)}"
 )
 print("OK: authorized TikTok US device=192.168.100.248/32")

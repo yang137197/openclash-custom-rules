@@ -10,8 +10,9 @@
 - 当前版本覆写：`profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf`
 - 当前候选版本：`v1.1.0`（R1–R10，日本策略组与人工日本规则，尚未经过真实设备验收）
 - 当前候选覆写：`profiles/tiktok-sockstun-us/versions/v1.1.0/openclash-overwrite.conf`
-- 独立候选方案：`tiktok-hybrid-device-us v1.0.0`（H1–H9，`192.168.100.248/32` 的 TikTok 走机场`美国`，尚未经过真实设备验收）
-- 独立候选覆写：`profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf`
+- 独立稳定方案：`tiktok-hybrid-device-us v1.0.0`（H1–H9，`192.168.100.248/32` 的 TikTok 走机场`美国`，2026-09-22 已完成真实设备验收）
+- 独立稳定覆写：`profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf`
+- 独立稳定标签：`tiktok-hybrid-device-us-v1.0.0`
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
 - 候选人工日本规则：`rules/manual-japan.yaml`
