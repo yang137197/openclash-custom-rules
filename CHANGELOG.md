@@ -4,7 +4,9 @@
 
 ## tiktok-hybrid-device-us v1.0.1 — 2026-09-27
 
-状态：候选，待真实 OpenClash 设备验收
+状态：稳定
+
+验证日期：2026-09-27
 
 方案：`tiktok-hybrid-device-us`
 
@@ -13,9 +15,9 @@
 - H1 授权设备由 `192.168.100.248/32` 改为 `192.168.100.198/32`；
 - `.248` 不再获得 TikTok 机场美国出口权限，继续由通用 TikTok `REJECT` 规则失败关闭；
 - H2–H9、DNS、策略组、Google/Google Play、Manual-Direct、中国直连、局域网和中文界面设置保持 `v1.0.0` 行为；
-- 稳定版 `v1.0.0`、标签 `tiktok-hybrid-device-us-v1.0.0`、其他方案及根目录兼容覆写均未修改。
+- 旧稳定版 `v1.0.0`、标签 `tiktok-hybrid-device-us-v1.0.0`、其他方案及根目录兼容覆写均未修改。
 
-本候选在真实设备验收前不创建稳定标签。
+2026-09-27 用户完成真实设备测试并确认正常，随后明确批准立即发布。稳定标签为 `tiktok-hybrid-device-us-v1.0.1`。
 
 ## tiktok-hybrid-device-us v1.0.0 — 2026-09-21
 

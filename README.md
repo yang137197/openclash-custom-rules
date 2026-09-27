@@ -7,8 +7,7 @@
 | 方案 ID | `tiktok-sockstun-us` |
 | 稳定版本 | `v1.0.0` |
 | 同方案候选版本 | `tiktok-sockstun-us v1.1.0`（待真实设备验收） |
-| 独立稳定方案 | `tiktok-hybrid-device-us v1.0.0`（按设备分流 TikTok，2026-09-22 已验收） |
-| 独立方案候选 | `tiktok-hybrid-device-us v1.0.1`（授权设备改为 `192.168.100.198/32`，待验收） |
+| 独立稳定方案 | `tiktok-hybrid-device-us v1.0.1`（按设备分流 TikTok，2026-09-27 已验收） |
 | 稳定版需求 | R1–R8 |
 | 稳定版状态 | 稳定 |
 | 固定版本覆写 | `profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf` |
@@ -24,7 +23,7 @@
 4. [`profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.0.0/REQUIREMENTS.md)：`v1.0.0` 的冻结需求和验收标准；
 5. [`profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md`](profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md)：`v1.1.0` 候选新增需求和验收标准；
 6. [`CHANGELOG.md`](CHANGELOG.md)：只记录已经形成版本的长期变更。
-7. [`profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md)：按设备分流 TikTok 的独立稳定需求和验收标准。
+7. [`profiles/tiktok-hybrid-device-us/versions/v1.0.1/REQUIREMENTS.md`](profiles/tiktok-hybrid-device-us/versions/v1.0.1/REQUIREMENTS.md)：按设备分流 TikTok 的独立稳定需求和验收标准。
 
 ### 多方案隔离原则
 
@@ -62,7 +61,7 @@ profiles/tiktok-sockstun-us/README.md              # 当前方案入口
 profiles/tiktok-sockstun-us/versions/v1.0.0/       # 不再修改的版本快照
 profiles/tiktok-sockstun-us/versions/v1.1.0/       # 日本策略组候选版本
 profiles/tiktok-hybrid-device-us/                  # 按设备分流 TikTok 的独立稳定方案
-profiles/tiktok-hybrid-device-us/versions/v1.0.1/  # 授权设备地址变更候选版本
+profiles/tiktok-hybrid-device-us/versions/v1.0.1/  # 当前按设备分流稳定版本
 rules/manual-direct.yaml                           # 当前人工直连规则
 rules/manual-japan.yaml                            # 候选人工日本代理规则
 scripts/validate_repository.py                     # 跨电脑一致性校验
@@ -92,9 +91,9 @@ scripts/validate_repository.py                     # 跨电脑一致性校验
 
 ## 独立稳定方案：按设备分流 TikTok
 
-`tiktok-hybrid-device-us v1.0.0` 用于以下互斥需求组合：
+`tiktok-hybrid-device-us v1.0.1` 用于以下互斥需求组合：
 
-- 固定来源 `192.168.100.248/32` 的 TikTok 走现有机场`美国`策略组；
+- 固定来源 `192.168.100.198/32` 的 TikTok 走现有机场`美国`策略组；
 - 其他设备继续使用手机 SocksTun + IPRoyal；泄漏到 OpenClash 的可识别 TikTok 连接继续 `REJECT`；
 - Google/Google Play、中国直连、Manual-Direct、局域网直连和当前中文界面设置继承稳定基线；
 - 不包含 `tiktok-sockstun-us v1.1.0` 的日本候选规则。
@@ -104,26 +103,18 @@ scripts/validate_repository.py                     # 跨电脑一致性校验
 固定版本 URL：
 
 ```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybrid-device-us-v1.0.0/profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybrid-device-us-v1.0.1/profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf
 ```
 
-使用前必须在路由器 DHCP 中把目标设备固定为 `192.168.100.248`。只启用该方案的固定版本覆写，不得同时启用根目录兼容覆写、其他稳定方案覆写或日本候选覆写。
+使用前必须在路由器 DHCP 中把目标设备固定为 `192.168.100.198`。只启用该方案的固定版本覆写，不得同时启用根目录兼容覆写、其他稳定方案覆写或日本候选覆写。
 
 为了让指定设备解析 TikTok，本方案对 `geosite:tiktok` 使用经`美国`策略连接的公共 DNS。其他设备也可能解析出 TikTok IP，但解析成功不等于可以连接；随后可识别的 TikTok 连接仍由通用 `REJECT` 规则阻断。本需求不要求划分 VLAN 或独立 DNS。
 
-详细规则、设置与九项验收见 [`profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md`](profiles/tiktok-hybrid-device-us/versions/v1.0.0/REQUIREMENTS.md)。该方案已于 2026-09-22 完成真实设备测试并获得明确稳定发布授权；稳定标签为 `tiktok-hybrid-device-us-v1.0.0`。根目录兼容覆写入口仍属于原 `currentProfile`，不会自动切换到本方案。
+详细规则、设置与九项验收见 [`profiles/tiktok-hybrid-device-us/versions/v1.0.1/REQUIREMENTS.md`](profiles/tiktok-hybrid-device-us/versions/v1.0.1/REQUIREMENTS.md)。该版本已于 2026-09-27 完成真实设备测试并获得明确稳定发布授权；稳定标签为 `tiktok-hybrid-device-us-v1.0.1`。根目录兼容覆写入口仍属于原 `currentProfile`，不会自动切换到本方案。
 
-### 授权设备地址变更候选
+### 历史版本
 
-`tiktok-hybrid-device-us v1.0.1` 只把 H1 授权设备由 `192.168.100.248/32` 改为 `192.168.100.198/32`。`.248` 在该候选中不再放行；H2–H9 和其他稳定行为不变。
-
-候选测试 URL：
-
-```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf
-```
-
-测试前应通过 DHCP 把目标设备固定为 `192.168.100.198`，并且只启用这个候选覆写。完成 `.198` 放行、`.248` 拒绝及其余稳定基线回归前，`v1.0.0` 仍是当前稳定版本。
+`tiktok-hybrid-device-us v1.0.0` 固定放行 `192.168.100.248/32`，其目录和标签继续作为不可变历史快照保留。`v1.0.1` 不再放行 `.248`；H2–H9 和其他稳定行为保持不变。
 
 ## 变更规则
 

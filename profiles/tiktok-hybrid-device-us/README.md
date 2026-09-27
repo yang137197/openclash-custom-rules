@@ -2,28 +2,26 @@
 
 状态：稳定方案
 
-当前稳定版本：`v1.0.0`
+当前稳定版本：`v1.0.1`
 
-当前候选版本：`v1.0.1`（授权设备改为 `192.168.100.198/32`，待真实设备验收）
-
-验证日期：2026-09-22
+验证日期：2026-09-27
 
 本方案用于同时满足两种 TikTok 出口：
 
-- 固定设备 `192.168.100.248` 的 TikTok 使用现有机场`美国`策略组；
+- 固定设备 `192.168.100.198` 的 TikTok 使用现有机场`美国`策略组；
 - 其他设备仍使用手机 SocksTun + IPRoyal，泄漏到 OpenClash 的可识别 TikTok 连接继续拒绝。
 
 它与稳定方案 `tiktok-sockstun-us` 的 R1 互斥，因此拥有独立方案 ID、完整覆写和 URL。两个方案不得同时启用。
 
 ## 稳定版本文件
 
-- [需求与验收](versions/v1.0.0/REQUIREMENTS.md)
-- [完整覆写](versions/v1.0.0/openclash-overwrite.conf)
+- [需求与验收](versions/v1.0.1/REQUIREMENTS.md)
+- [完整覆写](versions/v1.0.1/openclash-overwrite.conf)
 
 固定版本 URL：
 
 ```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybrid-device-us-v1.0.0/profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybrid-device-us-v1.0.1/profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf
 ```
 
 只启用上面的固定版本覆写，不得同时启用根目录兼容覆写、其他方案覆写或日本候选覆写。应用后在`美国`策略组手工选择一个机场美国节点。
@@ -33,7 +31,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybri
 必须在路由器 DHCP 中把目标设备固定为：
 
 ```text
-192.168.100.248
+192.168.100.198
 ```
 
 规则使用精确 `/32` 来源地址，不会把同网段其他设备一并放行。设备地址改变后，TikTok 将命中通用 `REJECT`，这是预期的失败关闭行为。
@@ -48,17 +46,6 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybri
 - 纯 IP、未被嗅探且未收录进 GeoSite 的新目标无法仅凭域名规则识别，异常时必须检查 OpenClash 实时日志；
 - 增加或更换授权设备必须新建版本，不能直接修改已经发布的版本。
 
-## v1.0.1 候选
+## 历史版本
 
-本候选只把 H1 授权来源由 `192.168.100.248/32` 改为 `192.168.100.198/32`，其余行为继承稳定版。
-
-- [候选需求与验收](versions/v1.0.1/REQUIREMENTS.md)
-- [候选完整覆写](versions/v1.0.1/openclash-overwrite.conf)
-
-候选测试 URL：
-
-```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf
-```
-
-测试时只启用候选覆写。真实设备验收并获得明确发布批准前，不得修改 `v1.0.0`、移动其标签或把 `v1.0.1` 标记为稳定。
+`v1.0.0` 固定放行 `192.168.100.248/32`，已由 `v1.0.1` 取代，但其目录和标签继续作为不可变历史快照保留。不要在当前 `.198` 设备上混用旧版覆写。

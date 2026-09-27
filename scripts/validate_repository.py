@@ -315,9 +315,9 @@ if not isinstance(hybrid_profile, dict):
     fail(f"missing stable profile: {hybrid_profile_id}")
 if hybrid_profile.get("status") != "stable":
     fail(f"{hybrid_profile_id} must be stable after device acceptance")
-if hybrid_profile.get("currentVersion") != "1.0.0":
-    fail(f"{hybrid_profile_id} currentVersion must be 1.0.0")
-if hybrid_profile.get("tag") != "tiktok-hybrid-device-us-v1.0.0":
+if hybrid_profile.get("currentVersion") != "1.0.1":
+    fail(f"{hybrid_profile_id} currentVersion must be 1.0.1")
+if hybrid_profile.get("tag") != "tiktok-hybrid-device-us-v1.0.1":
     fail(f"{hybrid_profile_id} stable tag differs from the profile tag convention")
 if hybrid_profile.get("legacyTag") is not False:
     fail(f"{hybrid_profile_id} must use the profile-specific tag convention")
@@ -326,7 +326,7 @@ hybrid_requirements = hybrid_profile.get("requirements", [])
 expected_hybrid_requirements = [f"H{number}" for number in range(1, 10)]
 if hybrid_requirements != expected_hybrid_requirements:
     fail(f"{hybrid_profile_id} must declare H1-H9")
-if hybrid_profile.get("authorizedTikTokUsDevices") != ["192.168.100.248/32"]:
+if hybrid_profile.get("authorizedTikTokUsDevices") != ["192.168.100.198/32"]:
     fail(f"{hybrid_profile_id} authorized device list changed without a new version")
 
 hybrid_module_text = read_text(hybrid_profile["modulePath"])
@@ -334,7 +334,7 @@ hybrid_requirements_text = read_text(hybrid_profile["requirementsPath"])
 hybrid_readme_text = read_text(hybrid_profile["profileReadmePath"])
 
 if sha256(hybrid_module_text) != hybrid_profile.get("moduleSha256"):
-    fail(f"{hybrid_profile_id} candidate module hash differs from catalog")
+    fail(f"{hybrid_profile_id} stable module hash differs from catalog")
 
 hybrid_headers = [
     line.strip()
@@ -364,7 +364,7 @@ for forbidden_text in [
         fail(f"{hybrid_profile_id} overwrite contains forbidden text: {forbidden_text}")
 
 hybrid_device_rule = (
-    "AND,((SRC-IP-CIDR,192.168.100.248/32),(GEOSITE,tiktok)),美国"
+    "AND,((SRC-IP-CIDR,192.168.100.198/32),(GEOSITE,tiktok)),美国"
 )
 hybrid_required_fragments = [
     "'geosite:tiktok':",
@@ -382,6 +382,8 @@ hybrid_required_fragments = [
 for fragment in hybrid_required_fragments:
     if fragment not in hybrid_module_text:
         fail(f"{hybrid_profile_id} is missing protected fragment: {fragment}")
+if "SRC-IP-CIDR,192.168.100.248/32" in hybrid_module_text:
+    fail(f"{hybrid_profile_id} v1.0.1 must remove the old .248 authorization")
 if "'geosite:tiktok': rcode://success" in hybrid_module_text:
     fail(f"{hybrid_profile_id} cannot return empty TikTok DNS to the allowed device")
 if "RULE-SET,Manual-Japan,日本" in hybrid_module_text or "- name: 日本" in hybrid_module_text:
@@ -420,9 +422,10 @@ if (ROOT / hybrid_profile["modulePath"]).resolve().parent != hybrid_directory:
 if (ROOT / hybrid_profile["requirementsPath"]).resolve().parent != hybrid_directory:
     fail(f"{hybrid_profile_id} requirementsPath is outside its versionDirectory")
 if hybrid_profile.get("immutableVersionDirectories") != [
-    hybrid_profile["versionDirectory"]
+    "profiles/tiktok-hybrid-device-us/versions/v1.0.0",
+    "profiles/tiktok-hybrid-device-us/versions/v1.0.1",
 ]:
-    fail(f"{hybrid_profile_id} stable version directory must be immutable")
+    fail(f"{hybrid_profile_id} published version directories must be immutable")
 
 for relative_path, text in [
     ("README.md", read_text("README.md")),
@@ -430,133 +433,16 @@ for relative_path, text in [
     ("CHANGELOG.md", read_text("CHANGELOG.md")),
     (hybrid_profile["profileReadmePath"], hybrid_readme_text),
 ]:
-    if hybrid_profile_id not in text or "v1.0.0" not in text:
-        fail(f"{relative_path} does not mention {hybrid_profile_id} v1.0.0")
+    if (
+        hybrid_profile_id not in text
+        or "v1.0.1" not in text
+        or "192.168.100.198" not in text
+    ):
+        fail(f"{relative_path} does not document stable {hybrid_profile_id} v1.0.1")
 
 hybrid_candidates = hybrid_profile.get("candidateVersions", {})
-if set(hybrid_candidates) != {"1.0.1"}:
-    fail(f"{hybrid_profile_id} must declare only the v1.0.1 candidate")
-
-hybrid_candidate_version = "1.0.1"
-hybrid_candidate = hybrid_candidates[hybrid_candidate_version]
-if hybrid_candidate.get("status") != "candidate":
-    fail(f"{hybrid_profile_id} v1.0.1 must remain candidate before acceptance")
-if hybrid_candidate.get("requirements") != expected_hybrid_requirements:
-    fail(f"{hybrid_profile_id} v1.0.1 must preserve H1-H9")
-if hybrid_candidate.get("authorizedTikTokUsDevices") != ["192.168.100.198/32"]:
-    fail(f"{hybrid_profile_id} v1.0.1 must authorize only 192.168.100.198/32")
-
-hybrid_candidate_module_text = read_text(hybrid_candidate["modulePath"])
-hybrid_candidate_requirements_text = read_text(hybrid_candidate["requirementsPath"])
-if sha256(hybrid_candidate_module_text) != hybrid_candidate.get("moduleSha256"):
-    fail(f"{hybrid_profile_id} v1.0.1 module hash differs from catalog")
-
-hybrid_candidate_headers = [
-    line.strip()
-    for line in hybrid_candidate_module_text.splitlines()
-    if re.fullmatch(r"\[[^\]]+\]", line.strip())
-]
-if hybrid_candidate_headers != ["[YAML]"]:
-    fail(f"{hybrid_profile_id} v1.0.1 overwrite must contain exactly [YAML]")
-
-hybrid_candidate_lines = hybrid_candidate_module_text.splitlines()
-hybrid_candidate_yaml_index = hybrid_candidate_lines.index("[YAML]")
-hybrid_candidate_unexpected_prefix = [
-    line
-    for line in hybrid_candidate_lines[:hybrid_candidate_yaml_index]
-    if line.strip() and not line.lstrip().startswith("#")
-]
-if hybrid_candidate_unexpected_prefix:
-    fail(f"{hybrid_profile_id} v1.0.1 allows only comments before [YAML]")
-
-for forbidden_text in [
-    "uci set ",
-    "uci -q set ",
-    "openclash.config.",
-    "overwrite_restart_flag",
-]:
-    if forbidden_text in hybrid_candidate_module_text.lower():
-        fail(
-            f"{hybrid_profile_id} v1.0.1 overwrite contains forbidden text: "
-            f"{forbidden_text}"
-        )
-
-hybrid_candidate_device_rule = (
-    "AND,((SRC-IP-CIDR,192.168.100.198/32),(GEOSITE,tiktok)),美国"
-)
-hybrid_candidate_required_fragments = [
-    "'geosite:tiktok':",
-    "'https://1.1.1.1/dns-query#美国'",
-    hybrid_candidate_device_rule,
-    "GEOSITE,tiktok,REJECT",
-    "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国",
-    "GEOSITE,google,美国",
-    "RULE-SET,Manual-Direct,DIRECT",
-    "GEOSITE,cn,DIRECT",
-    "GEOIP,CN,DIRECT,no-resolve",
-    "MATCH,美国",
-    "empty-fallback: REJECT",
-]
-for fragment in hybrid_candidate_required_fragments:
-    if fragment not in hybrid_candidate_module_text:
-        fail(f"{hybrid_profile_id} v1.0.1 is missing protected fragment: {fragment}")
-
-if "SRC-IP-CIDR,192.168.100.248/32" in hybrid_candidate_module_text:
-    fail(f"{hybrid_profile_id} v1.0.1 must remove the old .248 authorization")
-if "'geosite:tiktok': rcode://success" in hybrid_candidate_module_text:
-    fail(f"{hybrid_profile_id} v1.0.1 cannot return empty TikTok DNS")
-if (
-    "RULE-SET,Manual-Japan,日本" in hybrid_candidate_module_text
-    or "- name: 日本" in hybrid_candidate_module_text
-):
-    fail(f"{hybrid_profile_id} v1.0.1 must not inherit the Japan candidate")
-
-hybrid_candidate_ordered_rules = [
-    hybrid_candidate_device_rule,
-    "GEOSITE,tiktok,REJECT",
-    "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国",
-    "GEOSITE,google,美国",
-    "RULE-SET,Manual-Direct,DIRECT",
-    "GEOSITE,cn,DIRECT",
-    "GEOIP,CN,DIRECT,no-resolve",
-    "MATCH,美国",
-]
-hybrid_candidate_positions = [
-    hybrid_candidate_module_text.index(rule)
-    for rule in hybrid_candidate_ordered_rules
-]
-if hybrid_candidate_positions != sorted(hybrid_candidate_positions):
-    fail(f"{hybrid_profile_id} v1.0.1 protected routing order changed")
-
-if hybrid_candidate_module_text.count("'geosite:google':") != 1:
-    fail(f"{hybrid_profile_id} v1.0.1 must keep one Google DNS key")
-if hybrid_candidate_module_text.count("'+.xn--ngstr-lra8j.com':") != 1:
-    fail(f"{hybrid_profile_id} v1.0.1 must keep one Google Play DNS key")
-if hybrid_candidate_module_text.count("exclude-filter: '(?i)^IPRoyal-'") != 1:
-    fail(f"{hybrid_profile_id} v1.0.1 US group must exclude IPRoyal")
-
-for requirement in expected_hybrid_requirements:
-    if requirement not in hybrid_candidate_requirements_text:
-        fail(f"{hybrid_profile_id} v1.0.1 requirements omit {requirement}")
-
-hybrid_candidate_directory = (
-    ROOT / hybrid_candidate["versionDirectory"]
-).resolve()
-if (ROOT / hybrid_candidate["modulePath"]).resolve().parent != hybrid_candidate_directory:
-    fail(f"{hybrid_profile_id} v1.0.1 modulePath is outside its versionDirectory")
-if (
-    ROOT / hybrid_candidate["requirementsPath"]
-).resolve().parent != hybrid_candidate_directory:
-    fail(f"{hybrid_profile_id} v1.0.1 requirementsPath is outside its versionDirectory")
-
-for relative_path, text in [
-    ("README.md", read_text("README.md")),
-    ("AGENTS.md", read_text("AGENTS.md")),
-    ("CHANGELOG.md", read_text("CHANGELOG.md")),
-    (hybrid_profile["profileReadmePath"], hybrid_readme_text),
-]:
-    if "v1.0.1" not in text or "192.168.100.198" not in text:
-        fail(f"{relative_path} does not document the hybrid v1.0.1 candidate")
+if hybrid_candidates:
+    fail(f"{hybrid_profile_id} must not retain v1.0.1 as a candidate after release")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
     try:
@@ -625,12 +511,7 @@ for candidate_version, candidate in candidate_versions.items():
         f"sha256={sha256(manual_japan_text)}"
     )
 print(
-    f"OK: stable_profile={hybrid_profile_id} version=v1.0.0 "
+    f"OK: stable_profile={hybrid_profile_id} version=v1.0.1 "
     f"module_sha256={sha256(hybrid_module_text)}"
 )
-print("OK: authorized TikTok US device=192.168.100.248/32")
-print(
-    f"OK: candidate_profile={hybrid_profile_id} version=v1.0.1 "
-    f"module_sha256={sha256(hybrid_candidate_module_text)}"
-)
-print("OK: candidate authorized TikTok US device=192.168.100.198/32")
+print("OK: authorized TikTok US device=192.168.100.198/32")
