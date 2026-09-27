@@ -52,7 +52,18 @@
       "authorizedTikTokUsDevices": ["192.168.100.248/32"],
       "immutableVersionDirectories": [
         "profiles/tiktok-hybrid-device-us/versions/v1.0.0"
-      ]
+      ],
+      "candidateVersions": {
+        "1.0.1": {
+          "status": "candidate",
+          "requirements": ["H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9"],
+          "versionDirectory": "profiles/tiktok-hybrid-device-us/versions/v1.0.1",
+          "modulePath": "profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-hybrid-device-us/versions/v1.0.1/REQUIREMENTS.md",
+          "moduleSha256": "3875f634b3ca55837e91c17b0f241c7435be852264fa3d9a6360f7f0918a1a92",
+          "authorizedTikTokUsDevices": ["192.168.100.198/32"]
+        }
+      }
     }
   }
 }

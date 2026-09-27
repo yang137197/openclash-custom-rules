@@ -4,6 +4,8 @@
 
 当前稳定版本：`v1.0.0`
 
+当前候选版本：`v1.0.1`（授权设备改为 `192.168.100.198/32`，待真实设备验收）
+
 验证日期：2026-09-22
 
 本方案用于同时满足两种 TikTok 出口：
@@ -45,3 +47,18 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-hybri
 - 不包含 `v1.1.0` 候选中的日本策略组和人工日本规则；
 - 纯 IP、未被嗅探且未收录进 GeoSite 的新目标无法仅凭域名规则识别，异常时必须检查 OpenClash 实时日志；
 - 增加或更换授权设备必须新建版本，不能直接修改已经发布的版本。
+
+## v1.0.1 候选
+
+本候选只把 H1 授权来源由 `192.168.100.248/32` 改为 `192.168.100.198/32`，其余行为继承稳定版。
+
+- [候选需求与验收](versions/v1.0.1/REQUIREMENTS.md)
+- [候选完整覆写](versions/v1.0.1/openclash-overwrite.conf)
+
+候选测试 URL：
+
+```text
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf
+```
+
+测试时只启用候选覆写。真实设备验收并获得明确发布批准前，不得修改 `v1.0.0`、移动其标签或把 `v1.0.1` 标记为稳定。

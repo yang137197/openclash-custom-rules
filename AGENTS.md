@@ -13,6 +13,8 @@
 - 独立稳定方案：`tiktok-hybrid-device-us v1.0.0`（H1–H9，`192.168.100.248/32` 的 TikTok 走机场`美国`，2026-09-22 已完成真实设备验收）
 - 独立稳定覆写：`profiles/tiktok-hybrid-device-us/versions/v1.0.0/openclash-overwrite.conf`
 - 独立稳定标签：`tiktok-hybrid-device-us-v1.0.0`
+- 独立方案候选版本：`tiktok-hybrid-device-us v1.0.1`（H1 授权 IP 改为 `192.168.100.198/32`，尚未经过真实设备验收）
+- 独立方案候选覆写：`profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf`
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
 - 候选人工日本规则：`rules/manual-japan.yaml`
@@ -33,6 +35,7 @@
 10. 根目录兼容覆写只对应 `profiles/catalog.json` 的 `currentProfile`，不得作为 A–D 多个方案的共用入口。
 11. `rules/manual-direct.yaml` 只允许需求完全一致的方案共享；直连范围不同必须拆分为方案专属规则文件。
 12. `tiktok-hybrid-device-us` 只能放行需求合同中明确列出的固定来源 IP；未列出的设备必须继续命中 TikTok 拒绝规则。不得把整个网段、所有设备或 TikTok 直连作为回退。
+13. `tiktok-hybrid-device-us v1.0.0` 必须保持 `192.168.100.248/32` 的已发布快照；`.198` 变更只能存在于新版本，真实设备验收前不得替换稳定版或移动标签。
 
 ## 允许直接修改
 
