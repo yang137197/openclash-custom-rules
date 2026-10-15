@@ -64,6 +64,9 @@ payload:
   - DOMAIN-SUFFIX,kimi.com
   - DOMAIN-SUFFIX,moonshot.cn
 
+  # 淘宝/阿里妈妈推广请求；主域名及全部子域名直连。
+  - DOMAIN-SUFFIX,alimama.com
+
   # 乱七八糟的域名
   - DOMAIN-SUFFIX,stellarhub.top
 
@@ -237,6 +240,9 @@ payload:
   - DOMAIN,one.alimama.com
   - DOMAIN,alimama.com
   - DOMAIN,one.alimama.com
+
+  # 用户指定：只匹配该主机，不扩展到 mmstat.com 的其他子域名。
+  - DOMAIN,d-gm.mmstat.com
   
   # ----------------------------------------------------------
   # 新增规则示例（仅示例，默认注释，不会生效）

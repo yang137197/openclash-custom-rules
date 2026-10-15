@@ -561,13 +561,14 @@ if router_profile.get("status") != "candidate" or router_profile.get("currentVer
     fail("router IPRoyal profile requires separate real-device acceptance before stability")
 if router_profile.get("tag") or router_profile.get("compatibilityModulePath"):
     fail("router candidate must not claim a stable tag or compatibility entry")
-if router_profile.get("immutableVersionDirectories") != []:
-    fail("router candidate has no published versions yet")
+beta_directory = f"profiles/{router_id}/versions/v1.0.2-beta.1"
+if router_profile.get("immutableVersionDirectories") != [beta_directory]:
+    fail("router profile must preserve the published v1.0.2-beta.1 snapshot")
 if router_profile.get("sharedManualRulesPath") != "rules/manual-direct.yaml":
     fail("router profile must preserve the shared manual-direct source")
 router_candidates = router_profile.get("candidateVersions", {})
-if set(router_candidates) != {"1.0.0"}:
-    fail("router profile must declare its independent v1.0.0 candidate")
+if set(router_candidates) != {"1.0.0", "1.0.1", "1.0.2-beta.1"}:
+    fail("router profile must retain v1.0.0/v1.0.1 and declare v1.0.2-beta.1")
 router = router_candidates["1.0.0"]
 if router.get("status") != "candidate" or router.get("kind") != "router-iproyal":
     fail("router candidate kind/status differ from the authorized contract")
@@ -626,6 +627,87 @@ for doc in ("README.md", "AGENTS.md", "CHANGELOG.md", router_profile["profileRea
     if router_id not in read_text(doc) or "v1.0.0" not in read_text(doc):
         fail(f"{doc} does not document router candidate")
 print("OK: router IPRoyal v1.0.0 candidate; local exact node, isolated DNS, UDP rejection guard")
+
+router_chain = router_candidates["1.0.1"]
+chain_directory = f"profiles/{router_id}/versions/v1.0.1"
+if router_chain.get("status") != "candidate" or router_chain.get("kind") != "router-iproyal":
+    fail("router chain candidate must remain unpublished")
+if router_chain.get("requirements") != [f"P{i}" for i in range(1, 11)]:
+    fail("router chain candidate must declare P1-P10")
+if router_chain.get("versionDirectory") != chain_directory:
+    fail("router chain candidate must have its own version directory")
+for key, filename in (("modulePath", "openclash-overwrite.conf"),
+                      ("requirementsPath", "REQUIREMENTS.md"),
+                      ("setupPath", "SETUP.md"),
+                      ("chainPatchPath", "iproyal-chain-hop.conf")):
+    if router_chain.get(key) != f"{chain_directory}/{filename}":
+        fail(f"router chain {key} must stay in its version directory")
+if router_chain.get("localProxyName") != "IPRoyal-US-ISP" or router_chain.get("tiktokGroup") != "TikTok-ISP":
+    fail("router chain node/group identity changed")
+chain_module = read_text(router_chain["modulePath"])
+chain_patch = read_text(router_chain["chainPatchPath"])
+chain_contract = read_text(router_chain["requirementsPath"])
+chain_setup = read_text(router_chain["setupPath"])
+if sha256(chain_module) != router_chain.get("moduleSha256"):
+    fail("router chain complete module hash differs from catalog")
+if sha256(chain_patch) != router_chain.get("chainPatchSha256"):
+    fail("router chain patch hash differs from catalog")
+if config_body(chain_module) != config_body(router_module):
+    fail("router chain candidate must preserve the complete routing/DNS module")
+expected_chain_patch = (
+    "[YAML]\nproxies*:\n  where:\n    name: IPRoyal-US-ISP\n"
+    "  set:\n    dialer-proxy: 美国\n"
+)
+if chain_patch != expected_chain_patch:
+    fail("router chain patch must only update the existing exact local node")
+if router_chain.get("manualRulesSha256") != sha256(manual_rules_text) or router_chain.get("manualRuleCount") != len(manual_entries):
+    fail("router chain candidate changed shared manual-direct snapshot")
+if any(item not in chain_contract for item in router_chain["requirements"]):
+    fail("router chain contract omits a declared requirement")
+for marker in ("v1.0.1", "候选", "上方", "重启 OpenClash", "IPRoyal", "回退"):
+    if marker not in chain_setup:
+        fail(f"router chain setup omits {marker}")
+print("OK: router IPRoyal v1.0.1 candidate; exact chain patch only, no credentials")
+
+router_beta = router_candidates["1.0.2-beta.1"]
+if router_beta.get("status") != "candidate" or router_beta.get("kind") != "router-iproyal":
+    fail("router beta candidate must remain unpublished as stable")
+if router_beta.get("tag") != "tiktok-router-iproyal-us-v1.0.2-beta.1" or router_beta.get("releaseType") != "pre-release":
+    fail("router beta tag must be an explicitly marked prerelease")
+if router_beta.get("requirements") != [f"P{i}" for i in range(1, 11)]:
+    fail("router beta candidate must declare P1-P10")
+if router_beta.get("versionDirectory") != beta_directory:
+    fail("router beta candidate must have its own version directory")
+for key, filename in (("modulePath", "openclash-overwrite.conf"),
+                      ("requirementsPath", "REQUIREMENTS.md"),
+                      ("setupPath", "SETUP.md"),
+                      ("chainPatchPath", "iproyal-chain-hop.conf")):
+    if router_beta.get(key) != f"{beta_directory}/{filename}":
+        fail(f"router beta {key} must stay in its version directory")
+if router_beta.get("localProxyName") != "IPRoyal-US-ISP" or router_beta.get("tiktokGroup") != "TikTok-ISP":
+    fail("router beta node/group identity changed")
+beta_module = read_text(router_beta["modulePath"])
+beta_patch = read_text(router_beta["chainPatchPath"])
+beta_contract = read_text(router_beta["requirementsPath"])
+beta_setup = read_text(router_beta["setupPath"])
+if sha256(beta_module) != router_beta.get("moduleSha256"):
+    fail("router beta module hash differs from catalog")
+if sha256(beta_patch) != router_beta.get("chainPatchSha256"):
+    fail("router beta patch hash differs from catalog")
+if config_body(beta_module) != config_body(chain_module):
+    fail("router beta must preserve the v1.0.1 routing/DNS module body")
+if beta_patch != expected_chain_patch:
+    fail("router beta patch must only update the existing exact local node")
+if router_beta.get("manualRulesSha256") != sha256(manual_rules_text) or router_beta.get("manualRuleCount") != len(manual_entries):
+    fail("router beta manual-direct data differs from the shared list")
+if "DOMAIN,d-gm.mmstat.com" not in manual_rules_text or "d-gm.mmstat.com" not in beta_contract:
+    fail("router beta must add and document the exact d-gm.mmstat.com direct rule")
+if any(item not in beta_contract for item in router_beta["requirements"]):
+    fail("router beta contract omits a declared requirement")
+for marker in ("v1.0.2-beta.1", "beta", "d-gm.mmstat.com", "重启 OpenClash", "DIRECT", "回退"):
+    if marker not in beta_setup:
+        fail(f"router beta setup omits {marker}")
+print("OK: router IPRoyal v1.0.2-beta.1 prerelease; exact d-gm direct rule, chain patch only, no credentials")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
     try:

@@ -2,6 +2,30 @@
 
 只记录形成版本的长期变化。临时命令、失败尝试和排查流水不写入本文件。
 
+## Manual-Direct 共享规则数据修订 — 2026-10-15
+
+类型：共享规则数据候选修订；不改动已发布覆写模块，也未进行路由器实机验收。影响 R4、H5、P5 所引用的共享人工直连数据。
+
+- 新增 `DOMAIN-SUFFIX,alimama.com`，使 `one.alimama.com` 及该域名下的子域名命中 `Manual-Direct` 并走 `DIRECT`。
+- 原有 124 条保留，当前共享数据共 125 条；目录中的 SHA-256 与数量已更新。
+- 规则仍通过共享 `rules/manual-direct.yaml` 提供；本地改动尚未提交或推送，路由器不会从 GitHub `main` 自动获取本次本地版本。
+
+## tiktok-router-iproyal-us v1.0.1 — 2026-10-15
+
+状态：candidate；修订 P1 的 IPRoyal 拨号路径，新增 P10；P2–P9、完整分流模块正文、人工直连清单与已发布版本不变。
+
+- 脱敏实机日志确认 TikTok 规则命中，但路由器直连 IPRoyal SOCKS5 端口反复 TCP 超时；尚不能断定具体网络阻断原因。
+- 依据 IPRoyal 官方 Shadowrocket 双跳排障思路与 Mihomo `dialer-proxy` 文档，增加无凭据 `proxies*` 补丁，使现有本地 IPRoyal 节点经手选机场美国节点连接；TikTok 最终仍只用 IPRoyal，失败不回退机场或 DIRECT。
+- 官方未给出 OpenClash 使用第三方机场的保证；本适配和第一跳端口可达性均待实机验收，不发布稳定版或移动兼容入口。
+
+## Manual-Direct 与 tiktok-router-iproyal-us v1.0.2-beta.1 — 2026-10-15
+
+状态：共享直连规则已授权更新；v1.0.2-beta.1 为 beta/candidate，尚未通过真实路由器和手机验收。影响共享人工直连数据及新 IPRoyal 候选 P5；已发布稳定覆写正文不变。
+
+- 新增精确规则 `DOMAIN,d-gm.mmstat.com`，只匹配此主机，不扩展到 `mmstat.com` 的其他子域名。
+- 保留 GitHub `main` 上已有的阿里妈妈精确规则，以及此前候选中的 `DOMAIN-SUFFIX,alimama.com`；当前共享数据共 129 条，目录中的 SHA-256 与数量同步更新。
+- v1.0.2-beta.1 沿用 v1.0.1 的待验收机场美国首跳 → 本地 IPRoyal 链式拨号，只更新版本资料及直连规则数据，不改变其他分流行为；发布为 GitHub beta，不晋升稳定版。
+
 ## tiktok-router-iproyal-us v1.0.0 — 2026-10-15
 
 状态：candidate；新独立方案，需求 P1–P9，尚未实机验收。

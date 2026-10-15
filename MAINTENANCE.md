@@ -65,6 +65,10 @@
 
 `developmentProfile` 指向最新授权开发方案，`currentProfile` 仍指向已发布稳定方案。新独立方案可以 `status=candidate`、`currentVersion=null`，在 `candidateVersions` 内声明合同与文件；不得为了通过旧校验而伪造稳定版本。本次 `tiktok-router-iproyal-us v1.0.0` 使用 P1–P9，不继承旧 R1 的手机 SocksTun 路径，也不改变旧快照。只追加节点的路由器本地凭据模块可与一套完整分流模块配合，不属于叠加两套完整方案；凭据模块不得提交仓库。
 
+`tiktok-router-iproyal-us v1.0.1` 是针对 IPRoyal 直连拨号超时的候选修订：保留 v1.0.0 完整分流正文，以无凭据 `proxies*` 模块对已存在的本地精确节点设置机场美国首跳。该补丁必须在本地节点追加模块之后合并，不能把它当成第二套完整分流模块；缺少实机成功证据前不晋升稳定版。
+
+`tiktok-router-iproyal-us v1.0.2-beta.1` 在 v1.0.1 链式候选上新增精确直连域名 `d-gm.mmstat.com`，保持共享人工直连列表的其他条目。候选可使用语义化预发布版本号和 GitHub pre-release 标签供用户验收；仍保持 `candidate`，不得移动稳定入口。beta 版本目录与共享规则文件都纳入该标签，发布后不得改写。
+
 - `candidate`：配置已经进入仓库，但真实 OpenClash 或应用验收尚未完成；
 - `stable`：配置加载成功，并完成该版本 `REQUIREMENTS.md` 中的实际验收；
 - `deprecated`：仍保留用于恢复，但不再建议新安装使用。

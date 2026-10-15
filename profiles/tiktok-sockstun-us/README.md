@@ -2,7 +2,7 @@
 
 ## 当前稳定版：v2.0.0
 
-本次以 OpenClash 用户指南为技术基准，旧版插件设置不约束本版本。`v2.0.0` 使用 Fake-IP 非 TUN＋大陆 IPv4 绕过、国内 Nameserver、无 Fallback，并以有序 Fake-IP 过滤保护 Google/TikTok。124 条人工直连域名及业务出口意图保持；不合并日本或按设备方案。
+本次以 OpenClash 用户指南为技术基准，旧版插件设置不约束本版本。`v2.0.0` 使用 Fake-IP 非 TUN＋大陆 IPv4 绕过、国内 Nameserver、无 Fallback，并以有序 Fake-IP 过滤保护 Google/TikTok。该版本验收时保留原有 124 条人工直连域名；当前共享规则数据已更新至 129 条，含阿里妈妈规则及精确 `d-gm.mmstat.com` 规则。不合并日本或按设备方案。
 
 - [正式完整覆写](versions/v2.0.0/openclash-overwrite.conf)
 - [中文界面具体设置、安装及回退](versions/v2.0.0/SETUP.md)
