@@ -563,13 +563,20 @@ if router_profile.get("tag") or router_profile.get("compatibilityModulePath"):
     fail("router candidate must not claim a stable tag or compatibility entry")
 beta1_directory = f"profiles/{router_id}/versions/v1.0.2-beta.1"
 beta2_directory = f"profiles/{router_id}/versions/v1.0.2-beta.2"
-if router_profile.get("immutableVersionDirectories") != [beta1_directory, beta2_directory]:
-    fail("router profile must preserve both published beta snapshots")
+beta3_directory = f"profiles/{router_id}/versions/v1.0.2-beta.3"
+if router_profile.get("immutableVersionDirectories") != [beta1_directory, beta2_directory, beta3_directory]:
+    fail("router profile must preserve all published beta snapshots")
 if router_profile.get("sharedManualRulesPath") != "rules/manual-direct.yaml":
     fail("router profile must preserve the shared manual-direct source")
 router_candidates = router_profile.get("candidateVersions", {})
-if set(router_candidates) != {"1.0.0", "1.0.1", "1.0.2-beta.1", "1.0.2-beta.2"}:
-    fail("router profile must retain v1.0.0/v1.0.1 and declare both beta revisions")
+if set(router_candidates) != {"1.0.0", "1.0.1", "1.0.2-beta.1", "1.0.2-beta.2", "1.0.2-beta.3"}:
+    fail("router profile must retain prior candidates and declare beta.3")
+latest_module_path = "profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf"
+if router_profile.get("latestModulePath") != latest_module_path:
+    fail("router profile must expose its scheme-specific rolling subscription module")
+latest_module_text = read_text(latest_module_path)
+if sha256(latest_module_text) != router_profile.get("latestModuleSha256"):
+    fail("router rolling module hash differs from catalog")
 router = router_candidates["1.0.0"]
 if router.get("status") != "candidate" or router.get("kind") != "router-iproyal":
     fail("router candidate kind/status differ from the authorized contract")
@@ -751,6 +758,53 @@ for marker in ("v1.0.2-beta.2", "beta", "DOMAIN-SUFFIX,mmstat.com", "另一个 `
         fail(f"router beta.2 setup omits {marker}")
 print("OK: router IPRoyal v1.0.2-beta.1 prerelease snapshot preserved")
 print("OK: router IPRoyal v1.0.2-beta.2 prerelease; all mmstat.com subdomains direct, chain patch only, no credentials")
+
+router_beta3 = router_candidates["1.0.2-beta.3"]
+if router_beta3.get("status") != "candidate" or router_beta3.get("kind") != "router-iproyal":
+    fail("router beta.3 must remain a candidate until real-device acceptance")
+if router_beta3.get("tag") != "tiktok-router-iproyal-us-v1.0.2-beta.3" or router_beta3.get("releaseType") != "pre-release":
+    fail("router beta.3 must identify its candidate pre-release tag")
+if router_beta3.get("requirements") != [f"P{i}" for i in range(1, 12)]:
+    fail("router beta.3 must declare P1-P11")
+if router_beta3.get("versionDirectory") != beta3_directory:
+    fail("router beta.3 candidate must have its own version directory")
+for key, filename in (("modulePath", "openclash-overwrite.conf"),
+                      ("requirementsPath", "REQUIREMENTS.md"),
+                      ("setupPath", "SETUP.md"),
+                      ("chainPatchPath", "iproyal-chain-hop.conf")):
+    if router_beta3.get(key) != f"{beta3_directory}/{filename}":
+        fail(f"router beta.3 {key} must stay in its version directory")
+if router_beta3.get("localProxyName") != "IPRoyal-US-ISP" or router_beta3.get("tiktokGroup") != "TikTok-ISP":
+    fail("router beta.3 node/group identity changed")
+beta3_module = read_text(router_beta3["modulePath"])
+beta3_patch = read_text(router_beta3["chainPatchPath"])
+beta3_contract = read_text(router_beta3["requirementsPath"])
+beta3_setup = read_text(router_beta3["setupPath"])
+if sha256(beta3_module) != router_beta3.get("moduleSha256"):
+    fail("router beta.3 module hash differs from catalog")
+if beta3_module != latest_module_text:
+    fail("router rolling module must match the latest beta snapshot")
+if sha256(beta3_patch) != router_beta3.get("chainPatchSha256") or beta3_patch != expected_chain_patch:
+    fail("router beta.3 chain patch must remain the exact no-credential IPRoyal update")
+if router_beta3.get("manualRulesSha256") != sha256(manual_rules_text) or router_beta3.get("manualRuleCount") != len(manual_entries):
+    fail("router beta.3 manual-direct snapshot metadata differs from the shared list")
+manual_provider_match = re.search(r"(?ms)^  Manual-Direct!:\n(.*?)(?=^rules!:\n)", beta3_module)
+if not manual_provider_match:
+    fail("router beta.3 must replace only Manual-Direct with an inline provider")
+manual_provider_body = manual_provider_match.group(1)
+if not re.search(r"(?m)^    type: inline$", manual_provider_body):
+    fail("router beta.3 Manual-Direct provider must use type inline")
+if re.search(r"(?m)^    (?:url|path|interval):", manual_provider_body):
+    fail("router beta.3 Manual-Direct must not depend on a separately refreshed file")
+inline_entries = [line.strip() for line in manual_provider_body.splitlines() if line.startswith("      - ")]
+if inline_entries != manual_entries:
+    fail("router beta.3 inline Manual-Direct payload must exactly match rules/manual-direct.yaml")
+if any(item not in beta3_contract for item in router_beta3["requirements"]):
+    fail("router beta.3 requirements omit a declared requirement")
+for marker in ("v1.0.2-beta.3", "inline", "不需要单独更新 Rule Provider", "滚动订阅地址", "重启 OpenClash", "DIRECT", "回退"):
+    if marker not in beta3_setup:
+        fail(f"router beta.3 setup omits {marker}")
+print("OK: router IPRoyal v1.0.2-beta.3 inline Manual-Direct matches all 129 source rules; one module refresh path")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
     try:

@@ -4,7 +4,11 @@
 
 ## 最新目标：手机 → OpenClash → IPRoyal → TikTok
 
-当前 beta 候选为 **tiktok-router-iproyal-us v1.0.2-beta.2（candidate）**，手机无需 SocksTun。TikTok 使用 IPRoyal 最终出口；链式拨号仍待实机验收。共享人工直连列表当前共 129 条，`DOMAIN-SUFFIX,mmstat.com` 覆盖主域名及全部子域名。
+当前 beta 候选为 **tiktok-router-iproyal-us v1.0.2-beta.3（candidate）**，手机无需 SocksTun。TikTok 使用 IPRoyal 最终出口；链式拨号仍待实机验收。Manual-Direct 的 129 条规则随覆写模块一起更新，`DOMAIN-SUFFIX,mmstat.com` 覆盖主域名及全部子域名。
+
+- [后续持续更新的方案专属覆写订阅入口](profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf)
+- [v1.0.2-beta.3 固定候选模块](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/openclash-overwrite.conf)
+- [v1.0.2-beta.3 单模块同步设置、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/SETUP.md)
 
 - [v1.0.0 直连候选完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.0/openclash-overwrite.conf)
 - [v1.0.0 原设置与回退资料](profiles/tiktok-router-iproyal-us/versions/v1.0.0/SETUP.md)
@@ -18,7 +22,7 @@
 - [v1.0.2-beta.2 链式补丁](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/iproyal-chain-hop.conf)
 - [v1.0.2-beta.2 上传、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/SETUP.md)
 
-新候选尚未实机验收，未替换稳定入口。先使用本地模块上传；不要将下面旧方案的固定链接当作新方案。候选只引用本地节点名称，真实地址和凭据不入库。
+beta.3 尚未完成真实 OpenClash 与手机验收，未替换稳定入口。已有 beta.2 订阅用户需一次性将模块 URL 改为上方滚动入口；之后仓库的人工直连规则随覆写模块刷新，并在重启 OpenClash 后生效。候选只引用本地节点名称，真实地址和凭据不入库。
 
 ## 保留的当前正式版：tiktok-sockstun-us v2.0.0
 

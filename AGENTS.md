@@ -10,8 +10,8 @@
 
 ## 当前事实来源
 
-- 最新用户目标及开发候选：`tiktok-router-iproyal-us v1.0.2-beta.2`（P1–P10，GitHub beta/candidate）；所有手机 → OpenClash → 机场美国首跳 → 本地 IPRoyal → TikTok，无需 SocksTun。v1.0.0、v1.0.1 与已发布 beta.1 候选保留；IPRoyal 官方仅说明 Shadowrocket 的 Shadowsocks 双跳，链式拨号是基于 Mihomo `dialer-proxy` 的待验收适配，不冒称官方 OpenClash 推荐。
-- 新方案设置与验收：`profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/SETUP.md`、`REQUIREMENTS.md`。无凭据链式补丁为同目录 `iproyal-chain-hop.conf`，必须晚于本地节点模块合并；本地节点统一名 `IPRoyal-US-ISP`，凭据留在路由器。尚未实机验收，不提升稳定入口、不沿用旧版验收。
+- 最新用户目标及开发候选：`tiktok-router-iproyal-us v1.0.2-beta.3`（P1–P11，候选）；所有手机 → OpenClash → 机场美国首跳 → 本地 IPRoyal → TikTok，无需 SocksTun。Manual-Direct 以内联 payload 与 `rules/manual-direct.yaml` 同步，用户刷新方案专属滚动覆写模块并重启，不单独刷新规则提供者。v1.0.0、v1.0.1、beta.1 与 beta.2 保留；链式拨号仍待验收。
+- 新方案设置与验收：`profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/SETUP.md`、`REQUIREMENTS.md`。无凭据链式补丁为同目录 `iproyal-chain-hop.conf`，必须晚于本地节点模块合并；本地节点统一名 `IPRoyal-US-ISP`，凭据留在路由器。尚未实机验收，不提升稳定入口、不沿用旧版验收。
 - 当前方案：`tiktok-sockstun-us`
 - 当前稳定版本：`v2.0.0`
 - 当前需求：R1–R8、R11–R12
@@ -28,6 +28,7 @@
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
 - 当前共享人工直连数据：129 条；`DOMAIN-SUFFIX,alimama.com` 覆盖阿里妈妈子域名，`DOMAIN-SUFFIX,mmstat.com` 覆盖 mmstat.com 主域名及全部子域名。
+- IPRoyal 滚动覆写入口：`profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf`；inline payload 必须与 `rules/manual-direct.yaml` 在同一提交同步，禁止要求用户单独刷新 Rule Provider。
 - 候选人工日本规则：`rules/manual-japan.yaml`
 
 若上述信息与 `profiles/catalog.json` 不一致，以通过仓库校验的 `profiles/catalog.json` 为准，并修正文档漂移。

@@ -2,6 +2,14 @@
 
 只记录形成版本的长期变化。临时命令、失败尝试和排查流水不写入本文件。
 
+## tiktok-router-iproyal-us v1.0.2-beta.3 — Manual-Direct 随模块同步 — 2026-10-15
+
+状态：candidate / beta；未完成真实 OpenClash 与手机验收。影响新增需求 P11；P1–P10 及 beta.2 历史快照保持不变。
+
+- 将 `Manual-Direct` provider 从独立 HTTP 文件改为 `type: inline`，把仓库 129 条人工直连规则嵌入完整覆写模块。
+- 增加方案专属滚动模块入口；后续更新规则时，仓库维护者在同一提交同步规则源和 inline payload，仓库校验检查一致性。用户更新时只刷新覆写订阅模块并重启，不再单独刷新 Rule Provider。
+- Mihomo 文档支持 inline rule provider；目标 OpenClash/Mihomo 运行环境尚未实测，故仍为候选。
+
 ## Manual-Direct 共享规则数据修订 — 2026-10-15
 
 类型：共享规则数据候选修订；不改动已发布覆写模块，也未进行路由器实机验收。影响 R4、H5、P5 所引用的共享人工直连数据。

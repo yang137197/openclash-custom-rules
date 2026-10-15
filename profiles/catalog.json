@@ -105,9 +105,12 @@
       "currentVersion": null,
       "profileReadmePath": "profiles/tiktok-router-iproyal-us/README.md",
       "sharedManualRulesPath": "rules/manual-direct.yaml",
+      "latestModulePath": "profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf",
+      "latestModuleSha256": "56e8cf0380ff9014774dabcd1ce876a6a23ed332cb1fdb573ea03e04c96e8fff",
       "immutableVersionDirectories": [
         "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1",
-        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2"
+        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2",
+        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3"
       ],
       "candidateVersions": {
         "1.0.0": {
@@ -182,6 +185,24 @@
           "localProxyName": "IPRoyal-US-ISP",
           "tiktokGroup": "TikTok-ISP",
           "moduleSha256": "1959be444461e9344affd4e4ce39f719e6129957267e074f629f57c452942533",
+          "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
+          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
+          "manualRuleCount": 129
+        },
+        "1.0.2-beta.3": {
+          "kind": "router-iproyal",
+          "status": "candidate",
+          "tag": "tiktok-router-iproyal-us-v1.0.2-beta.3",
+          "releaseType": "pre-release",
+          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "P11"],
+          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3",
+          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/SETUP.md",
+          "chainPatchPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/iproyal-chain-hop.conf",
+          "localProxyName": "IPRoyal-US-ISP",
+          "tiktokGroup": "TikTok-ISP",
+          "moduleSha256": "56e8cf0380ff9014774dabcd1ce876a6a23ed332cb1fdb573ea03e04c96e8fff",
           "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
           "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
           "manualRuleCount": 129
