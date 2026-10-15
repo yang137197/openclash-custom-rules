@@ -241,8 +241,8 @@ payload:
   - DOMAIN,alimama.com
   - DOMAIN,one.alimama.com
 
-  # 用户指定：只匹配该主机，不扩展到 mmstat.com 的其他子域名。
-  - DOMAIN,d-gm.mmstat.com
+  # 用户指定：覆盖 mmstat.com 主域名及其所有子域名。
+  - DOMAIN-SUFFIX,mmstat.com
   
   # ----------------------------------------------------------
   # 新增规则示例（仅示例，默认注释，不会生效）
