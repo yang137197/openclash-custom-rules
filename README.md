@@ -4,7 +4,7 @@
 
 ## 最新目标：手机 → OpenClash → IPRoyal → TikTok
 
-当前 beta 候选为 **tiktok-router-iproyal-us v1.0.2-beta.1（candidate）**，手机无需 SocksTun。TikTok 使用 IPRoyal 最终出口；链式拨号仍待实机验收。共享人工直连列表当前共 129 条，新增精确规则 `DOMAIN,d-gm.mmstat.com`。
+当前 beta 候选为 **tiktok-router-iproyal-us v1.0.2-beta.2（candidate）**，手机无需 SocksTun。TikTok 使用 IPRoyal 最终出口；链式拨号仍待实机验收。共享人工直连列表当前共 129 条，`DOMAIN-SUFFIX,mmstat.com` 覆盖主域名及全部子域名。
 
 - [v1.0.0 直连候选完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.0/openclash-overwrite.conf)
 - [v1.0.0 原设置与回退资料](profiles/tiktok-router-iproyal-us/versions/v1.0.0/SETUP.md)
@@ -14,6 +14,9 @@
 - [v1.0.2-beta.1 完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/openclash-overwrite.conf)
 - [v1.0.2-beta.1 链式补丁](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/iproyal-chain-hop.conf)
 - [v1.0.2-beta.1 上传、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/SETUP.md)
+- [v1.0.2-beta.2 完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/openclash-overwrite.conf)
+- [v1.0.2-beta.2 链式补丁](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/iproyal-chain-hop.conf)
+- [v1.0.2-beta.2 上传、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/SETUP.md)
 
 新候选尚未实机验收，未替换稳定入口。先使用本地模块上传；不要将下面旧方案的固定链接当作新方案。候选只引用本地节点名称，真实地址和凭据不入库。
 
@@ -31,7 +34,7 @@
 | 大陆 IPv4 绕过 | 开启，CN 域名使用 cn.mrs 返回真实 IP |
 | Google/Play | 优先 Fake-IP＋美国专用 DNS＋美国路由，先于 CN 分类 |
 | TikTok | SocksTun/IPRoyal；核心拒绝可识别泄漏，IPRoyal 入口单独旁路 |
-| 人工直连 | v2.0.0 验收时为原有 124 条；当前共享数据为 129 条，含精确 `d-gm.mmstat.com` 规则 |
+| 人工直连 | v2.0.0 验收时为原有 124 条；当前共享数据为 129 条，含 `DOMAIN-SUFFIX,mmstat.com` |
 | DNS | 国内 Nameserver，无 Fallback，独立节点解析，显式替换策略 |
 | 禁用 QUIC | 按指南默认开启，具体业务兼容边界见设置说明 |
 | 插件设置 | 用户手工配置，覆写只有 [YAML] |
@@ -48,7 +51,8 @@
 | tiktok-hybrid-device-us v1.0.1 | 独立稳定版，授权来源 192.168.100.198/32 | 与主方案互斥 |
 | tiktok-router-iproyal-us v1.0.0 | 直连 IPRoyal 的历史候选 | 实机日志出现 IPRoyal SOCKS5 端口超时 |
 | tiktok-router-iproyal-us v1.0.1 | 前序链式拨号候选 | 机场美国首跳连接本地 IPRoyal 节点，TikTok 最终出口仍为 IPRoyal |
-| tiktok-router-iproyal-us v1.0.2-beta.1 | beta 候选，待实机验收 | 在链式拨号候选上新增 `d-gm.mmstat.com` 精确直连规则 |
+| tiktok-router-iproyal-us v1.0.2-beta.1 | 已发布 beta 快照 | mmstat 精确规则，仅 d-gm.mmstat.com |
+| tiktok-router-iproyal-us v1.0.2-beta.2 | 当前 beta 候选，待实机验收 | `DOMAIN-SUFFIX,mmstat.com` 直连主域名和全部子域名 |
 
 [profiles/catalog.json](profiles/catalog.json) 记录状态和文件映射。兼容入口 `overwrite/openclash-overwrite.conf` 现对应 v2.0.0；旧标签和已发布目录不改写。单个机场配置只启用一套完整覆写。
 

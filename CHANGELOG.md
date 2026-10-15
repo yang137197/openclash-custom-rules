@@ -26,6 +26,14 @@
 - 保留 GitHub `main` 上已有的阿里妈妈精确规则，以及此前候选中的 `DOMAIN-SUFFIX,alimama.com`；当前共享数据共 129 条，目录中的 SHA-256 与数量同步更新。
 - v1.0.2-beta.1 沿用 v1.0.1 的待验收机场美国首跳 → 本地 IPRoyal 链式拨号，只更新版本资料及直连规则数据，不改变其他分流行为；发布为 GitHub beta，不晋升稳定版。
 
+## Manual-Direct 与 tiktok-router-iproyal-us v1.0.2-beta.2 — 2026-10-15
+
+状态：共享直连规则扩展已授权；v1.0.2-beta.2 为 beta/candidate，尚未通过真实路由器和手机验收。影响共享人工直连数据及新 IPRoyal 候选 P5；已发布稳定覆写正文和 beta.1 快照不变。
+
+- 将新增的 mmstat 直连项改为 `DOMAIN-SUFFIX,mmstat.com`，覆盖主域名和所有子域名，包括 `d-gm.mmstat.com`；人工规则总数仍为 129。
+- `DOMAIN-SUFFIX,alimama.com` 已覆盖阿里妈妈主域名和其子域名；本次保留已有人工条目。
+- 新增 v1.0.2-beta.2 目录和不可变标签计划；沿用 v1.0.1 链式拨号候选，不改变其他分流行为。beta.1 原发布内容保持不变。
+
 ## tiktok-router-iproyal-us v1.0.0 — 2026-10-15
 
 状态：candidate；新独立方案，需求 P1–P9，尚未实机验收。

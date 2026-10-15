@@ -69,6 +69,8 @@
 
 `tiktok-router-iproyal-us v1.0.2-beta.1` 在 v1.0.1 链式候选上新增精确直连域名 `d-gm.mmstat.com`，保持共享人工直连列表的其他条目。候选可使用语义化预发布版本号和 GitHub pre-release 标签供用户验收；仍保持 `candidate`，不得移动稳定入口。beta 版本目录与共享规则文件都纳入该标签，发布后不得改写。
 
+`tiktok-router-iproyal-us v1.0.2-beta.2` 将 mmstat 直连扩展为 `DOMAIN-SUFFIX,mmstat.com`，覆盖主域名及全部子域名；已有阿里妈妈规则由 `DOMAIN-SUFFIX,alimama.com` 覆盖其子域名。beta.1 和 beta.2 均为不可改写的预发布快照，后续调整须新增版本目录和标签。
+
 - `candidate`：配置已经进入仓库，但真实 OpenClash 或应用验收尚未完成；
 - `stable`：配置加载成功，并完成该版本 `REQUIREMENTS.md` 中的实际验收；
 - `deprecated`：仍保留用于恢复，但不再建议新安装使用。

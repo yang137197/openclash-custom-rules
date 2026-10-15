@@ -561,14 +561,15 @@ if router_profile.get("status") != "candidate" or router_profile.get("currentVer
     fail("router IPRoyal profile requires separate real-device acceptance before stability")
 if router_profile.get("tag") or router_profile.get("compatibilityModulePath"):
     fail("router candidate must not claim a stable tag or compatibility entry")
-beta_directory = f"profiles/{router_id}/versions/v1.0.2-beta.1"
-if router_profile.get("immutableVersionDirectories") != [beta_directory]:
-    fail("router profile must preserve the published v1.0.2-beta.1 snapshot")
+beta1_directory = f"profiles/{router_id}/versions/v1.0.2-beta.1"
+beta2_directory = f"profiles/{router_id}/versions/v1.0.2-beta.2"
+if router_profile.get("immutableVersionDirectories") != [beta1_directory, beta2_directory]:
+    fail("router profile must preserve both published beta snapshots")
 if router_profile.get("sharedManualRulesPath") != "rules/manual-direct.yaml":
     fail("router profile must preserve the shared manual-direct source")
 router_candidates = router_profile.get("candidateVersions", {})
-if set(router_candidates) != {"1.0.0", "1.0.1", "1.0.2-beta.1"}:
-    fail("router profile must retain v1.0.0/v1.0.1 and declare v1.0.2-beta.1")
+if set(router_candidates) != {"1.0.0", "1.0.1", "1.0.2-beta.1", "1.0.2-beta.2"}:
+    fail("router profile must retain v1.0.0/v1.0.1 and declare both beta revisions")
 router = router_candidates["1.0.0"]
 if router.get("status") != "candidate" or router.get("kind") != "router-iproyal":
     fail("router candidate kind/status differ from the authorized contract")
@@ -669,45 +670,87 @@ for marker in ("v1.0.1", "候选", "上方", "重启 OpenClash", "IPRoyal", "回
         fail(f"router chain setup omits {marker}")
 print("OK: router IPRoyal v1.0.1 candidate; exact chain patch only, no credentials")
 
-router_beta = router_candidates["1.0.2-beta.1"]
-if router_beta.get("status") != "candidate" or router_beta.get("kind") != "router-iproyal":
+router_beta1 = router_candidates["1.0.2-beta.1"]
+if router_beta1.get("status") != "candidate" or router_beta1.get("kind") != "router-iproyal":
     fail("router beta candidate must remain unpublished as stable")
-if router_beta.get("tag") != "tiktok-router-iproyal-us-v1.0.2-beta.1" or router_beta.get("releaseType") != "pre-release":
-    fail("router beta tag must be an explicitly marked prerelease")
-if router_beta.get("requirements") != [f"P{i}" for i in range(1, 11)]:
-    fail("router beta candidate must declare P1-P10")
-if router_beta.get("versionDirectory") != beta_directory:
-    fail("router beta candidate must have its own version directory")
+if router_beta1.get("tag") != "tiktok-router-iproyal-us-v1.0.2-beta.1" or router_beta1.get("releaseType") != "pre-release":
+    fail("router beta.1 tag must remain an explicitly marked prerelease")
+if router_beta1.get("requirements") != [f"P{i}" for i in range(1, 11)]:
+    fail("router beta.1 candidate must declare P1-P10")
+if router_beta1.get("versionDirectory") != beta1_directory:
+    fail("router beta.1 candidate must retain its original version directory")
 for key, filename in (("modulePath", "openclash-overwrite.conf"),
                       ("requirementsPath", "REQUIREMENTS.md"),
                       ("setupPath", "SETUP.md"),
                       ("chainPatchPath", "iproyal-chain-hop.conf")):
-    if router_beta.get(key) != f"{beta_directory}/{filename}":
-        fail(f"router beta {key} must stay in its version directory")
-if router_beta.get("localProxyName") != "IPRoyal-US-ISP" or router_beta.get("tiktokGroup") != "TikTok-ISP":
-    fail("router beta node/group identity changed")
-beta_module = read_text(router_beta["modulePath"])
-beta_patch = read_text(router_beta["chainPatchPath"])
-beta_contract = read_text(router_beta["requirementsPath"])
-beta_setup = read_text(router_beta["setupPath"])
-if sha256(beta_module) != router_beta.get("moduleSha256"):
-    fail("router beta module hash differs from catalog")
-if sha256(beta_patch) != router_beta.get("chainPatchSha256"):
-    fail("router beta patch hash differs from catalog")
-if config_body(beta_module) != config_body(chain_module):
-    fail("router beta must preserve the v1.0.1 routing/DNS module body")
-if beta_patch != expected_chain_patch:
-    fail("router beta patch must only update the existing exact local node")
-if router_beta.get("manualRulesSha256") != sha256(manual_rules_text) or router_beta.get("manualRuleCount") != len(manual_entries):
-    fail("router beta manual-direct data differs from the shared list")
-if "DOMAIN,d-gm.mmstat.com" not in manual_rules_text or "d-gm.mmstat.com" not in beta_contract:
-    fail("router beta must add and document the exact d-gm.mmstat.com direct rule")
-if any(item not in beta_contract for item in router_beta["requirements"]):
-    fail("router beta contract omits a declared requirement")
+    if router_beta1.get(key) != f"{beta1_directory}/{filename}":
+        fail(f"router beta.1 {key} must stay in its original version directory")
+if router_beta1.get("localProxyName") != "IPRoyal-US-ISP" or router_beta1.get("tiktokGroup") != "TikTok-ISP":
+    fail("router beta.1 node/group identity changed")
+beta1_module = read_text(router_beta1["modulePath"])
+beta1_patch = read_text(router_beta1["chainPatchPath"])
+beta1_contract = read_text(router_beta1["requirementsPath"])
+beta1_setup = read_text(router_beta1["setupPath"])
+if sha256(beta1_module) != router_beta1.get("moduleSha256"):
+    fail("router beta.1 module hash differs from catalog")
+if sha256(beta1_patch) != router_beta1.get("chainPatchSha256"):
+    fail("router beta.1 patch hash differs from catalog")
+if config_body(beta1_module) != config_body(chain_module):
+    fail("router beta.1 must preserve the v1.0.1 routing/DNS module body")
+if beta1_patch != expected_chain_patch:
+    fail("router beta.1 patch must only update the existing exact local node")
+if router_beta1.get("manualRulesSha256") != "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da" or router_beta1.get("manualRuleCount") != 129:
+    fail("router beta.1 must retain the original tagged Manual-Direct snapshot metadata")
+if "DOMAIN,d-gm.mmstat.com" not in beta1_contract:
+    fail("router beta.1 requirements must preserve its original exact d-gm rule contract")
+if any(item not in beta1_contract for item in router_beta1["requirements"]):
+    fail("router beta.1 contract omits a declared requirement")
 for marker in ("v1.0.2-beta.1", "beta", "d-gm.mmstat.com", "重启 OpenClash", "DIRECT", "回退"):
-    if marker not in beta_setup:
-        fail(f"router beta setup omits {marker}")
-print("OK: router IPRoyal v1.0.2-beta.1 prerelease; exact d-gm direct rule, chain patch only, no credentials")
+    if marker not in beta1_setup:
+        fail(f"router beta.1 setup omits {marker}")
+
+router_beta2 = router_candidates["1.0.2-beta.2"]
+if router_beta2.get("status") != "candidate" or router_beta2.get("kind") != "router-iproyal":
+    fail("router beta.2 candidate must remain candidate until real-device acceptance")
+if router_beta2.get("tag") != "tiktok-router-iproyal-us-v1.0.2-beta.2" or router_beta2.get("releaseType") != "pre-release":
+    fail("router beta.2 tag must be an explicitly marked prerelease")
+if router_beta2.get("requirements") != [f"P{i}" for i in range(1, 11)]:
+    fail("router beta.2 candidate must declare P1-P10")
+if router_beta2.get("versionDirectory") != beta2_directory:
+    fail("router beta.2 candidate must have its own version directory")
+for key, filename in (("modulePath", "openclash-overwrite.conf"),
+                      ("requirementsPath", "REQUIREMENTS.md"),
+                      ("setupPath", "SETUP.md"),
+                      ("chainPatchPath", "iproyal-chain-hop.conf")):
+    if router_beta2.get(key) != f"{beta2_directory}/{filename}":
+        fail(f"router beta.2 {key} must stay in its version directory")
+if router_beta2.get("localProxyName") != "IPRoyal-US-ISP" or router_beta2.get("tiktokGroup") != "TikTok-ISP":
+    fail("router beta.2 node/group identity changed")
+beta2_module = read_text(router_beta2["modulePath"])
+beta2_patch = read_text(router_beta2["chainPatchPath"])
+beta2_contract = read_text(router_beta2["requirementsPath"])
+beta2_setup = read_text(router_beta2["setupPath"])
+if sha256(beta2_module) != router_beta2.get("moduleSha256"):
+    fail("router beta.2 module hash differs from catalog")
+if sha256(beta2_patch) != router_beta2.get("chainPatchSha256"):
+    fail("router beta.2 patch hash differs from catalog")
+if config_body(beta2_module) != config_body(chain_module):
+    fail("router beta.2 must preserve the v1.0.1 routing/DNS module body")
+if beta2_patch != expected_chain_patch:
+    fail("router beta.2 patch must only update the existing exact local node")
+if router_beta2.get("manualRulesSha256") != sha256(manual_rules_text) or router_beta2.get("manualRuleCount") != len(manual_entries):
+    fail("router beta.2 manual-direct data differs from the shared list")
+if "DOMAIN-SUFFIX,mmstat.com" not in manual_rules_text or "DOMAIN,d-gm.mmstat.com" in manual_rules_text:
+    fail("router beta.2 must use a suffix rule for all mmstat.com domains")
+if "DOMAIN-SUFFIX,mmstat.com" not in beta2_contract or "全部子域名" not in beta2_contract:
+    fail("router beta.2 requirements must document mmstat.com suffix coverage")
+if any(item not in beta2_contract for item in router_beta2["requirements"]):
+    fail("router beta.2 contract omits a declared requirement")
+for marker in ("v1.0.2-beta.2", "beta", "DOMAIN-SUFFIX,mmstat.com", "另一个 `mmstat.com` 子域名", "DIRECT", "回退"):
+    if marker not in beta2_setup:
+        fail(f"router beta.2 setup omits {marker}")
+print("OK: router IPRoyal v1.0.2-beta.1 prerelease snapshot preserved")
+print("OK: router IPRoyal v1.0.2-beta.2 prerelease; all mmstat.com subdomains direct, chain patch only, no credentials")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
     try:
@@ -725,10 +768,9 @@ if args.base_ref and set(args.base_ref) != {"0"}:
 
     protected_at_base = []
     for base_profile in base_catalog.get("profiles", {}).values():
-        if base_profile.get("status") == "stable":
-            protected_at_base.extend(
-                base_profile.get("immutableVersionDirectories", [])
-            )
+        protected_at_base.extend(
+            base_profile.get("immutableVersionDirectories", [])
+        )
 
     result = subprocess.run(
         [

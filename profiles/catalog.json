@@ -28,7 +28,7 @@
       "compatibilityModulePath": "overwrite/openclash-overwrite.conf",
       "sharedManualRulesPath": "rules/manual-direct.yaml",
       "moduleSha256": "b789b8d101e070bb2d4a70b0a47c725db1e2627e2ae5616d227d2c5301baa8b3",
-      "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
+      "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
       "manualRuleCount": 129,
       "immutableVersionDirectories": [
         "profiles/tiktok-sockstun-us/versions/v1.0.0",
@@ -56,7 +56,7 @@
           "moduleSha256": "c2e7cdd674501a4460033bfed5d0dbf68e766ee921fb640a79b441e63eab0d55",
           "manualJapanRulesSha256": "49f72ca76bf879768db990d8d935c4990ced5c210a5c56cbb865295903ccf980",
           "manualJapanRuleCount": 6,
-          "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
+          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
           "manualRuleCount": 129
         }
       },
@@ -88,7 +88,7 @@
       "profileReadmePath": "profiles/tiktok-hybrid-device-us/README.md",
       "sharedManualRulesPath": "rules/manual-direct.yaml",
       "moduleSha256": "3875f634b3ca55837e91c17b0f241c7435be852264fa3d9a6360f7f0918a1a92",
-      "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
+      "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
       "manualRuleCount": 129,
       "authorizedTikTokUsDevices": [
         "192.168.100.198/32"
@@ -106,7 +106,8 @@
       "profileReadmePath": "profiles/tiktok-router-iproyal-us/README.md",
       "sharedManualRulesPath": "rules/manual-direct.yaml",
       "immutableVersionDirectories": [
-        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1"
+        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1",
+        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2"
       ],
       "candidateVersions": {
         "1.0.0": {
@@ -130,7 +131,7 @@
           "localProxyName": "IPRoyal-US-ISP",
           "tiktokGroup": "TikTok-ISP",
           "moduleSha256": "80f43171f2c5d632c9c3a21cebf70b9fc259c1f12977b5aa7dd72f6a28c6eae1",
-          "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
+          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
           "manualRuleCount": 129
         },
         "1.0.1": {
@@ -146,7 +147,7 @@
           "tiktokGroup": "TikTok-ISP",
           "moduleSha256": "344492bc3e92ed0fe8fbfde1fcbfb7df1ecbc09bfde92438cd4ccf9f335857ad",
           "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
-          "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
+          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
           "manualRuleCount": 129
         },
         "1.0.2-beta.1": {
@@ -165,6 +166,24 @@
           "moduleSha256": "b4303939a81ea72071473edbfb3147bc954e041a46ffe208b5e48f90e343c71f",
           "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
           "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
+          "manualRuleCount": 129
+        },
+        "1.0.2-beta.2": {
+          "kind": "router-iproyal",
+          "status": "candidate",
+          "tag": "tiktok-router-iproyal-us-v1.0.2-beta.2",
+          "releaseType": "pre-release",
+          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
+          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2",
+          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/SETUP.md",
+          "chainPatchPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/iproyal-chain-hop.conf",
+          "localProxyName": "IPRoyal-US-ISP",
+          "tiktokGroup": "TikTok-ISP",
+          "moduleSha256": "1959be444461e9344affd4e4ce39f719e6129957267e074f629f57c452942533",
+          "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
+          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
           "manualRuleCount": 129
         }
       }
