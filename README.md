@@ -2,7 +2,17 @@
 
 本次重构以 [OpenClash 用户指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md) 为技术基准，仓库提供域名及业务出口意图。旧版设置只用于旧版本回退，不约束当前正式版。
 
-## 当前正式版：tiktok-sockstun-us v2.0.0
+## 最新目标：手机 → OpenClash → IPRoyal → TikTok
+
+按用户最新授权新增独立方案 **tiktok-router-iproyal-us v1.0.0（candidate）**，手机无需 SocksTun。IPRoyal 仅供 TikTok 及其专用解析；Google/Play 和其他国外业务继续使用机场美国节点，国内及原有 124 条人工直连规则保持。
+
+- [新候选完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.0/openclash-overwrite.conf)
+- [路由器本地 IPRoyal 节点、具体开关与安装步骤](profiles/tiktok-router-iproyal-us/versions/v1.0.0/SETUP.md)
+- [P1–P9 需求及实机验收清单](profiles/tiktok-router-iproyal-us/versions/v1.0.0/REQUIREMENTS.md)
+
+新候选尚未实机验收，未替换稳定入口。先使用本地模块上传；不要将下面旧方案的固定链接当作新方案。候选只引用本地节点名称，真实地址和凭据不入库。
+
+## 保留的当前正式版：tiktok-sockstun-us v2.0.0
 
 **状态：stable。2026-10-15 用户确认候选已验证并批准正式发布。** 适用于所有手机 TikTok 使用 SocksTun/IPRoyal；不包含按设备 TikTok 或日本候选。
 
@@ -31,6 +41,7 @@
 | tiktok-sockstun-us v1.1.0 | 旧日本候选，未实机验收 | 独立保留，不与 v2 混用 |
 | tiktok-sockstun-us v2.0.0 | 当前稳定版，用户已确认验收 | 新的大陆旁路架构 |
 | tiktok-hybrid-device-us v1.0.1 | 独立稳定版，授权来源 192.168.100.198/32 | 与主方案互斥 |
+| tiktok-router-iproyal-us v1.0.0 | 最新目标的独立候选，待实机验收 | 手机无需 SocksTun，TikTok 使用路由器本地 IPRoyal |
 
 [profiles/catalog.json](profiles/catalog.json) 记录状态和文件映射。兼容入口 `overwrite/openclash-overwrite.conf` 现对应 v2.0.0；旧标签和已发布目录不改写。单个机场配置只启用一套完整覆写。
 
