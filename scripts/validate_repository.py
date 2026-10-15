@@ -114,7 +114,7 @@ for forbidden_text in [
     if forbidden_text in module_text.lower():
         fail(f"overwrite contains forbidden OpenClash setting text: {forbidden_text}")
 
-required_module_fragments = [
+legacy_required_module_fragments = [
     "'geosite:tiktok': rcode://success",
     "GEOSITE,tiktok,REJECT",
     "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国",
@@ -125,6 +125,10 @@ required_module_fragments = [
     "MATCH,美国",
     "empty-fallback: REJECT",
 ]
+required_module_fragments = list(legacy_required_module_fragments)
+if profile.get("kind") == "guide-mainland-bypass":
+    required_module_fragments.remove("GEOSITE,cn,DIRECT")
+    required_module_fragments.append("RULE-SET,oc-cn-domain,DIRECT")
 for fragment in required_module_fragments:
     if fragment not in module_text:
         fail(f"missing protected module fragment: {fragment}")
@@ -138,6 +142,8 @@ ordered_rules = [
     "GEOIP,CN,DIRECT,no-resolve",
     "MATCH,美国",
 ]
+if profile.get("kind") == "guide-mainland-bypass":
+    ordered_rules[4] = "RULE-SET,oc-cn-domain,DIRECT"
 positions = [module_text.index(rule) for rule in ordered_rules]
 if positions != sorted(positions):
     fail("protected routing order changed")
@@ -183,9 +189,111 @@ candidate_versions = profile.get("candidateVersions", {})
 if not isinstance(candidate_versions, dict):
     fail("candidateVersions must be an object")
 
+
+def validate_guide_version(candidate_version: str, candidate: dict) -> None:
+    """Validate the v2 DNS/firewall contract for a candidate or stable version."""
+    if candidate_version != "2.0.0":
+        fail("guide-mainland-bypass requires an explicitly reviewed major version")
+    declared = baseline_requirements + ["R11", "R12"]
+    if candidate.get("requirements") != declared:
+        fail("guide candidate must declare R1-R8 and R11-R12")
+    module = read_text(candidate["modulePath"])
+    contract = read_text(candidate["requirementsPath"])
+    setup = read_text(candidate["setupPath"])
+    if sha256(module) != candidate.get("moduleSha256"):
+        fail("guide candidate module hash differs from catalog")
+    if candidate.get("sharedManualRulesPath") != profile["sharedManualRulesPath"]:
+        fail("guide candidate must reuse the unchanged manual-direct source")
+    if candidate.get("manualRulesSha256") != sha256(manual_rules_text):
+        fail("guide candidate manual-direct snapshot differs from catalog")
+    if candidate.get("manualRuleCount") != len(manual_entries):
+        fail("guide candidate manual-direct count differs from catalog")
+    if any(not re.fullmatch(r"- DOMAIN(?:-SUFFIX)?,[^,\s]+", entry)
+           for entry in manual_entries):
+        fail("manual-direct must remain domain-only for v2 Fake-IP rule filtering")
+    headers = re.findall(r"^\[[^\]]+\]$", module, re.MULTILINE)
+    if headers != ["[YAML]"]:
+        fail("guide candidate must contain exactly [YAML]")
+    prefix = module.split("[YAML]", 1)[0]
+    if any(line.strip() and not line.lstrip().startswith("#")
+           for line in prefix.splitlines()):
+        fail("guide candidate permits only comments before [YAML]")
+    for forbidden in ("uci set ", "uci -q set ", "openclash.config.",
+                      "overwrite_restart_flag", "- name: 日本", "SRC-IP-CIDR,"):
+        if forbidden.lower() in module.lower():
+            fail(f"guide candidate contains forbidden fragment: {forbidden}")
+    # Each DNS override owns its value; a merged hash must not retain old policies.
+    for fragment in (
+        "fake-ip-filter-mode: rule", "fake-ip-filter!:", "fallback!: []",
+        "fallback-filter-:", "nameserver-policy!:",
+        "proxy-server-nameserver-policy!: {}", "proxy-server-nameserver:",
+        "direct-nameserver-follow-policy: false", "respect-rules: true",
+        "'geosite:tiktok': rcode://success", "'geosite:google':",
+        "'+.xn--ngstr-lra8j.com':", "https://223.5.5.5/dns-query",
+        "https://1.12.12.12/dns-query", "'https://1.1.1.1/dns-query#美国'",
+        "'https://8.8.8.8/dns-query#美国'", "behavior: domain", "format: mrs",
+        "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs",
+        "/main/rules/manual-direct.yaml", "behavior: classical",
+        "empty-fallback: REJECT", "exclude-filter: '(?i)^IPRoyal-'",
+    ):
+        if fragment not in module:
+            fail(f"guide candidate is missing protected fragment: {fragment}")
+    filter_block = module.split("  fake-ip-filter!:\n", 1)[1].split("\nproxy-groups!:", 1)[0]
+    filter_rules = re.findall(r"^    - (.+)$", filter_block, re.MULTILINE)
+    expected_filter = [
+        "GEOSITE,tiktok,fake-ip",
+        "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,fake-ip",
+        "GEOSITE,google,fake-ip",
+        "DOMAIN,localhost,real-ip", "DOMAIN-SUFFIX,lan,real-ip",
+        "DOMAIN-SUFFIX,local,real-ip", "DOMAIN-SUFFIX,home.arpa,real-ip",
+        "GEOSITE,private,real-ip", "RULE-SET,Manual-Direct,real-ip",
+        "RULE-SET,oc-cn-domain,real-ip", "MATCH,fake-ip",
+    ]
+    if filter_rules != expected_filter:
+        fail("guide candidate must protect Google/TikTok before CN real-IP bypass")
+    routing = module.split("\nrules!:\n", 1)[1]
+    expected_order = [
+        "GEOSITE,private,DIRECT", "GEOSITE,tiktok,REJECT",
+        "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国", "GEOSITE,google,美国",
+        "RULE-SET,Manual-Direct,DIRECT", "RULE-SET,oc-cn-domain,DIRECT",
+        "GEOIP,CN,DIRECT,no-resolve", "MATCH,美国",
+    ]
+    if any(rule not in routing for rule in expected_order):
+        fail("guide candidate routing contract is incomplete")
+    if [routing.index(rule) for rule in expected_order] != sorted(
+        routing.index(rule) for rule in expected_order
+    ):
+        fail("guide candidate routing priority differs from its contract")
+    directory = (ROOT / candidate["versionDirectory"]).resolve()
+    for key in ("modulePath", "requirementsPath", "setupPath"):
+        if (ROOT / candidate[key]).resolve().parent != directory:
+            fail(f"guide candidate {key} is outside its versionDirectory")
+    if any(requirement not in contract for requirement in declared):
+        fail("guide candidate contract omits a declared requirement")
+    for path in ("README.md", "AGENTS.md", "CHANGELOG.md", profile["profileReadmePath"]):
+        if "v2.0.0" not in read_text(path):
+            fail(f"{path} does not document the guide candidate")
+    for fragment in ("绕过中国大陆", "cn.mrs", "规则（rule）", "Dnsmasq 转发",
+                     "回退", "alpha-gbc76c13"):
+        if fragment not in setup + contract:
+            fail(f"guide candidate documentation omits {fragment}")
+
+
+if profile.get("kind") == "guide-mainland-bypass":
+    validate_guide_version(version, profile)
+    if profile.get("candidateVersions", {}).get(version):
+        fail("current stable guide version must not remain a candidate")
+    if profile.get("acceptanceSource") != "user-confirmed" or not profile.get("acceptedAt"):
+        fail("stable guide version must record user confirmation and date")
+
+
 for candidate_version, candidate in candidate_versions.items():
     if candidate.get("status") != "candidate":
         fail(f"v{candidate_version} candidate must have status=candidate")
+
+    if candidate.get("kind") == "guide-mainland-bypass":
+        validate_guide_version(candidate_version, candidate)
+        continue
 
     candidate_requirements = candidate.get("requirements", [])
     expected_candidate_requirements = [f"R{number}" for number in range(1, 11)]
@@ -234,7 +342,7 @@ for candidate_version, candidate in candidate_versions.items():
                 f"{forbidden_text}"
             )
 
-    candidate_required_fragments = required_module_fragments + [
+    candidate_required_fragments = legacy_required_module_fragments + [
         "- name: 日本",
         "RULE-SET,Manual-Japan,日本",
         "/main/rules/manual-japan.yaml",
@@ -496,6 +604,10 @@ print(f"OK: manual-direct entries={len(manual_entries)} sha256={sha256(manual_ru
 print("OK: protected DNS keys and routing order")
 for candidate_version, candidate in candidate_versions.items():
     candidate_module_text = read_text(candidate["modulePath"])
+    if candidate.get("kind") == "guide-mainland-bypass":
+        print(f"OK: guide_candidate=v{candidate_version} module_sha256={sha256(candidate_module_text)}")
+        print("OK: ordered Fake-IP exceptions, CN MRS, explicit DNS ownership, manual-direct unchanged")
+        continue
     manual_japan_text = read_text(candidate["manualJapanRulesPath"])
     manual_japan_entries = [
         line.strip()

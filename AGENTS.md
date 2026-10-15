@@ -2,14 +2,23 @@
 
 本文件面向所有人工维护者、Codex 和其他自动化工具。仓库克隆到任何新电脑后，必须先阅读本文件，再阅读 `MAINTENANCE.md`、`profiles/catalog.json` 和当前版本的 `REQUIREMENTS.md`。
 
+## 技术基准与本次授权
+
+2026-10-15，用户明确要求以 [OpenClash 用户指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md) 为技术基准，结合仓库域名及业务出口意图重构。旧版“关闭大陆绕过”“禁用 QUIC 不勾选”等技术设置不约束新候选。已创建并经用户确认发布 `tiktok-sockstun-us v2.0.0` 指南架构正式版，设置与验收以其 `SETUP.md`、`REQUIREMENTS.md` 为准。
+
+2026-10-15，用户另行确认“候选版本已验证，可发布正式版”，据此晋升 v2.0.0；此授权不允许改写历史发布快照。验收依据为用户总体确认，不伪造逐项日志。后续技术回答先读取指南路由表及匹配子文档；静态校验与实机证据分开记录。
+
 ## 当前事实来源
 
 - 当前方案：`tiktok-sockstun-us`
-- 当前稳定版本：`v1.0.0`
-- 当前需求：R1–R8
-- 当前版本覆写：`profiles/tiktok-sockstun-us/versions/v1.0.0/openclash-overwrite.conf`
+- 当前稳定版本：`v2.0.0`
+- 当前需求：R1–R8、R11–R12
+- 当前版本覆写：`profiles/tiktok-sockstun-us/versions/v2.0.0/openclash-overwrite.conf`
 - 当前候选版本：`v1.1.0`（R1–R10，日本策略组与人工日本规则，尚未经过真实设备验收）
 - 当前候选覆写：`profiles/tiktok-sockstun-us/versions/v1.1.0/openclash-overwrite.conf`
+- 本次正式标签：`tiktok-sockstun-us-v2.0.0`；2026-10-15 用户确认实机验收并授权发布
+- 正式版覆写：`profiles/tiktok-sockstun-us/versions/v2.0.0/openclash-overwrite.conf`
+- 正式版界面设置：`profiles/tiktok-sockstun-us/versions/v2.0.0/SETUP.md`
 - 独立稳定方案：`tiktok-hybrid-device-us v1.0.1`（H1–H9，`192.168.100.198/32` 的 TikTok 走机场`美国`，2026-09-27 已完成真实设备验收）
 - 独立稳定覆写：`profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf`
 - 独立稳定标签：`tiktok-hybrid-device-us-v1.0.1`
@@ -28,7 +37,7 @@
 4. Google 和 Google Play 必须在中国规则之前走`美国`，不得破坏已经验证的下载路径。
 5. 私网和局域网必须直连。
 6. 所有 OpenClash 插件运行选项都由用户在中文界面手工设置。覆写只能包含 `[YAML]` 这一种配置段；绝对不得加入 `[General]`、UCI 命令或其他自动修改 OpenClash 插件配置的内容。
-7. 当前“禁用 QUIC”必须不勾选；“绕过中国大陆 IPv4”必须不勾选。
+7. v1.0.0、v1.1.0 和已发布 hybrid 方案保留其历史设置；v2.0.0 改为开启大陆 IPv4 绕过，禁用 QUIC 按指南默认开启作为正式基线。不得把任一版本的插件开关混用于另一版本。
 8. 不得把凭据、真实代理用户名、密码或未脱敏的私密地址提交到仓库。
 9. 不同需求方案必须使用不同的方案 ID、版本目录、完整覆写和固定 URL；单个 OpenClash 配置只能启用一个方案覆写，禁止叠加或混用。
 10. 根目录兼容覆写只对应 `profiles/catalog.json` 的 `currentProfile`，不得作为 A–D 多个方案的共用入口。
