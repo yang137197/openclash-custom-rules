@@ -555,10 +555,10 @@ if hybrid_candidates:
 # The router-hosted profile is independent of the published phone/VPN contracts.
 router_id = "tiktok-router-iproyal-us"
 router_profile = profiles.get(router_id, {})
-if catalog.get("developmentProfile") != router_id:
-    fail("developmentProfile must identify the authorized router IPRoyal profile")
-if router_profile.get("status") != "candidate" or router_profile.get("currentVersion") is not None:
-    fail("router IPRoyal profile requires separate real-device acceptance before stability")
+if catalog.get("developmentProfile") != "tiktok-router-isp-us":
+    fail("developmentProfile must identify the current local ISP TikTok candidate")
+if router_profile.get("status") != "deprecated" or router_profile.get("currentVersion") is not None:
+    fail("superseded IPRoyal router profile must stay deprecated and non-current")
 if router_profile.get("tag") or router_profile.get("compatibilityModulePath"):
     fail("router candidate must not claim a stable tag or compatibility entry")
 beta1_directory = f"profiles/{router_id}/versions/v1.0.2-beta.1"
@@ -632,9 +632,11 @@ for marker in ("无需 SocksTun", "proxies+", "dialer-proxy: DIRECT", "udp: fals
     if marker not in router_setup:
         fail(f"router setup omits {marker}")
 for doc in ("README.md", "AGENTS.md", "CHANGELOG.md", router_profile["profileReadmePath"]):
-    if router_id not in read_text(doc) or "v1.0.0" not in read_text(doc):
-        fail(f"{doc} does not document router candidate")
-print("OK: router IPRoyal v1.0.0 candidate; local exact node, isolated DNS, UDP rejection guard")
+    if router_id not in read_text(doc):
+        fail(f"{doc} does not identify the deprecated router IPRoyal profile")
+if "已弃用" not in read_text(router_profile["profileReadmePath"]):
+    fail("router IPRoyal README must clearly mark the old candidate deprecated")
+print("OK: router IPRoyal historical snapshots preserved and profile deprecated")
 
 router_chain = router_candidates["1.0.1"]
 chain_directory = f"profiles/{router_id}/versions/v1.0.1"
@@ -805,6 +807,95 @@ for marker in ("v1.0.2-beta.3", "inline", "不需要单独更新 Rule Provider",
     if marker not in beta3_setup:
         fail(f"router beta.3 setup omits {marker}")
 print("OK: router IPRoyal v1.0.2-beta.3 inline Manual-Direct matches all 129 source rules; one module refresh path")
+
+# Current local-ISP candidate: cloud routing module plus a credential-local node module.
+isp_id = "tiktok-router-isp-us"
+isp_profile = profiles.get(isp_id, {})
+if catalog.get("developmentProfile") != isp_id:
+    fail("developmentProfile must point to the local ISP candidate")
+if isp_profile.get("status") != "candidate" or isp_profile.get("currentVersion") is not None:
+    fail("local ISP profile must remain a candidate until phone acceptance")
+if isp_profile.get("supersededBy"):
+    fail("active local ISP candidate cannot itself be superseded")
+isp_versions = isp_profile.get("candidateVersions", {})
+isp = isp_versions.get("1.0.0", {})
+if set(isp_versions) != {"1.0.0"} or isp.get("kind") != "router-isp-local-node" or isp.get("status") != "candidate":
+    fail("local ISP profile must declare only the v1.0.0 candidate")
+if isp.get("requirements") != [f"C{i}" for i in range(1, 12)]:
+    fail("local ISP candidate must declare C1-C11")
+if isp.get("localProxyName") != "TikTok-ISP-Local" or isp.get("tiktokGroup") != "TikTok-ISP":
+    fail("local ISP candidate node/group identity changed")
+isp_directory = "profiles/tiktok-router-isp-us/versions/v1.0.0"
+if isp.get("versionDirectory") != isp_directory:
+    fail("local ISP candidate must use its independent version directory")
+for key, filename in (("modulePath", "openclash-overwrite.conf"),
+                      ("requirementsPath", "REQUIREMENTS.md"),
+                      ("setupPath", "SETUP.md"),
+                      ("localModuleTemplatePath", "local-tiktok-proxy.conf.example")):
+    if isp.get(key) != f"{isp_directory}/{filename}":
+        fail(f"local ISP {key} must stay in its candidate directory")
+if isp.get("manualRulesPath") != "rules/manual-direct-isp.yaml":
+    fail("local ISP candidate must use an isolated manual-direct rule source")
+isp_module = read_text(isp["modulePath"])
+isp_rolling_path = "profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf"
+isp_rolling = read_text(isp_rolling_path)
+if isp_profile.get("latestModulePath") != isp_rolling_path:
+    fail("local ISP profile must expose its own rolling cloud module")
+if isp_module != isp_rolling:
+    fail("local ISP rolling module must match the current candidate module")
+if sha256(isp_module) != isp.get("moduleSha256") or sha256(isp_rolling) != isp_profile.get("latestModuleSha256"):
+    fail("local ISP candidate/rolling module hash differs from catalog")
+if "username:" in isp_module or "password:" in isp_module or "st02.loongproxy.com" in isp_module:
+    fail("cloud module must not contain local proxy credentials or endpoint")
+if isp_module.count("[YAML]") != 1 or re.search(r"(?m)^\[(?!YAML\])", isp_module):
+    fail("local ISP cloud module must contain only one [YAML] section")
+if "filter: '^TikTok-ISP-Local$'" not in isp_module:
+    fail("TikTok group must select only the exact local ISP node")
+if "exclude-filter: '(?i)^TikTok-ISP-Local$'" not in isp_module:
+    fail("USA group must exclude the local chained node")
+if "empty-fallback: REJECT" not in isp_module:
+    fail("TikTok group must fail closed when its local node is absent")
+if "  - GEOSITE,tiktok,TikTok-ISP\n  # 核心可能跳过不支持 UDP 的代理；同分类拒绝规则阻止落入美国或直连。\n  - GEOSITE,tiktok,REJECT" not in isp_module:
+    fail("TikTok REJECT must immediately follow the TikTok proxy rule")
+manual_isp_text = read_text(isp["manualRulesPath"])
+manual_isp_entries = [line.strip()[2:] for line in manual_isp_text.splitlines()
+                      if line.lstrip().startswith("- DOMAIN")]
+if len(manual_isp_entries) != isp.get("manualRuleCount") or len(manual_isp_entries) != len(manual_entries):
+    fail("local ISP manual-direct rules must retain all 129 existing entries")
+if any(not entry.startswith("DOMAIN-SUFFIX,") for entry in manual_isp_entries):
+    fail("every local ISP manual-direct entry must include its domain suffix")
+expected_manual_isp = [entry[2:].replace("DOMAIN,", "DOMAIN-SUFFIX,", 1) for entry in manual_entries]
+if manual_isp_entries != expected_manual_isp:
+    fail("local ISP manual-direct rules must preserve every original entry and only broaden exact domains")
+if sha256(manual_isp_text) != isp.get("manualRulesSha256") or isp_profile.get("manualRulesPath") != isp["manualRulesPath"]:
+    fail("local ISP manual-direct source hash/path differs from catalog")
+inline_match = re.search(r"(?ms)^  Manual-Direct!:\n(.*?)(?=^rules!:\n)", isp_module)
+if not inline_match or not re.search(r"(?m)^    type: inline$", inline_match.group(1)):
+    fail("local ISP cloud module must inline Manual-Direct")
+if re.search(r"(?m)^    (?:url|path|interval):", inline_match.group(1)):
+    fail("local ISP Manual-Direct inline rules must not require a separate provider refresh")
+inline_isp_entries = [line.strip()[2:] for line in inline_match.group(1).splitlines()
+                      if line.startswith("      - DOMAIN")]
+if inline_isp_entries != manual_isp_entries:
+    fail("local ISP inline Manual-Direct payload must exactly match its isolated source")
+local_template = read_text(isp["localModuleTemplatePath"])
+if "name: TikTok-ISP-Local" not in local_template or "dialer-proxy: 美国" not in local_template:
+    fail("local ISP node template must chain the exact node through the USA group")
+if not all(marker in local_template for marker in ("FILL_ME_PROXY_HOST", "FILL_ME_PROXY_PORT", "FILL_ME_USERNAME", "FILL_ME_PASSWORD")):
+    fail("repository local-node template must contain placeholders, not real credentials")
+if "st02.loongproxy.com" in local_template:
+    fail("provider endpoint belongs only in the user's local module")
+isp_contract = read_text(isp["requirementsPath"])
+isp_setup = read_text(isp["setupPath"])
+if any(item not in isp_contract for item in isp["requirements"]):
+    fail("local ISP contract omits declared requirements")
+for marker in ("v1.0.0", "candidate", "手选", "TikTok-ISP-Local", "DOMAIN-SUFFIX", "手机", "REJECT", "回退"):
+    if marker not in isp_setup:
+        fail(f"local ISP setup omits {marker}")
+for doc in ("README.md", "AGENTS.md", "CHANGELOG.md", isp_profile["profileReadmePath"]):
+    if isp_id not in read_text(doc) or "v1.0.0" not in read_text(doc):
+        fail(f"{doc} does not document the current local ISP candidate")
+print("OK: local ISP v1.0.0 candidate; exact local node, USA chain, fail-closed TikTok, and 129 domain-suffix direct rules")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
     try:

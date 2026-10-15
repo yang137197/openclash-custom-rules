@@ -101,7 +101,7 @@
     },
     "tiktok-router-iproyal-us": {
       "title": "所有手机经 OpenClash 本地 IPRoyal 访问 TikTok，无需 SocksTun",
-      "status": "candidate",
+      "status": "deprecated",
       "currentVersion": null,
       "profileReadmePath": "profiles/tiktok-router-iproyal-us/README.md",
       "sharedManualRulesPath": "rules/manual-direct.yaml",
@@ -116,17 +116,7 @@
         "1.0.0": {
           "kind": "router-iproyal",
           "status": "candidate",
-          "requirements": [
-            "P1",
-            "P2",
-            "P3",
-            "P4",
-            "P5",
-            "P6",
-            "P7",
-            "P8",
-            "P9"
-          ],
+          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"],
           "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.0",
           "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.0/openclash-overwrite.conf",
           "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.0/REQUIREMENTS.md",
@@ -207,8 +197,49 @@
           "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
           "manualRuleCount": 129
         }
-      }
+      },
+      "supersededBy": "tiktok-router-isp-us"
+    },
+    "tiktok-router-isp-us": {
+      "title": "云端中国直连与美国分流 + 本地 TikTok ISP 链式节点",
+      "status": "candidate",
+      "currentVersion": null,
+      "profileReadmePath": "profiles/tiktok-router-isp-us/README.md",
+      "latestModulePath": "profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf",
+      "latestModuleSha256": "a79caa3147025fc6dad16cb12a70af27876487afa8064250a5561eaf801c6f63",
+      "immutableVersionDirectories": [],
+      "candidateVersions": {
+        "1.0.0": {
+          "kind": "router-isp-local-node",
+          "status": "candidate",
+          "requirements": [
+            "C1",
+            "C2",
+            "C3",
+            "C4",
+            "C5",
+            "C6",
+            "C7",
+            "C8",
+            "C9",
+            "C10",
+            "C11"
+          ],
+          "versionDirectory": "profiles/tiktok-router-isp-us/versions/v1.0.0",
+          "modulePath": "profiles/tiktok-router-isp-us/versions/v1.0.0/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-isp-us/versions/v1.0.0/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-isp-us/versions/v1.0.0/SETUP.md",
+          "localModuleTemplatePath": "profiles/tiktok-router-isp-us/versions/v1.0.0/local-tiktok-proxy.conf.example",
+          "localProxyName": "TikTok-ISP-Local",
+          "tiktokGroup": "TikTok-ISP",
+          "manualRulesPath": "rules/manual-direct-isp.yaml",
+          "moduleSha256": "a79caa3147025fc6dad16cb12a70af27876487afa8064250a5561eaf801c6f63",
+          "manualRulesSha256": "aa8fc4343a50a64cd572e4de48bb5d0bd5b3353f41abf37aa474192af2661f6e",
+          "manualRuleCount": 129
+        }
+      },
+      "manualRulesPath": "rules/manual-direct-isp.yaml"
     }
   },
-  "developmentProfile": "tiktok-router-iproyal-us"
+  "developmentProfile": "tiktok-router-isp-us"
 }

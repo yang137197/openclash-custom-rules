@@ -2,6 +2,15 @@
 
 只记录形成版本的长期变化。临时命令、失败尝试和排查流水不写入本文件。
 
+## tiktok-router-isp-us v1.0.0 — 云覆写 + 本地 TikTok ISP 节点 — 2026-10-15
+
+状态：candidate，未完成 OpenClash 路由器与手机验收。用户明确弃用 IPRoyal 路由候选；旧 IPRoyal 版本目录和 beta 快照保留为历史材料，不再推荐测试。
+
+- 新建独立方案：完整云覆写只匹配精确本地节点 `TikTok-ISP-Local`；本地 SOCKS5 节点通过用户手选的`美国`组链式拨号。TikTok 保留专用 DNS、专属组和紧随其后的 REJECT，禁止回退机场或 DIRECT。
+- 其他境外流量继续走手选机场`美国`；中国大陆分类/IP、私网/局域网按当前 v2.0.0 基线直连；Google 与 Google Play 继续先于中国分类走`美国`。
+- 复制完整 129 条人工直连规则到方案专属 `rules/manual-direct-isp.yaml`，将每条统一为 `DOMAIN-SUFFIX`；没有改写共享的 `rules/manual-direct.yaml`。完整云覆写通过 inline payload 同步这 129 条。
+- 本地节点凭据仅保存在用户设备的本地模块，不进入仓库云覆写。静态结构不等于 LoongProxy 实际连通或 TikTok 可用；须手机验收后才能讨论稳定发布。
+
 ## tiktok-router-iproyal-us v1.0.2-beta.3 — Manual-Direct 随模块同步 — 2026-10-15
 
 状态：candidate / beta；未完成真实 OpenClash 与手机验收。影响新增需求 P11；P1–P10 及 beta.2 历史快照保持不变。

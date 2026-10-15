@@ -2,27 +2,24 @@
 
 本次重构以 [OpenClash 用户指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md) 为技术基准，仓库提供域名及业务出口意图。旧版设置只用于旧版本回退，不约束当前正式版。
 
-## 最新目标：手机 → OpenClash → IPRoyal → TikTok
+## 当前开发候选：手机 → OpenClash → 美国机场首跳 → 本地 ISP → TikTok
 
-当前 beta 候选为 **tiktok-router-iproyal-us v1.0.2-beta.3（candidate）**，手机无需 SocksTun。TikTok 使用 IPRoyal 最终出口；链式拨号仍待实机验收。Manual-Direct 的 129 条规则随覆写模块一起更新，`DOMAIN-SUFFIX,mmstat.com` 覆盖主域名及全部子域名。
+用户已要求弃用 IPRoyal 路由候选，当前方案为 **tiktok-router-isp-us v1.0.0（candidate）**。完整云覆写负责国内直连、境外美国分流及 TikTok 专属策略；含 LoongProxy 凭据的 SOCKS5 节点仅在路由器本地模块中。尚未完成手机实测，不代表 LoongProxy 已能稳定接入 TikTok。
 
-- [后续持续更新的方案专属覆写订阅入口](profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf)
-- [v1.0.2-beta.3 固定候选模块](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/openclash-overwrite.conf)
-- [v1.0.2-beta.3 单模块同步设置、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/SETUP.md)
+- [完整云覆写候选](profiles/tiktok-router-isp-us/versions/v1.0.0/openclash-overwrite.conf)
+- [候选方案专属滚动订阅文件](profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf)
+- [本地 TikTok 节点模板（无凭据）](profiles/tiktok-router-isp-us/versions/v1.0.0/local-tiktok-proxy.conf.example)
+- [OpenClash 上传顺序、手机验收与回退](profiles/tiktok-router-isp-us/versions/v1.0.0/SETUP.md)
+- [C1–C11 需求合同](profiles/tiktok-router-isp-us/versions/v1.0.0/REQUIREMENTS.md)
+- 方案专属人工直连数据：`rules/manual-direct-isp.yaml`。完整保留原 129 条条目，并统一为 `DOMAIN-SUFFIX`，覆盖每个条目及其子域名；不修改其他方案的共享规则源。
 
-- [v1.0.0 直连候选完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.0/openclash-overwrite.conf)
-- [v1.0.0 原设置与回退资料](profiles/tiktok-router-iproyal-us/versions/v1.0.0/SETUP.md)
-- [v1.0.1 完整覆写：仅新部署时使用](profiles/tiktok-router-iproyal-us/versions/v1.0.1/openclash-overwrite.conf)
-- [v1.0.1 无凭据链式补丁，已有本地节点可直接上传](profiles/tiktok-router-iproyal-us/versions/v1.0.1/iproyal-chain-hop.conf)
-- [v1.0.1 上传、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.1/SETUP.md)
-- [v1.0.2-beta.1 完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/openclash-overwrite.conf)
-- [v1.0.2-beta.1 链式补丁](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/iproyal-chain-hop.conf)
-- [v1.0.2-beta.1 上传、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/SETUP.md)
-- [v1.0.2-beta.2 完整覆写](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/openclash-overwrite.conf)
-- [v1.0.2-beta.2 链式补丁](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/iproyal-chain-hop.conf)
-- [v1.0.2-beta.2 上传、验收与回退](profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/SETUP.md)
+当前候选滚动订阅 URL：
 
-beta.3 尚未完成真实 OpenClash 与手机验收，未替换稳定入口。已有 beta.2 订阅用户需一次性将模块 URL 改为上方滚动入口；之后仓库的人工直连规则随覆写模块刷新，并在重启 OpenClash 后生效。候选只引用本地节点名称，真实地址和凭据不入库。
+```text
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf
+```
+
+`tiktok-router-iproyal-us` 已弃用，历史版本目录与 beta 快照保留、不再用于本轮测试。
 
 ## 保留的当前正式版：tiktok-sockstun-us v2.0.0
 
@@ -56,7 +53,8 @@ beta.3 尚未完成真实 OpenClash 与手机验收，未替换稳定入口。�
 | tiktok-router-iproyal-us v1.0.0 | 直连 IPRoyal 的历史候选 | 实机日志出现 IPRoyal SOCKS5 端口超时 |
 | tiktok-router-iproyal-us v1.0.1 | 前序链式拨号候选 | 机场美国首跳连接本地 IPRoyal 节点，TikTok 最终出口仍为 IPRoyal |
 | tiktok-router-iproyal-us v1.0.2-beta.1 | 已发布 beta 快照 | mmstat 精确规则，仅 d-gm.mmstat.com |
-| tiktok-router-iproyal-us v1.0.2-beta.2 | 当前 beta 候选，待实机验收 | `DOMAIN-SUFFIX,mmstat.com` 直连主域名和全部子域名 |
+| tiktok-router-iproyal-us v1.0.2-beta.2 / beta.3 | 已弃用候选快照 | 保留用于历史核对，不再作为测试路径 |
+| tiktok-router-isp-us v1.0.0 | 当前候选，待手机实测 | 云端分流 + 路由器本地 ISP 节点；TikTok 仅走该节点 |
 
 [profiles/catalog.json](profiles/catalog.json) 记录状态和文件映射。兼容入口 `overwrite/openclash-overwrite.conf` 现对应 v2.0.0；旧标签和已发布目录不改写。单个机场配置只启用一套完整覆写。
 

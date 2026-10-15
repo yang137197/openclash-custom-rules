@@ -49,7 +49,7 @@
 - `AGENTS.md`：未来维护者必须遵守的修改边界；
 - `scripts/validate_repository.py`：不依赖第三方库的一致性检查。
 
-`tiktok-sockstun-us` 的既有覆写通过 HTTP Rule Provider 引用 `main/rules/manual-direct.yaml`。`tiktok-router-iproyal-us` beta.3 起采用 inline payload：方案专属滚动模块与 `rules/manual-direct.yaml` 必须在同一提交同步，仓库校验保证内容一致；路由器用户只刷新该覆写模块并重启，不再单独刷新 Manual-Direct Rule Provider。固定 Git 标签保留当时的模块与规则快照，可追溯和恢复。
+`tiktok-sockstun-us` 的既有覆写通过 HTTP Rule Provider 引用 `main/rules/manual-direct.yaml`。已弃用的 `tiktok-router-iproyal-us` beta.3 使用 inline payload，作为历史快照保留。当前 `tiktok-router-isp-us` 使用独立 `rules/manual-direct-isp.yaml`：完整保留共享源的 129 条规则并统一改为 `DOMAIN-SUFFIX`，覆盖条目及全部子域名；完整云覆写的 inline payload 和滚动模块必须与该方案专属规则源在同一提交同步，路由器只刷新该完整覆写并重启，不单独刷新 Rule Provider。不得因此改写其他方案共用的 `rules/manual-direct.yaml`。
 
 ## 覆写模块边界
 
@@ -63,9 +63,9 @@
 
 ## 状态定义
 
-`developmentProfile` 指向最新授权开发方案，`currentProfile` 仍指向已发布稳定方案。新独立方案可以 `status=candidate`、`currentVersion=null`，在 `candidateVersions` 内声明合同与文件；不得为了通过旧校验而伪造稳定版本。本次 `tiktok-router-iproyal-us v1.0.0` 使用 P1–P9，不继承旧 R1 的手机 SocksTun 路径，也不改变旧快照。只追加节点的路由器本地凭据模块可与一套完整分流模块配合，不属于叠加两套完整方案；凭据模块不得提交仓库。
+`developmentProfile` 指向最新授权开发方案，`currentProfile` 仍指向已发布稳定方案。新独立方案可以 `status=candidate`、`currentVersion=null`，在 `candidateVersions` 内声明合同与文件；不得为了通过旧校验而伪造稳定版本。当前 `tiktok-router-isp-us v1.0.0` 使用 C1–C11，不继承旧 R1 的手机 SocksTun 路径，也不改变旧快照。只追加节点的路由器本地凭据模块可与一套完整分流模块配合，不属于叠加两套完整方案；凭据模块不得提交仓库。
 
-`tiktok-router-iproyal-us v1.0.1` 是针对 IPRoyal 直连拨号超时的候选修订：保留 v1.0.0 完整分流正文，以无凭据 `proxies*` 模块对已存在的本地精确节点设置机场美国首跳。该补丁必须在本地节点追加模块之后合并，不能把它当成第二套完整分流模块；缺少实机成功证据前不晋升稳定版。
+历史：`tiktok-router-iproyal-us v1.0.1` 曾针对 IPRoyal 直连拨号超时尝试机场美国首跳；后续 IPRoyal beta 快照均保留，但用户现已明确弃用这条候选，不再用于测试或维护入口。
 
 `tiktok-router-iproyal-us v1.0.2-beta.1` 在 v1.0.1 链式候选上新增精确直连域名 `d-gm.mmstat.com`，保持共享人工直连列表的其他条目。候选可使用语义化预发布版本号和 GitHub pre-release 标签供用户验收；仍保持 `candidate`，不得移动稳定入口。beta 版本目录与共享规则文件都纳入该标签，发布后不得改写。
 
@@ -87,7 +87,7 @@
 2. 在新版本 `REQUIREMENTS.md` 中列出继承、增加、修改和删除的需求。
 3. 修改新版本覆写；如果准备提升为当前版本，同时同步兼容覆写入口。
 4. 如果修改人工直连规则，同时修改 `rules/manual-direct.yaml`。
-5. 对 `tiktok-router-iproyal-us` beta.3 及后续版本，同一提交把 `rules/manual-direct.yaml` 的 payload 同步到方案专属滚动模块及新候选模块；`validate_repository.py` 必须逐条检查一致，确保用户只需刷新模块。
+5. 对 `tiktok-router-isp-us` 及后续版本，同一提交把 `rules/manual-direct-isp.yaml` 的 payload 同步到方案专属滚动模块及新候选模块；`validate_repository.py` 必须逐条检查一致，并保证每条都使用 `DOMAIN-SUFFIX`，确保用户只需刷新完整覆写模块。
 6. 更新 `profiles/catalog.json` 和 `CHANGELOG.md`，先将新版本标记为 `candidate`。
 7. 运行：
 

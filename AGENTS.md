@@ -10,8 +10,9 @@
 
 ## 当前事实来源
 
-- 最新用户目标及开发候选：`tiktok-router-iproyal-us v1.0.2-beta.3`（P1–P11，候选）；所有手机 → OpenClash → 机场美国首跳 → 本地 IPRoyal → TikTok，无需 SocksTun。Manual-Direct 以内联 payload 与 `rules/manual-direct.yaml` 同步，用户刷新方案专属滚动覆写模块并重启，不单独刷新规则提供者。v1.0.0、v1.0.1、beta.1 与 beta.2 保留；链式拨号仍待验收。
-- 新方案设置与验收：`profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/SETUP.md`、`REQUIREMENTS.md`。无凭据链式补丁为同目录 `iproyal-chain-hop.conf`，必须晚于本地节点模块合并；本地节点统一名 `IPRoyal-US-ISP`，凭据留在路由器。尚未实机验收，不提升稳定入口、不沿用旧版验收。
+- 最新用户目标及开发候选：`tiktok-router-isp-us v1.0.0`（C1–C11，candidate）；所有手机 → OpenClash → 手选机场`美国`首跳 → 路由器本地 LoongProxy ISP → TikTok，无需 PC 测试或 SocksTun。完整云覆写与本地节点模块分离；本地节点统一名 `TikTok-ISP-Local`，真实凭据只留路由器。本候选的 129 条 Manual-Direct 副本全部使用 `DOMAIN-SUFFIX`，在同一个完整云模块内联并与 `rules/manual-direct-isp.yaml` 同步；只刷新该模块并重启。
+- 新方案设置与验收：`profiles/tiktok-router-isp-us/versions/v1.0.0/SETUP.md`、`REQUIREMENTS.md`。GitHub 云订阅发布状态以当前远端核验为准；未完成手机实机验收前保持 candidate，不提升稳定入口。
+- `tiktok-router-iproyal-us` 已按用户要求弃用；原 beta 快照及版本目录保留不可改写，仅作历史记录，不得再作为当前测试建议。
 - 当前方案：`tiktok-sockstun-us`
 - 当前稳定版本：`v2.0.0`
 - 当前需求：R1–R8、R11–R12
@@ -28,22 +29,23 @@
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
 - 当前共享人工直连数据：129 条；`DOMAIN-SUFFIX,alimama.com` 覆盖阿里妈妈子域名，`DOMAIN-SUFFIX,mmstat.com` 覆盖 mmstat.com 主域名及全部子域名。
-- IPRoyal 滚动覆写入口：`profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf`；inline payload 必须与 `rules/manual-direct.yaml` 在同一提交同步，禁止要求用户单独刷新 Rule Provider。
+- 新 LoongProxy ISP 滚动覆写入口：`profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf`；inline payload 必须与方案专属 `rules/manual-direct-isp.yaml` 同一提交同步，禁止要求用户单独刷新 Rule Provider。
+- IPRoyal 滚动覆写入口保留于 `profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf`，仅供历史核验；该 profile 已弃用。
 - 候选人工日本规则：`rules/manual-japan.yaml`
 
 若上述信息与 `profiles/catalog.json` 不一致，以通过仓库校验的 `profiles/catalog.json` 为准，并修正文档漂移。
 
 ## 不得擅自改变
 
-1. 已发布 `tiktok-sockstun-us` 的 TikTok 路径保持手机 SocksTun/IPRoyal，核心拒绝泄漏；新独立 `tiktok-router-iproyal-us` 按用户最新授权改为 OpenClash 本地 IPRoyal，手机无需 SocksTun。两者都禁止 TikTok 回退机场或 DIRECT。新方案的 TikTok-ISP 只筛选本地精确节点名，且必须保留紧随其后的 TikTok REJECT，阻止不支持 UDP 时继续匹配。
+1. 已发布 `tiktok-sockstun-us` 的 TikTok 路径保持手机 SocksTun/IPRoyal，核心拒绝泄漏；当前独立候选 `tiktok-router-isp-us` 使用 OpenClash 本地 LoongProxy ISP 节点，手机无需 SocksTun。两者都禁止 TikTok 回退机场或 DIRECT。新方案的 `TikTok-ISP` 只筛选本地精确节点名 `TikTok-ISP-Local`，且必须保留紧随其后的 TikTok REJECT，阻止不支持 UDP 时继续匹配。已弃用的 IPRoyal 路由候选只保留历史文件。
 2. 除 TikTok 外的国外流量最终走用户手工选择的机场美国节点。
-3. 中国大陆域名和 IP 直连；`rules/manual-direct.yaml` 的现有条目必须保留。
+3. 中国大陆域名和 IP 直连；所有方案均须保留原有人工直连条目。LoongProxy ISP 候选可维护独立副本 `rules/manual-direct-isp.yaml`，将清单中的每项统一扩大为 `DOMAIN-SUFFIX`；不得因此改写稳定方案使用的共享源 `rules/manual-direct.yaml`。
 4. Google 和 Google Play 必须在中国规则之前走`美国`，不得破坏已经验证的下载路径。
 5. 私网和局域网必须直连。
 6. 所有 OpenClash 插件运行选项都由用户在中文界面手工设置。覆写只能包含 `[YAML]` 这一种配置段；绝对不得加入 `[General]`、UCI 命令或其他自动修改 OpenClash 插件配置的内容。
 7. v1.0.0、v1.1.0 和已发布 hybrid 方案保留其历史设置；v2.0.0 改为开启大陆 IPv4 绕过，禁用 QUIC 按指南默认开启作为正式基线。不得把任一版本的插件开关混用于另一版本。
 8. 不得把凭据、真实代理用户名、密码或未脱敏的私密地址提交到仓库。
-9. 不同需求方案必须使用不同的方案 ID、版本目录、完整覆写和固定 URL；单个 OpenClash 配置只能启用一个方案覆写，禁止叠加或混用。
+9. 不同需求方案必须使用不同的方案 ID、版本目录、完整覆写和固定 URL；单个 OpenClash 配置只能启用一个方案完整覆写。只追加本地代理节点的凭据模块可与其配套，不得启用其他完整覆写。
 10. 根目录兼容覆写只对应 `profiles/catalog.json` 的 `currentProfile`，不得作为 A–D 多个方案的共用入口。
 11. `rules/manual-direct.yaml` 只允许需求完全一致的方案共享；直连范围不同必须拆分为方案专属规则文件。
 12. `tiktok-hybrid-device-us` 只能放行需求合同中明确列出的固定来源 IP；未列出的设备必须继续命中 TikTok 拒绝规则。不得把整个网段、所有设备或 TikTok 直连作为回退。
