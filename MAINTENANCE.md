@@ -63,6 +63,8 @@
 
 ## 状态定义
 
+`developmentProfile` 指向最新授权开发方案，`currentProfile` 仍指向已发布稳定方案。新独立方案可以 `status=candidate`、`currentVersion=null`，在 `candidateVersions` 内声明合同与文件；不得为了通过旧校验而伪造稳定版本。本次 `tiktok-router-iproyal-us v1.0.0` 使用 P1–P9，不继承旧 R1 的手机 SocksTun 路径，也不改变旧快照。只追加节点的路由器本地凭据模块可与一套完整分流模块配合，不属于叠加两套完整方案；凭据模块不得提交仓库。
+
 - `candidate`：配置已经进入仓库，但真实 OpenClash 或应用验收尚未完成；
 - `stable`：配置加载成功，并完成该版本 `REQUIREMENTS.md` 中的实际验收；
 - `deprecated`：仍保留用于恢复，但不再建议新安装使用。

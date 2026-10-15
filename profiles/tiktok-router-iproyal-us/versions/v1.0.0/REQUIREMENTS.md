@@ -1,0 +1,38 @@
+# tiktok-router-iproyal-us v1.0.0
+
+状态：**candidate**。版本类型：新需求的独立方案首版。授权日期：2026-10-15。
+
+用户明确要求“所有手机 → OpenClash → IPRoyal → TikTok，手机无需 SocksTun”。技术基础为 OpenClash 用户指南；从已发布指南架构派生，原方案的 SocksTun 要求不适用于本方案。原稳定版本的验收不能转用为本版验收。
+
+## 需求合同
+
+| 编号 | 要求 |
+| --- | --- |
+| P1 | 所有受本路由器 OpenClash 接管的手机，可识别 TikTok 域名连接经 TikTok-ISP → 本地 IPRoyal-US-ISP；无需手机 SocksTun，不按来源 IP 限定 |
+| P2 | TikTok 不回退机场或 DIRECT；本地节点缺失时组内为 REJECT，不支持的 UDP 由紧随的同分类 REJECT 收口 |
+| P3 | 其他国外流量走手选机场美国节点；美国组排除 IPRoyal，空组拒绝 |
+| P4 | 国内域名/IP 直连，采用指南 Fake-IP 非 TUN＋大陆 IPv4 旁路基线 |
+| P5 | 原有 124 条 Manual-Direct 条目、精确/后缀语义和局域网直连保持 |
+| P6 | Google/Play 的 Fake-IP、美国 DNS 与美国路由优先级保持 |
+| P7 | TikTok 优先 Fake-IP，专用 DoH 经 TikTok-ISP；删除旧 rcode 空响应策略；其他 DNS 职责沿用指南基线 |
+| P8 | 只有 [YAML]，插件设置由用户手工执行；IPRoyal 地址、账号密码仅留路由器，不提交仓库 |
+| P9 | 国内 App、Google Play、TikTok 及节点缺失验收通过前保持候选，不替换稳定入口或发布正式版 |
+
+## 规则与边界
+
+路由顺序：局域网 → TikTok-ISP → TikTok REJECT → Google/Play 美国 → Manual-Direct → CN MRS → CN IP → 美国。Fake-IP 过滤中 TikTok/Google 位于 CN 真实地址规则之前，防止正常域名连接提前进入大陆旁路。
+
+TikTok-ISP 只从配置顶层 proxies 精确筛选 `IPRoyal-US-ISP`，不引入机场 provider 或其他策略组。节点存在但连接失败时仍只尝试该节点；不支持 UDP 时，Mihomo 可能跳过该条代理规则，因此下一条同分类 REJECT 必须保留。禁用 QUIC 是客户端 TCP 降级基线，不代表 ISP 服务支持 UDP、直播或所有功能。
+
+本方案按域名类别分流，不是手机应用级 VPN。未知 TikTok 域名、纯 IP/私有 DNS/HTTPDNS、未经过本路由器的 IPv6、移动数据或其他 VPN 不在域名保证范围。仅关闭 OpenClash IPv6 代理不等于关闭客户端 IPv6；验收网络必须确保手机没有其他出网路径。共享同一代理的并发及业务权限以购买套餐为准；不承诺账号风控、地区解锁或无限设备。
+
+## 待实机验收
+
+- [ ] 重启加载无未知字段、DNS 循环或 provider 错误；TikTok-ISP 只有 IPRoyal-US-ISP，美国组没有 IPRoyal。
+- [ ] 手机停止 SocksTun/其他 VPN、关闭移动数据，使用路由器网关/DNS；至少两台手机分别及同时打开、刷新、播放 TikTok，连接记录均命中 TikTok-ISP，核对实际 IPRoyal 出口。
+- [ ] 临时停用本地凭据模块或移除测试配置中的本地节点并重启，TikTok-ISP 变为 REJECT；新建 TikTok 连接失败，没有机场或 DIRECT；恢复节点并重启后恢复。不能只断开网络模拟“节点缺失”。
+- [ ] UDP 不支持时命中紧随的 TikTok REJECT；不能落入美国。发现未知域名进入美国时记录域名和日志，候选不得发布。
+- [ ] 国内常用 App 连续加载/刷新；人工直连和局域网服务正常；Google Play 完整下载，其他国外网站走所选机场美国。
+- [ ] 更新一次机场订阅并重启，确认本地 IPRoyal 节点仍存在且路由正确；避免发布后订阅覆盖造成失效。
+
+2026-10-15：仓库/YAML/内核配置检查通过；隔离回环夹具验证了节点存在/缺失时的策略组成员及 TikTok UDP 拒绝收口，详见 SETUP.md。未连接真实代理或路由器；这些检查不代表用户的 alpha-gbc76c13、防火墙、IPRoyal 线路或上述 App 已验收。
