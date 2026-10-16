@@ -1,0 +1,11 @@
+# 本地模块模板，不得将真实代理凭据提交公共仓库
+[YAML]
+proxies+:
+  - name: TikTok-ISP-Local
+    type: socks5
+    server: 'FILL_ME_PROXY_HOST'
+    port: FILL_ME_PROXY_PORT
+    username: 'FILL_ME_USERNAME'
+    password: 'FILL_ME_PASSWORD'
+    udp: false
+    dialer-proxy: 日本-入口

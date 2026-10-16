@@ -239,7 +239,50 @@
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"
+    },
+    "tiktok-router-loongproxy-jp-us": {
+      "title": "iKuu 日本首跳 + 本地 Loongproxy 美国 SOCKS5 的 TikTok 路由候选",
+      "status": "candidate",
+      "currentVersion": null,
+      "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
+      "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
+      "latestModuleSha256": "f05cd8da8d0dc36d87d49254db83981193d6c7839e18b3babf9a67516a36baf4",
+      "immutableVersionDirectories": [],
+      "candidateVersions": {
+        "1.0.0": {
+          "kind": "router-loongproxy-jp-us",
+          "status": "candidate",
+          "requirements": [
+            "J1",
+            "J2",
+            "J3",
+            "J4",
+            "J5",
+            "J6",
+            "J7",
+            "J8",
+            "J9",
+            "J10",
+            "J11",
+            "J12"
+          ],
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/local-tiktok-proxy.conf.example",
+          "manualRulesPath": "rules/manual-direct-isp.yaml",
+          "manualRulesSha256": "aa8fc4343a50a64cd572e4de48bb5d0bd5b3353f41abf37aa474192af2661f6e",
+          "manualRuleCount": 129,
+          "localProxyName": "TikTok-ISP-Local",
+          "tiktokGroup": "TikTok-ISP",
+          "firstHopGroup": "日本-入口",
+          "foreignGroup": "美国",
+          "moduleSha256": "f05cd8da8d0dc36d87d49254db83981193d6c7839e18b3babf9a67516a36baf4"
+        }
+      },
+      "manualRulesPath": "rules/manual-direct-isp.yaml"
     }
   },
-  "developmentProfile": "tiktok-router-isp-us"
+  "developmentProfile": "tiktok-router-loongproxy-jp-us"
 }

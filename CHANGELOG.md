@@ -1,5 +1,13 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us v1.0.0 — 日本首跳 + Loongproxy 美国 ISP — 2026-10-16
+
+状态：candidate，未完成 CatWrt/OpenClash 手机验收。新增独立开发方案，不改写历史版本或稳定入口。
+
+- `日本-入口` 组手选 iKuu 日本节点，本地 `TikTok-ISP-Local` 配置 `dialer-proxy: 日本-入口`，其他境外流量仍走美国组。
+- 沿用中国大陆直连、Google/Play 美国优先、TikTok REJECT，以及现有 129 条 `DOMAIN-SUFFIX` Manual-Direct；云覆写通过 inline payload 提供完整手动规则，刷新该模块并重启即可应用。
+- ISP 凭据仅存路由器本地；新增候选版本及校验约束，不以 PC 测试结果冒充路由器验收。
+
 只记录形成版本的长期变化。临时命令、失败尝试和排查流水不写入本文件。
 
 ## tiktok-router-isp-us v1.0.0 — 云覆写 + 本地 TikTok ISP 节点 — 2026-10-15

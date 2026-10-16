@@ -1,5 +1,7 @@
 # 版本与维护规范
 
+> 独立候选 `tiktok-router-loongproxy-jp-us v1.0.0`：iKuu 日本入口、Loongproxy 美国 ISP 本地节点。历史稳定版本不改写；保留 129 条 Manual-Direct，滚动模块和规则源同次提交同步；公共仓库绝不存 ISP 凭据；远程覆写刷新后需重启 OpenClash。
+
 ## 维护模型
 
 本仓库使用“方案 → 版本 → 完整覆写”的关系：

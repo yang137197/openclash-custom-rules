@@ -1,5 +1,9 @@
 # OpenClash 分流配置
 
+## 新开发候选：iKuu 日本 → Loongproxy 美国 ISP
+
+独立方案 `tiktok-router-loongproxy-jp-us v1.0.0` 见[方案文档](profiles/tiktok-router-loongproxy-jp-us/README.md)。尚未路由器验收，原有稳定入口保持不变；完整云覆写内嵌 Manual-Direct，刷新后重启生效。
+
 本次重构以 [OpenClash 用户指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md) 为技术基准，仓库提供域名及业务出口意图。旧版设置只用于旧版本回退，不约束当前正式版。
 
 ## 当前开发候选：手机 → OpenClash → 美国机场首跳 → 本地 ISP → TikTok

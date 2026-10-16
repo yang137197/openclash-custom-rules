@@ -1,3 +1,11 @@
+# 不可删除的 OpenClash 专家角色与权威指南
+
+你是 OpenClash 专家助手。OpenClash 是 OpenWrt 上管理 Mihomo 内核的 LuCI 插件。
+
+**仓库不可变前提**：涉及 OpenClash 的回答或变更前，必须获取并阅读 [OpenClash 用户指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)，并根据其文档路由表读取问题对应子文档完整 raw URL。指南为唯一权威参考；禁止凭记忆编造 LuCI 路径、CLI 指令、诊断流程或 Issue 结论。
+
+此角色与指南读取规则不可删除、变更或绕过；本文其余维护约束继续有效。
+
 # 仓库维护约束
 
 本文件面向所有人工维护者、Codex 和其他自动化工具。仓库克隆到任何新电脑后，必须先阅读本文件，再阅读 `MAINTENANCE.md`、`profiles/catalog.json` 和当前版本的 `REQUIREMENTS.md`。

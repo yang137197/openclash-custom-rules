@@ -555,7 +555,7 @@ if hybrid_candidates:
 # The router-hosted profile is independent of the published phone/VPN contracts.
 router_id = "tiktok-router-iproyal-us"
 router_profile = profiles.get(router_id, {})
-if catalog.get("developmentProfile") != "tiktok-router-isp-us":
+if catalog.get("developmentProfile") not in {"tiktok-router-isp-us", "tiktok-router-loongproxy-jp-us"}:
     fail("developmentProfile must identify the current local ISP TikTok candidate")
 if router_profile.get("status") != "deprecated" or router_profile.get("currentVersion") is not None:
     fail("superseded IPRoyal router profile must stay deprecated and non-current")
@@ -811,7 +811,7 @@ print("OK: router IPRoyal v1.0.2-beta.3 inline Manual-Direct matches all 129 sou
 # Current local-ISP candidate: cloud routing module plus a credential-local node module.
 isp_id = "tiktok-router-isp-us"
 isp_profile = profiles.get(isp_id, {})
-if catalog.get("developmentProfile") != isp_id:
+if catalog.get("developmentProfile") not in {isp_id, "tiktok-router-loongproxy-jp-us"}:
     fail("developmentProfile must point to the local ISP candidate")
 if isp_profile.get("status") != "candidate" or isp_profile.get("currentVersion") is not None:
     fail("local ISP profile must remain a candidate until phone acceptance")
@@ -896,6 +896,241 @@ for doc in ("README.md", "AGENTS.md", "CHANGELOG.md", isp_profile["profileReadme
     if isp_id not in read_text(doc) or "v1.0.0" not in read_text(doc):
         fail(f"{doc} does not document the current local ISP candidate")
 print("OK: local ISP v1.0.0 candidate; exact local node, USA chain, fail-closed TikTok, and 129 domain-suffix direct rules")
+
+# Validate independent iKuu-Japan -> Loongproxy-USA candidate without altering historical snapshots.
+jp_id = "tiktok-router-loongproxy-jp-us"
+jp_profile = profiles.get(jp_id)
+if not isinstance(jp_profile, dict):
+    fail("new Japan/Loongproxy candidate is not indexed")
+if jp_profile.get("status") != "candidate" or jp_profile.get("currentVersion") is not None:
+    fail("new Japan/Loongproxy candidate must remain unpublished")
+jp = jp_profile.get("candidateVersions", {}).get("1.0.0", {})
+jp_dir = "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0"
+if jp.get("status") != "candidate" or jp.get("versionDirectory") != jp_dir:
+    fail("Japan/Loongproxy v1.0.0 candidate version not registered")
+if jp.get("requirements") != [f"J{i}" for i in range(1, 13)]:
+    fail("Japan/Loongproxy requires J1-J12")
+for key, name in (("modulePath", "openclash-overwrite.conf"),
+                  ("requirementsPath", "REQUIREMENTS.md"),
+                  ("setupPath", "SETUP.md"),
+                  ("localModuleTemplatePath", "local-tiktok-proxy.conf.example")):
+    if jp.get(key) != f"{jp_dir}/{name}":
+        fail(f"Japan/Loongproxy missing {key}")
+if jp_profile.get("profileReadmePath") != "profiles/tiktok-router-loongproxy-jp-us/README.md":
+    fail("Japan/Loongproxy README path changed")
+jp_cloud = read_text(jp["modulePath"])
+jp_rolling = "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf"
+if jp_profile.get("latestModulePath") != jp_rolling or read_text(jp_rolling) != jp_cloud:
+    fail("Japan/Loongproxy single rolling module differs from v1.0.0 candidate")
+if jp.get("moduleSha256") != sha256(jp_cloud) or jp_profile.get("latestModuleSha256") != sha256(jp_cloud):
+    fail("Japan/Loongproxy cloud module SHA mismatch")
+if jp_cloud.count("[YAML]") != 1 or re.search(r"(?m)^\[(?!YAML\])", jp_cloud):
+    fail("Japan/Loongproxy cloud module must only contain [YAML]")
+if any(term in jp_cloud.lower() for term in ("username:", "password:", "st02.loongproxy.com", "uci set ")):
+    fail("Japan/Loongproxy cloud must not include private credentials/endpoint/UCI")
+for needle in (
+    "  - name: 日本-入口", "  - name: TikTok-ISP", "filter: '^TikTok-ISP-Local
+    try:
+        base_catalog_result = subprocess.run(
+            ["git", "show", f"{args.base_ref}:profiles/catalog.json"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        base_catalog = json.loads(base_catalog_result.stdout)
+    except (subprocess.CalledProcessError, json.JSONDecodeError) as error:
+        fail(f"cannot read base catalog from {args.base_ref}: {error}")
+
+    protected_at_base = []
+    for base_profile in base_catalog.get("profiles", {}).values():
+        protected_at_base.extend(
+            base_profile.get("immutableVersionDirectories", [])
+        )
+
+    result = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--name-status",
+            f"{args.base_ref}...HEAD",
+            "--",
+            *protected_at_base,
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    forbidden = [
+        line
+        for line in result.stdout.splitlines()
+        if line and not line.startswith("A\t")
+    ]
+    if forbidden:
+        fail("published version files were modified or removed: " + "; ".join(forbidden))
+
+print(
+    f"OK: profile={profile_id} version=v{version} "
+    f"requirements={','.join(requirements)}"
+)
+print(f"OK: module sha256={sha256(module_text)}")
+print(f"OK: manual-direct entries={len(manual_entries)} sha256={sha256(manual_rules_text)}")
+print("OK: protected DNS keys and routing order")
+for candidate_version, candidate in candidate_versions.items():
+    candidate_module_text = read_text(candidate["modulePath"])
+    if candidate.get("kind") == "guide-mainland-bypass":
+        print(f"OK: guide_candidate=v{candidate_version} module_sha256={sha256(candidate_module_text)}")
+        print("OK: ordered Fake-IP exceptions, CN MRS, explicit DNS ownership, manual-direct unchanged")
+        continue
+    manual_japan_text = read_text(candidate["manualJapanRulesPath"])
+    manual_japan_entries = [
+        line.strip()
+        for line in manual_japan_text.splitlines()
+        if line.lstrip().startswith("- ")
+    ]
+    print(
+        f"OK: candidate=v{candidate_version} "
+        f"module_sha256={sha256(candidate_module_text)}"
+    )
+    print(
+        f"OK: manual-japan entries={len(manual_japan_entries)} "
+        f"sha256={sha256(manual_japan_text)}"
+    )
+print(
+    f"OK: stable_profile={hybrid_profile_id} version=v1.0.1 "
+    f"module_sha256={sha256(hybrid_module_text)}"
+)
+print("OK: authorized TikTok US device=192.168.100.198/32")
+",
+    "  - name: 美国", "exclude-filter: '(?i)^TikTok-ISP-Local
+    try:
+        base_catalog_result = subprocess.run(
+            ["git", "show", f"{args.base_ref}:profiles/catalog.json"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        base_catalog = json.loads(base_catalog_result.stdout)
+    except (subprocess.CalledProcessError, json.JSONDecodeError) as error:
+        fail(f"cannot read base catalog from {args.base_ref}: {error}")
+
+    protected_at_base = []
+    for base_profile in base_catalog.get("profiles", {}).values():
+        protected_at_base.extend(
+            base_profile.get("immutableVersionDirectories", [])
+        )
+
+    result = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--name-status",
+            f"{args.base_ref}...HEAD",
+            "--",
+            *protected_at_base,
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    forbidden = [
+        line
+        for line in result.stdout.splitlines()
+        if line and not line.startswith("A\t")
+    ]
+    if forbidden:
+        fail("published version files were modified or removed: " + "; ".join(forbidden))
+
+print(
+    f"OK: profile={profile_id} version=v{version} "
+    f"requirements={','.join(requirements)}"
+)
+print(f"OK: module sha256={sha256(module_text)}")
+print(f"OK: manual-direct entries={len(manual_entries)} sha256={sha256(manual_rules_text)}")
+print("OK: protected DNS keys and routing order")
+for candidate_version, candidate in candidate_versions.items():
+    candidate_module_text = read_text(candidate["modulePath"])
+    if candidate.get("kind") == "guide-mainland-bypass":
+        print(f"OK: guide_candidate=v{candidate_version} module_sha256={sha256(candidate_module_text)}")
+        print("OK: ordered Fake-IP exceptions, CN MRS, explicit DNS ownership, manual-direct unchanged")
+        continue
+    manual_japan_text = read_text(candidate["manualJapanRulesPath"])
+    manual_japan_entries = [
+        line.strip()
+        for line in manual_japan_text.splitlines()
+        if line.lstrip().startswith("- ")
+    ]
+    print(
+        f"OK: candidate=v{candidate_version} "
+        f"module_sha256={sha256(candidate_module_text)}"
+    )
+    print(
+        f"OK: manual-japan entries={len(manual_japan_entries)} "
+        f"sha256={sha256(manual_japan_text)}"
+    )
+print(
+    f"OK: stable_profile={hybrid_profile_id} version=v1.0.1 "
+    f"module_sha256={sha256(hybrid_module_text)}"
+)
+print("OK: authorized TikTok US device=192.168.100.198/32")
+",
+    "  - GEOSITE,tiktok,TikTok-ISP", "  - GEOSITE,tiktok,REJECT",
+    "  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国", "  - GEOSITE,google,美国",
+    "  - RULE-SET,Manual-Direct,DIRECT", "  - RULE-SET,oc-cn-domain,DIRECT",
+    "  - GEOIP,CN,DIRECT,no-resolve", "  - MATCH,美国"
+):
+    if needle not in jp_cloud:
+        fail(f"Japan/Loongproxy missing routing/group fragment: {needle}")
+jp_order = (
+    "GEOSITE,private,DIRECT", "GEOSITE,tiktok,TikTok-ISP", "GEOSITE,tiktok,REJECT",
+    "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,美国", "GEOSITE,google,美国",
+    "RULE-SET,Manual-Direct,DIRECT", "RULE-SET,oc-cn-domain,DIRECT",
+    "GEOIP,CN,DIRECT,no-resolve", "MATCH,美国"
+)
+jp_positions = [jp_cloud.index(k) for k in jp_order]
+if jp_positions != sorted(jp_positions):
+    fail("Japan/Loongproxy priority broken")
+jp_manual = read_text("rules/manual-direct-isp.yaml")
+jp_entries = [line.strip()[2:] for line in jp_manual.splitlines()
+              if line.lstrip().startswith("- DOMAIN")]
+if jp.get("manualRulesPath") != "rules/manual-direct-isp.yaml" or jp_profile.get("manualRulesPath") != "rules/manual-direct-isp.yaml":
+    fail("Japan/Loongproxy must use shared existing ISP-specific manual rule data")
+if len(jp_entries) != 129 or jp.get("manualRuleCount") != 129:
+    fail("Japan/Loongproxy must preserve all 129 Manual-Direct entries")
+if any(not x.startswith("DOMAIN-SUFFIX,") for x in jp_entries):
+    fail("Japan/Loongproxy must include suffix domains")
+if sha256(jp_manual) != jp.get("manualRulesSha256"):
+    fail("Japan/Loongproxy Manual-Direct SHA mismatch")
+jp_inline = re.search(r"(?ms)^  Manual-Direct!:\n(.*?)(?=^rules!:\n)", jp_cloud)
+if not jp_inline or "    type: inline" not in jp_inline.group(1):
+    fail("Japan/Loongproxy Manual-Direct is not inline")
+if re.search(r"(?m)^    (?:url|path|interval):", jp_inline.group(1)):
+    fail("Japan/Loongproxy Manual-Direct cannot require separate provider refresh")
+jp_embedded = [line.strip()[2:] for line in jp_inline.group(1).splitlines()
+               if line.startswith("      - DOMAIN")]
+if jp_embedded != jp_entries:
+    fail("Japan/Loongproxy rolling module does not embed all latest 129 manual entries")
+jp_local = read_text(jp["localModuleTemplatePath"])
+for needle in ("[YAML]", "name: TikTok-ISP-Local", "type: socks5", "udp: false",
+               "dialer-proxy: 日本-入口", "FILL_ME_PROXY_HOST", "FILL_ME_PROXY_PORT",
+               "FILL_ME_USERNAME", "FILL_ME_PASSWORD"):
+    if needle not in jp_local:
+        fail(f"Japan/Loongproxy local proxy template missing {needle}")
+for doc in ("README.md", "AGENTS.md", "MAINTENANCE.md", "CHANGELOG.md",
+            jp_profile["profileReadmePath"]):
+    if jp_id not in read_text(doc):
+        fail(f"{doc} omits Japan/Loongproxy candidate")
+for key in ("requirementsPath", "setupPath"):
+    if "v1.0.0" not in read_text(jp[key]) or "candidate" not in read_text(jp[key]):
+        fail(f"Japan/Loongproxy missing candidate status in {key}")
+if not all(t in read_text(jp["requirementsPath"]) for t in jp["requirements"]):
+    fail("Japan/Loongproxy J1-J12 requirements not fully documented")
+print("OK: independent JP-first-hop/Loongproxy-US candidate, 129 inline direct entries, protected routing, no credentials")
 
 if args.base_ref and set(args.base_ref) != {"0"}:
     try:
