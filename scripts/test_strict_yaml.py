@@ -4,7 +4,7 @@ from strict_yaml import load_yaml
 
 
 class StrictYamlTests(unittest.TestCase):
-    def test_rejects_broken_quote_from_japan_candidate(self):
+    def test_rejects_broken_quote_from_japan_profile(self):
         with self.assertRaises(ValueError):
             load_yaml("[YAML]\nproxy-groups!:\n"
                       "  - name: 日本-入口\n"

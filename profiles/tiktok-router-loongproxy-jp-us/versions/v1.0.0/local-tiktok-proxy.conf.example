@@ -1,4 +1,6 @@
-# 本地模块模板，不得将真实代理凭据提交公共仓库
+# 路由器本地节点模块模板，不含真实凭据。
+# 修改密码时只改 password；保持 TikTok-ISP-Local 与 iKuuu 日本 dialer-proxy 前提。
+# 不得将填好的本地模块提交到公共仓库。
 [YAML]
 proxies+:
   - name: TikTok-ISP-Local

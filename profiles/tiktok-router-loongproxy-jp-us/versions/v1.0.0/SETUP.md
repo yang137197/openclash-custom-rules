@@ -1,25 +1,50 @@
 # tiktok-router-loongproxy-jp-us v1.0.0 — 部署与验收
 
-**状态：candidate，未完成 CatWrt/OpenClash 实机验收。** 用户于 2026-10-16 报告 OpenClash v0.48.002 / alpha-gbc76c13；PC 上的日本首跳 → Loongproxy 美国 SOCKS5 已成功。其他首跳失败原因尚未确认。
+**状态：stable。** 用户于 2026-10-16 确认 CatWrt/OpenClash 实机验收通过并授权正式发布；目标版本为 OpenClash v0.48.002 / alpha-gbc76c13。Loongproxy 必须经 iKuuu 日本节点作为链式第一跳，这是本方案的强制前提。
 
 ## 本轮导入两个配套模块
 
 入口：**服务 → OpenClash → 运行状态 → 顶部「覆写模块」按钮**，弹出模块编辑窗口；不是菜单「覆写设置」。
 
 1. 保存当前配置、启用模块清单及插件设置截图。保留旧文件，停用其他完整分流覆写、旧本地 ISP 模块，以及原本启用且会修改 DNS/规则/策略组的 default、Google_Play 等模块。
-2. **添加新模块 → 本地模块**：上传仓库外已填好本次测试参数的 `tiktok-loongproxy-jp-us-local.conf`，无需修改地址、端口、账号、密码。公共仓库 `.example` 仅是占位模板。只保留一个名为 `TikTok-ISP-Local` 的节点。
-3. **添加新模块 → 订阅链接**：使用以下候选分支 URL；模块名建议 `tiktok-router-loongproxy-jp-us-cloud`。
+2. **添加新模块 → 本地模块**：上传路由器本地填写的 `tiktok-loongproxy-jp-us-local.conf`。公共仓库 `.example` 仅是占位模板。代理节点名必须为 `TikTok-ISP-Local`；真实地址、账号、密码只存在此本地模块。
+3. **添加新模块 → 订阅链接**：使用正式 main URL；模块名建议 `tiktok-router-loongproxy-jp-us-cloud`。
 
 ```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/feature/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
 ```
 
 4. 两个模块匹配同一当前机场配置的**完整路径**，例如 `/etc/openclash/config/实际机场文件名.yaml`；也支持 `all`，但会作用于所有配置，不能只填文件名。云模块放在本地节点模块上方；列表越靠上合并越晚。启用二者，核对下表后统一**重启 OpenClash**。
-5. 在仪表盘 `日本-入口` 中从自动纳入的日本节点里手选首跳，优先使用 PC 上成功的节点；`美国` 中手选美国机场节点；`TikTok-ISP` 应只有 `TikTok-ISP-Local`。若只显示 REJECT，先停止手机测试，核对节点与订阅加载，不能增加 DIRECT/其他国家作回退。
+5. 在仪表盘 `日本-入口` 中从自动纳入的日本节点里手选**iKuuu 提供的日本节点**；这是 Loongproxy 链式代理的强制首跳。`美国` 中手选美国机场节点；`TikTok-ISP` 应只有 `TikTok-ISP-Local`。若没有 iKuuu 日本节点或组内只显示 REJECT，先停止 TikTok 测试，检查 iKuuu 机场订阅；不能换用美国首跳、其他机场首跳或添加 DIRECT 回退。
 
-日本组以 `include-all: true` 自动纳入当前配置中已加载的顶层节点和 proxy-providers，名称任意位置含 `jp`、`日本`、`Japan` 或 🇯🇵 即可，忽略大小写，无需提供完整节点名。节点名称匹配不证明供应商身份或可达性；此模块不会下载 iKuu 订阅。刷新云覆写并重启后若仍只有 REJECT，说明组内仍未纳入匹配节点，应先生成调试日志，检查运行配置的节点、代理提供商加载和生效筛选，不添加其他国家或 DIRECT 回退。
+日本组以 `include-all: true` 自动纳入当前配置中已加载的顶层节点和 proxy-providers，名称任意位置含 `jp`、`日本`、`Japan` 或 🇯🇵 即可，忽略大小写，无需提供完整节点名。节点名称匹配不证明供应商身份或可达性；此模块不会下载 iKuuu 订阅。刷新云覆写并重启后若仍只有 REJECT，说明组内仍未纳入匹配节点，应先生成调试日志，检查运行配置的节点、代理提供商加载和生效筛选，不添加其他国家或 DIRECT 回退。
 
-PR 未合并时用上述分支 URL，`main/profiles/tiktok-router-loongproxy-jp-us/...` 不是当前测试地址。验收期间保留开发分支；合并、稳定入口和标签另行处理。
+## 修改本地 Loongproxy ISP 密码
+
+密码变更后只改路由器上的**本地节点模块**，不要改远程云覆写、公共模板或机场订阅：
+
+1. 打开 **服务 → OpenClash → 运行状态**，点击页面顶部的 **覆写模块**按钮。
+2. 选中本地模块（模块正文包含 `name: TikTok-ISP-Local`），点编辑；不要编辑 `tiktok-router-loongproxy-jp-us-cloud` 云模块。
+3. 在 `[YAML]` 段修改 SOCKS5 节点的 `password`。只有服务商同时更改了其他连接参数时，才同步更新 `username`、`server` 或 `port`。
+4. 保持节点名 `TikTok-ISP-Local`、`type: socks5`、`udp: false` 和 `dialer-proxy: 日本-入口` 不变。特别是不能删除或替换 `dialer-proxy`：Loongproxy 必须经 iKuuu 日本首跳连接。
+5. 保存模块并重启 OpenClash；随后确认 `TikTok-ISP` 仍指向本地节点，并选择 iKuuu 日本首跳。
+
+本地占位模板中的字段示例：
+
+```yaml
+name: TikTok-ISP-Local
+type: socks5
+server: FILL_ME_PROXY_HOST
+port: FILL_ME_PROXY_PORT
+username: FILL_ME_USERNAME
+password: FILL_ME_PASSWORD
+udp: false
+dialer-proxy: 日本-入口
+```
+
+不要把填入真实凭据的本地文件上传到 GitHub、聊天或公开日志。OpenClash 的模块编辑入口、保存和重启行为见官方指南 `16-overwrite-module-format.md` §16.1、§16.2。
+
+稳定版入口为 main 分支上述 URL；正式发布标签为 `tiktok-router-loongproxy-jp-us-v1.0.0`。
 
 ## 独立手工设置
 
@@ -32,7 +57,7 @@ PR 未合并时用上述分支 URL，`main/profiles/tiktok-router-loongproxy-jp-
 | 同上 | 旁路网关兼容 | 主路由或回程正常时关闭；仅依据旁路回程证据调整 |
 | 插件设置 → 流量控制 | 路由器本机代理 | 开启 |
 | 同上 | 实验性：绕过指定区域 IPv4 | 绕过中国大陆；数据源 MetaCubeX `cn.mrs` |
-| 同上 | 禁用 QUIC | 开启，作为本候选基线 |
+| 同上 | 禁用 QUIC | 开启，作为本稳定版本设置 |
 | 同上 | 绕过服务器地址 / 仅允许内网访问 | 开启 |
 | 同上 | 仅允许常用端口流量 | 关闭 |
 | 插件设置 → IPv6 设置 | IPv6 代理 / IPv6 DNS / 区域 IPv6 绕过 | 关闭；核对手机没有独立 IPv6 出口 |
@@ -50,7 +75,7 @@ DNS 顺序为 TikTok/Google Fake-IP → 私网/Manual-Direct real-ip → CN real
 
 ## 单次刷新规则
 
-129 条原始人工直连记录全部保留，包括重复记录；每条 `DOMAIN-SUFFIX` 覆盖该域名及下级域名，不扩大到父域名/兄弟域名。inline payload 与 `rules/manual-direct-isp.yaml`、本候选固定目录同次提交同步。
+129 条原始人工直连记录全部保留，包括重复记录；每条 `DOMAIN-SUFFIX` 覆盖该域名及下级域名，不扩大到父域名/兄弟域名。inline payload 与 `rules/manual-direct-isp.yaml`、本稳定版本固定目录保持同步。
 
 日后更新本仓库规则：**只刷新这一个云覆写模块 → 重启 OpenClash**。本地凭据模块保持本地，不单独刷新 Manual-Direct Rule Provider。刷新只下载，重启才合并生效。机场订阅、GeoSite/GeoIP/CN 外部数据仍有各自更新机制。
 

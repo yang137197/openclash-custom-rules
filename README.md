@@ -1,39 +1,26 @@
 # OpenClash 远程覆写规则
 
-当前开发方案 **tiktok-router-loongproxy-jp-us v1.0.0 / candidate**：日本机场首跳 → 本地 Loongproxy 美国 SOCKS5 → TikTok。尚未完成 CatWrt/OpenClash 手机验收。
+当前正式方案 **tiktok-router-loongproxy-jp-us v1.0.0 / stable**：TikTok 必须经 iKuuu 日本节点作为第一跳，再由路由器本地 Loongproxy 美国 SOCKS5 出口。日本首跳是 Loongproxy 链式代理的前提；不得改为美国首跳，也不得在日本节点缺失时回退到机场或 DIRECT。
 
-- [部署与验收](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)
-- [J1–J12 需求合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md)
-- [完整云覆写](profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf)
-- [本地节点占位模板](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/local-tiktok-proxy.conf.example)
+- [部署、验收与本地 ISP 密码修改说明](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)
+- [J1–J11 正式需求合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md)
+- [正式完整云覆写](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf)
+- [本地节点占位模板（不含凭据）](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/local-tiktok-proxy.conf.example)
 
-日本入口自动筛选当前机场配置中已加载的节点和代理提供商，匹配名称任意位置的 `jp`、`日本`、`Japan` 或 🇯🇵，不区分大小写。自动纳入后仍由用户手选节点；没有匹配节点时保持 REJECT。云覆写不提供机场订阅或私有凭据。
-
-## 当前候选订阅
-
-PR #8 未合并时使用开发分支地址：
+## 正式云覆写链接
 
 ```text
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/feature/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
 ```
 
-只启用一个完整云覆写及其配套本地节点模块。后续规则更新只需刷新该云覆写并重启 OpenClash；129 条 Manual-Direct 已内嵌，无需单独更新规则提供者。机场订阅、Geo 数据仍独立更新。
+日本入口自动筛选当前配置中已加载节点和 proxy-provider 里名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点，忽略大小写；用户需在策略组中手动选择 iKuuu 的日本节点。名称筛选不会验证节点所属供应商或连通性。没有匹配的 iKuuu 日本首跳时，相关链路保持失败关闭。
 
-## 分流约定
+国内域名和大陆 IP 直连；Google/Google Play 走美国组；保留 129 条 Manual-Direct；其余境外流量走手选美国组。云覆写只需刷新一个模块并重启 OpenClash；机场节点订阅及 GEO 数据仍独立更新。
 
-1. 私网、局域网直连。
-2. TikTok 走专属 ISP，紧随同范围 REJECT，防止不支持 UDP 时继续匹配其他出口。
-3. Google / Google Play 走美国。
-4. 保留 129 条 Manual-Direct；每条覆盖其域名本身及子域名。
-5. 已知中国大陆域名及大陆 IP 直连。
-6. 其余流量走手选美国组。
+## 维护基线
 
-Geo 数据不保证覆盖全部大陆域名；名称筛选也不证明节点可用。TikTok 缺节点或拨号失败时不得回退机场或直连。
+2026-10-16，用户确认 CatWrt/OpenClash 实机验收通过并授权正式发布。验收记录按用户总体确认保存，不补造逐项日志。Loongproxy 必须通过 iKuuu 日本首跳建立链式代理，是此正式方案不可更改的前提。
 
-## 维护范围
+当前仓库只维护这一条正式链路。已停用方案的当前目录已清理；Git 历史和已有标签/Release 保留。真实 ISP 地址、用户名和密码只能放在路由器的本地模块，不能提交到云覆写或 Git。
 
-2026-10-16 按用户授权清除停用旧方案的当前目录、索引、说明及根兼容入口；原 Git 提交、标签和 Release 保留。清理没有晋升候选，当前文件树无稳定入口（`currentProfile=null`）。
-
-仍保留 [美国首跳 Loongproxy 候选](profiles/tiktok-router-isp-us/README.md) 作为独立方案，不与本次日本首跳混用；原始 129 条规则保存在 [manual-direct.yaml](rules/manual-direct.yaml)，后缀副本为 [manual-direct-isp.yaml](rules/manual-direct-isp.yaml)。
-
-维护前阅读 [AGENTS.md](AGENTS.md)、[MAINTENANCE.md](MAINTENANCE.md) 和 [版本索引](profiles/catalog.json)。技术依据为 [OpenClash 官方指南及文档路由表](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)。
+维护前阅读 [AGENTS.md](AGENTS.md)、[MAINTENANCE.md](MAINTENANCE.md)、[版本索引](profiles/catalog.json) 和本版本 [REQUIREMENTS.md](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md)。OpenClash 技术依据为[官方用户指南及文档路由表](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)。

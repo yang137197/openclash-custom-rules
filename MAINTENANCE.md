@@ -1,31 +1,36 @@
-# 版本与维护规范
+# 仓库维护规范
 
-## 当前维护范围
+## 当前正式基线
 
-当前开发方案 `tiktok-router-loongproxy-jp-us v1.0.0`（J1–J12，candidate），另保留独立美国首跳候选 `tiktok-router-isp-us v1.0.0`（C1–C11）。清理旧方案后的文件树不含稳定入口，`profiles/catalog.json` 的 `currentProfile` 为 null；`developmentProfile` 指向日本首跳候选。
+当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.0`（J1–J11，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-16 确认实机验收通过并授权正式发布；不补写用户未提供的逐项日志或指标。
 
-2026-10-16 用户授权删除停用旧方案的当前文件及引用；删除范围对应清理前提交 `dc39b92933164f71a4660321dfb5b62d7b172101` 中除上述两个保留方案外的 profile，以及其专用文档、规则和根兼容模块。Git 历史、标签、Release 不动。校验只对这批整体退役目录豁免删除，禁止借此修改或删改其他已发布快照。
+**不可改变的链路前提：**路由器本地 Loongproxy 美国 SOCKS5 必须通过用户手选的 iKuuu 日本节点建立链式代理。`TikTok-ISP-Local` 必须保留 `dialer-proxy: 日本-入口` 与 `udp: false`。日本入口自动筛选已加载节点中名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点（忽略大小写），但必须由用户选中实际 iKuuu 日本节点。日本节点缺失或不可用时失败关闭，严禁切换美国首跳、其他机场首跳、机场/DIRECT 回退。
 
-## 方案和版本
+Google/Google Play 与其他境外流量走用户手选的美国组；中国大陆域名和 IP 直连；保留完整 129 条 Manual-Direct。日本、美国和 ISP 组均须排除本地 ISP 节点以避免递归，空组保持 REJECT。
 
-每个方案使用独立 ID、需求合同、版本目录、完整覆写及 URL。候选在实机验收前保持 candidate、currentVersion=null；清理旧目录不构成稳定晋升。新稳定发布必须有明确授权，提交、推送并创建 `<profileId>-v<version>` 标签，标签指向包含完整配置和文档的提交；不可移动旧标签。
+## 配置与凭据
 
-单个机场配置只启用一个完整云模块与一个配套本地节点模块；本地模块仅追加代理节点，不管理规则或插件选项。真实凭据只存用户授权的仓库外文件和路由器，公共库仅存 `.example` 占位模板。
+- 单个配置仅启用一个完整云覆写及其配套本地节点模块。云模块管理规则；本地模块只追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
+- 更新规则只刷新正式云覆写模块并重启 OpenClash；机场节点订阅、GEO 数据各自更新。
+- 修改 Loongproxy 密码时，只在路由器本地 `TikTok-ISP-Local` 模块改 `password`；按本地服务商提供的信息同步修改 `username`、`server`、`port`（如有变化）。保留节点名、`type: socks5`、`udp: false`、`dialer-proxy: 日本-入口`。详细 UI 路径见版本 `SETUP.md`。
+- 真实 ISP 主机、账号和密码只存路由器本地模块，不进入仓库、云覆写、PR 或日志。公共仓库只保留 `.example` 占位模板。
+- 所有模块仅含 `[YAML]`；OpenClash 插件选项由用户在 LuCI 手工设置，禁止覆写模块写入 `[General]`、UCI 或自动修改插件设置。
 
-## 规则与节点
+## 规则与版本
 
-`rules/manual-direct.yaml` 保留原 129 条记录。`rules/manual-direct-isp.yaml` 是按原顺序将每条 DOMAIN 转为 DOMAIN-SUFFIX 的副本，已有重复记录不合并。变更域名需明确授权，并同步两个保留候选的固定模块、滚动模块、inline payload 和 catalog 哈希。用户仅刷新所用云覆写并重启，不单独刷新 Manual-Direct provider。
+- 保持规则优先级：私网/局域网 → TikTok ISP → 同范围 TikTok REJECT → Google/Play → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
+- `rules/manual-direct.yaml` 保留原始 129 条；`rules/manual-direct-isp.yaml` 按原顺序逐条转换为 `DOMAIN-SUFFIX` 并保留重复项。若授权改规则，须同步固定模块、滚动模块、inline payload、校验和与文档。
+- 已发布版本目录和标签不可改写、移动或覆盖。行为变化须建立新候选版本及独立完整 URL；真实设备验收前保持 candidate。晋升 stable、创建正式标签和 GitHub Release 需用户明确授权。
+- 已停用方案当前文件已清理；历史 Git 提交、标签和 Release 保留。不要为清理而重写历史。
 
-日本组通过 `include-all: true` 从已加载的 proxies/proxy-providers 选择名称含 `jp`、`日本`、`Japan`、🇯🇵 的节点，忽略大小写；不要求完整节点名。匹配自动完成，实际使用哪个节点仍手选。筛选不代替机场订阅，不证明供应商身份或连通性；无匹配节点保持 REJECT。不得加入 DIRECT 或其他地区作 TikTok 回退。
+## 每次变更门禁
 
-模块只能有 `[YAML]`。OpenClash 插件开关由用户在中文 LuCI 界面手工设置；按官方指南路由子文档核对路径及含义。不得写入 `[General]`、UCI 或自动插件设置逻辑。
+阅读 `AGENTS.md`、`profiles/catalog.json` 和受影响版本的 `REQUIREMENTS.md`；标明需求编号与版本类型；完成对应文档和 `CHANGELOG.md`；检查凭据及完整差异；运行：
 
-## 变更门禁
+```text
+python -m unittest discover -s scripts -p "test_*.py"
+python scripts/validate_repository.py --base-ref origin/main
+git diff --check
+```
 
-1. 阅读 AGENTS、索引和对应 REQUIREMENTS，标明影响需求和候选/稳定类型。
-2. 更新设置说明、需求合同与 CHANGELOG；核对规则源、inline、滚动和固定模块一致。
-3. 安装 `scripts/requirements-validation.txt` 的依赖后，运行 `python -m unittest discover -s scripts -p "test_*.py"`、`python scripts/validate_repository.py --base-ref origin/main`、`git diff --check`，审查全部差异。无 Git 比较基线时可省略 `--base-ref`，但不能据此声称历史保护校验已运行。
-4. 不把 YAML/静态/桌面内核夹具结果当作目标 OpenClash 实机验收。真实链路、出口、App 行为及失败关闭仍需手机证据。
-5. 提交前检查凭据；PR 保持 draft/candidate，除非已完成实机验收且得到发布授权。
-
-只记录长期有效的合同、限制、版本与验证结论，不保留冗长试错记录。
+若没有可用 Git 比较基线，可省略 `--base-ref`，但不得声称历史保护校验已执行。静态检查、桌面核心夹具与真实设备验收必须分开记录。

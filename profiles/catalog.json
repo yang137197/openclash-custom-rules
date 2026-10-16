@@ -1,60 +1,22 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "tagConvention": "{profileId}-v{version}",
-  "currentProfile": null,
+  "currentProfile": "tiktok-router-loongproxy-jp-us",
   "profiles": {
-    "tiktok-router-isp-us": {
-      "title": "云端中国直连与美国分流 + 本地 TikTok ISP 链式节点",
-      "status": "candidate",
-      "currentVersion": null,
-      "profileReadmePath": "profiles/tiktok-router-isp-us/README.md",
-      "latestModulePath": "profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "a79caa3147025fc6dad16cb12a70af27876487afa8064250a5561eaf801c6f63",
-      "immutableVersionDirectories": [],
-      "candidateVersions": {
-        "1.0.0": {
-          "kind": "router-isp-local-node",
-          "status": "candidate",
-          "requirements": [
-            "C1",
-            "C2",
-            "C3",
-            "C4",
-            "C5",
-            "C6",
-            "C7",
-            "C8",
-            "C9",
-            "C10",
-            "C11"
-          ],
-          "versionDirectory": "profiles/tiktok-router-isp-us/versions/v1.0.0",
-          "modulePath": "profiles/tiktok-router-isp-us/versions/v1.0.0/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-isp-us/versions/v1.0.0/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-isp-us/versions/v1.0.0/SETUP.md",
-          "localModuleTemplatePath": "profiles/tiktok-router-isp-us/versions/v1.0.0/local-tiktok-proxy.conf.example",
-          "localProxyName": "TikTok-ISP-Local",
-          "tiktokGroup": "TikTok-ISP",
-          "manualRulesPath": "rules/manual-direct-isp.yaml",
-          "moduleSha256": "a79caa3147025fc6dad16cb12a70af27876487afa8064250a5561eaf801c6f63",
-          "manualRulesSha256": "aa8fc4343a50a64cd572e4de48bb5d0bd5b3353f41abf37aa474192af2661f6e",
-          "manualRuleCount": 129
-        }
-      },
-      "manualRulesPath": "rules/manual-direct-isp.yaml"
-    },
     "tiktok-router-loongproxy-jp-us": {
-      "title": "iKuu 日本首跳 + 本地 Loongproxy 美国 SOCKS5 的 TikTok 路由候选",
-      "status": "candidate",
-      "currentVersion": null,
+      "title": "iKuuu 日本首跳 + 本地 Loongproxy 美国 SOCKS5 TikTok 正式方案",
+      "status": "stable",
+      "currentVersion": "1.0.0",
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "e1167ec6c97cfdd68d7bc342a544092bd206abbdad84d4e36cde9e3bb741e8b0",
-      "immutableVersionDirectories": [],
-      "candidateVersions": {
+      "latestModuleSha256": "e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30",
+      "immutableVersionDirectories": [
+        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0"
+      ],
+      "versions": {
         "1.0.0": {
           "kind": "router-loongproxy-jp-us",
-          "status": "candidate",
+          "status": "stable",
           "requirements": [
             "J1",
             "J2",
@@ -66,8 +28,7 @@
             "J8",
             "J9",
             "J10",
-            "J11",
-            "J12"
+            "J11"
           ],
           "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
           "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf",
@@ -80,12 +41,12 @@
           "localProxyName": "TikTok-ISP-Local",
           "tiktokGroup": "TikTok-ISP",
           "firstHopGroup": "日本-入口",
+          "firstHopProvider": "iKuuu",
           "foreignGroup": "美国",
-          "moduleSha256": "e1167ec6c97cfdd68d7bc342a544092bd206abbdad84d4e36cde9e3bb741e8b0"
+          "moduleSha256": "e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30"
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"
     }
-  },
-  "developmentProfile": "tiktok-router-loongproxy-jp-us"
+  }
 }

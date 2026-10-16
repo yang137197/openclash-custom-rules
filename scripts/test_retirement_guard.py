@@ -23,7 +23,7 @@ class RetirementGuardTests(unittest.TestCase):
             with patch.object(validator, "ROOT", Path(temporary)), \
                     patch.object(validator, "git", side_effect=responses), \
                     contextlib.redirect_stdout(io.StringIO()):
-                validator.check_history("test-base", {name: {} for name in validator.RETAINED})
+                validator.check_history("test-base", {name: {} for name in validator.ACTIVE})
 
     def test_approved_retirement_allows_deletion(self):
         self.run_guard()

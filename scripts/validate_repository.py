@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the retained candidates, inline rules and authorized retirement."""
+"""Validate the published Japan-first profile, inline rules and authorized retirements."""
 
 import hashlib
 import json
@@ -13,10 +13,9 @@ from strict_yaml import load_yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 JP = "tiktok-router-loongproxy-jp-us"
-US = "tiktok-router-isp-us"
-RETAINED = {US, JP}
-# User-approved removal of the other profiles from this exact pre-cleanup tree.
-# This is a deletion-only exception; it never permits editing a published file.
+ACTIVE = {JP}
+# User-approved cleanup baseline. Only retired files/snapshots listed in this
+# baseline may be removed; published files that remain active cannot be edited.
 RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
 GUIDE = "https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md"
 JAPAN_FILTER = "(?i)(🇯🇵|日本|japan|jp)"
@@ -94,14 +93,15 @@ def expected_rules():
     ]
 
 
-def validate_candidate(profile_id, profile, modules, manual):
-    require(profile["status"] == "candidate" and profile["currentVersion"] is None,
-            f"{profile_id}: real-device acceptance required before promotion")
-    require(profile["immutableVersionDirectories"] == [], f"{profile_id}: unexpected published version")
-    require(set(profile["candidateVersions"]) == {"1.0.0"}, f"{profile_id}: unexpected versions")
-    entry = profile["candidateVersions"]["1.0.0"]
+def validate_stable(profile_id, profile, modules, manual):
+    require(profile["status"] == "stable" and profile["currentVersion"] == "1.0.0",
+            f"{profile_id}: expected the accepted stable v1.0.0")
+    require(set(profile["immutableVersionDirectories"]) ==
+            {f"profiles/{profile_id}/versions/v1.0.0"}, f"{profile_id}: published snapshot missing")
+    require(set(profile["versions"]) == {"1.0.0"}, f"{profile_id}: unexpected published versions")
+    entry = profile["versions"]["1.0.0"]
     directory = f"profiles/{profile_id}/versions/v1.0.0"
-    require(entry["versionDirectory"] == directory and entry["status"] == "candidate", "candidate path/status")
+    require(entry["versionDirectory"] == directory and entry["status"] == "stable", "stable path/status")
     expected_paths = {"modulePath": directory + "/openclash-overwrite.conf",
                       "requirementsPath": directory + "/REQUIREMENTS.md",
                       "setupPath": directory + "/SETUP.md",
@@ -117,12 +117,12 @@ def validate_candidate(profile_id, profile, modules, manual):
     require(entry["manualRulesPath"] == profile["manualRulesPath"] == "rules/manual-direct-isp.yaml", "manual source")
     require(entry["manualRuleCount"] == 129 and entry["manualRulesSha256"] == sha(read(entry["manualRulesPath"])), "manual count/hash")
     require(entry["localProxyName"] == "TikTok-ISP-Local" and entry["tiktokGroup"] == "TikTok-ISP", "local group contract")
-    groups = [group("TikTok-ISP", "^TikTok-ISP-Local$", "include-all-proxies"), group("美国", USA_FILTER, "include-all")]
-    hop = "美国"
-    if profile_id == JP:
-        hop = "日本-入口"
-        require(entry["firstHopGroup"] == hop and entry["foreignGroup"] == "美国", "Japan hop contract")
-        groups.insert(0, group(hop, JAPAN_FILTER, "include-all"))
+    hop = "日本-入口"
+    require(entry["firstHopGroup"] == hop and entry["firstHopProvider"] == "iKuuu" and
+            entry["foreignGroup"] == "美国", "iKuuu Japan first-hop contract")
+    groups = [group(hop, JAPAN_FILTER, "include-all"),
+              group("TikTok-ISP", "^TikTok-ISP-Local$", "include-all-proxies"),
+              group("美国", USA_FILTER, "include-all")]
     expected = {
         "ipv6": False, "profile": {"store-selected": True, "store-fake-ip": True},
         "dns": expected_dns(), "proxy-groups!": groups, "rules!": expected_rules(),
@@ -141,14 +141,19 @@ def validate_candidate(profile_id, profile, modules, manual):
                               "port": "FILL_ME_PROXY_PORT", "username": "FILL_ME_USERNAME",
                               "password": "FILL_ME_PASSWORD", "udp": False, "dialer-proxy": hop}]}
     require(modules[entry["localModuleTemplatePath"]] == template, f"{profile_id}: only placeholder local node allowed")
-    requirement_ids = [f"{'J' if profile_id == JP else 'C'}{i}" for i in range(1, 13 if profile_id == JP else 12)]
+    requirement_ids = [f"J{i}" for i in range(1, 12)]
     require(entry["requirements"] == requirement_ids, f"{profile_id}: requirement IDs")
     contract = read(entry["requirementsPath"])
     for requirement in requirement_ids:
         require(re.search(rf"(?m)^- {requirement}(?: |：)", contract), f"{profile_id}: missing {requirement}")
+    require("必须通过用户手选的 iKuuu 日本节点" in contract and
+            "不得换用美国首跳" in contract, f"{profile_id}: mandatory iKuuu chain missing")
     for path in (entry["requirementsPath"], entry["setupPath"], profile["profileReadmePath"]):
-        require("candidate" in read(path) and "v1.0.0" in read(path), f"{path}: missing version/status")
-    print(f"OK: {profile_id} v1.0.0 candidate; DNS, routing, groups, 129 inline entries and placeholders")
+        require("stable" in read(path) and "v1.0.0" in read(path), f"{path}: missing version/status")
+    setup = read(entry["setupPath"])
+    require("修改本地 Loongproxy ISP 密码" in setup and "password" in setup and
+            "运行状态" in setup and "覆写模块" in setup, f"{profile_id}: local password instructions missing")
+    print(f"OK: {profile_id} v1.0.0 stable; mandatory iKuuu hop, routing, 129 inline entries and placeholders")
 
 
 def check_history(base_ref, profiles):
@@ -157,7 +162,7 @@ def check_history(base_ref, profiles):
         return
     base = json.loads(git("show", f"{base_ref}:profiles/catalog.json"))
     approved = json.loads(git("show", f"{RETIREMENT_BASELINE}:profiles/catalog.json"))
-    retired = set(approved["profiles"]) - RETAINED
+    retired = set(approved["profiles"]) - ACTIVE
     require(set(base["profiles"]) - set(profiles) <= retired, "unapproved profile retirement")
     for profile_id in retired:
         require(not any(p.is_file() for p in (ROOT / "profiles" / profile_id).rglob("*")), "retired profile files remain")
@@ -184,9 +189,9 @@ def main():
     parser.add_argument("--base-ref", help="Git baseline for published snapshot protection")
     args = parser.parse_args()
     catalog = json.loads(read("profiles/catalog.json"))
-    require(catalog["schemaVersion"] == 2 and catalog["tagConvention"] == "{profileId}-v{version}", "catalog schema")
-    require(catalog["currentProfile"] is None and catalog["developmentProfile"] == JP, "no stable promotion authorized")
-    require(set(catalog["profiles"]) == RETAINED, "catalog must contain only retained candidates")
+    require(catalog["schemaVersion"] == 3 and catalog["tagConvention"] == "{profileId}-v{version}", "catalog schema")
+    require(catalog["currentProfile"] == JP and set(catalog["profiles"]) == ACTIVE,
+            "catalog must point to the sole stable Japan-first profile")
     require(not (ROOT / "overwrite/openclash-overwrite.conf").exists(), "retired compatibility entry remains")
     require(read("AGENTS.md").startswith(ROLE_PREFIX), "immutable expert role/guide changed")
     original_text = read("rules/manual-direct.yaml")
@@ -202,11 +207,11 @@ def main():
         content = read(relative)
         require("uci set " not in content.lower(), f"{relative}: plugin mutation not allowed")
         modules[relative] = load_yaml(content, module=True)
-    require(len(modules) == 6, "unexpected number of modules/templates")
+    require(len(modules) == 3, "only the stable profile's fixed, rolling and local template modules may remain")
     for profile_id, profile in catalog["profiles"].items():
-        validate_candidate(profile_id, profile, modules, manual)
+        validate_stable(profile_id, profile, modules, manual)
     for path in ("README.md", "AGENTS.md", "MAINTENANCE.md", "CHANGELOG.md"):
-        require(JP in read(path), f"{path}: missing current development profile")
+        require(JP in read(path), f"{path}: missing current stable profile")
     for path in ROOT.rglob("*.md"):
         if ".git" in path.parts:
             continue
@@ -215,7 +220,7 @@ def main():
                 continue
             require((path.parent / target.split("#")[0]).exists(), f"broken local link in {path.relative_to(ROOT)}: {target}")
     check_history(args.base_ref, catalog["profiles"])
-    print("OK: 6 strict YAML modules; role, source records, catalog hashes and local documentation links")
+    print("OK: 3 strict YAML modules; role, source records, catalog hashes and local documentation links")
 
 
 if __name__ == "__main__":
