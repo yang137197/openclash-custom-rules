@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate version mapping and protected OpenClash invariants using stdlib only."""
+"""Validate YAML syntax, version mapping and protected OpenClash invariants."""
 
 from __future__ import annotations
 
@@ -36,6 +36,27 @@ def read_text(relative_path: str) -> str:
 
 def sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+try:
+    from strict_yaml import load_yaml
+except ImportError:
+    fail("install validation dependencies: python -m pip install -r scripts/requirements-validation.txt")
+
+parsed_modules = {}
+for path in sorted(set(ROOT.glob("profiles/**/*.conf*")) | set(ROOT.glob("overwrite/*.conf"))):
+    relative = path.relative_to(ROOT).as_posix()
+    try:
+        parsed_modules[relative] = load_yaml(read_text(relative), module=True)
+    except ValueError as error:
+        fail(f"{relative}: {error}")
+for path in sorted(ROOT.glob("rules/*.yaml")):
+    relative = path.relative_to(ROOT).as_posix()
+    try:
+        load_yaml(read_text(relative))
+    except ValueError as error:
+        fail(f"{relative}: {error}")
+print(f"OK: strict YAML parsing of {len(parsed_modules)} modules; duplicate mapping keys rejected")
 
 
 catalog_path = ROOT / "profiles" / "catalog.json"
@@ -932,6 +953,36 @@ for key, name in (("modulePath", "openclash-overwrite.conf"),
 if jp_profile.get("profileReadmePath") != "profiles/tiktok-router-loongproxy-jp-us/README.md":
     fail("Japan/Loongproxy README path changed")
 jp_cloud = read_text(jp["modulePath"])
+jp_yaml = parsed_modules[jp["modulePath"]]
+jp_groups = jp_yaml.get("proxy-groups!")
+if (not isinstance(jp_groups, list)
+        or not all(isinstance(g, dict) for g in jp_groups)
+        or [g.get("name") for g in jp_groups] != ["日本-入口", "TikTok-ISP", "美国"]):
+    fail("Japan/Loongproxy must define exactly three distinct proxy groups")
+for group in jp_groups:
+    if group.get("type") != "select" or group.get("empty-fallback") != "REJECT":
+        fail(f"{group['name']} must be manual select and reject when empty")
+    if "proxies" in group or "use" in group:
+        fail(f"{group['name']} must not bypass its node filter through explicit members")
+for group in (jp_groups[0], jp_groups[2]):
+    if group.get("include-all") is not True or group.get("exclude-filter") != "(?i)^TikTok-ISP-Local$":
+        fail("Japan/USA must filter subscription nodes and exclude local ISP")
+if jp_groups[0].get("filter") != r"(?i)(🇯🇵|日本|japan|(^|[ _|:-])JP([ _|:-]|[0-9]|$))":
+    fail("Japan first-hop node filter changed")
+if jp_groups[1].get("include-all-proxies") is not True or jp_groups[1].get("include-all") or jp_groups[1].get("include-all-providers") or jp_groups[1].get("filter") != "^TikTok-ISP-Local$":
+    fail("TikTok-ISP must select only the exact local ISP node")
+jp_rules = jp_yaml.get("rules!")
+if not isinstance(jp_rules, list) or not all(isinstance(rule, str) for rule in jp_rules):
+    fail("Japan/Loongproxy routing rules must be a string list")
+if jp_rules.count("GEOSITE,tiktok,TikTok-ISP") != 1 or jp_rules.count("GEOSITE,tiktok,REJECT") != 1:
+    fail("Japan/Loongproxy requires exactly one TikTok route and reject guard")
+jp_tiktok_index = jp_rules.index("GEOSITE,tiktok,TikTok-ISP")
+if jp_rules[jp_tiktok_index + 1:jp_tiktok_index + 2] != ["GEOSITE,tiktok,REJECT"]:
+    fail("TikTok REJECT must immediately follow the ISP rule")
+jp_dns = jp_yaml.get("dns", {})
+jp_fakeip = jp_dns.get("fake-ip-filter!", [])
+if jp_dns.get("fake-ip-filter-mode") != "rule" or jp_fakeip[:3] != ["GEOSITE,tiktok,fake-ip", "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,fake-ip", "GEOSITE,google,fake-ip"]:
+    fail("TikTok/Google Fake-IP exceptions must precede China real-IP rules")
 jp_rolling = "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf"
 if jp_profile.get("latestModulePath") != jp_rolling or read_text(jp_rolling) != jp_cloud:
     fail("Japan/Loongproxy single rolling module differs from v1.0.0 candidate")
@@ -980,7 +1031,16 @@ jp_embedded = [line.strip()[2:] for line in jp_inline.group(1).splitlines()
                if line.startswith("      - DOMAIN")]
 if jp_embedded != jp_entries:
     fail("Japan/Loongproxy rolling module does not embed all latest 129 manual entries")
+jp_provider = jp_yaml.get("rule-providers", {}).get("Manual-Direct!", {})
+if jp_provider != {"type": "inline", "behavior": "classical", "payload": jp_entries}:
+    fail("Japan/Loongproxy parsed Manual-Direct provider must exactly match its source")
 jp_local = read_text(jp["localModuleTemplatePath"])
+if parsed_modules[jp["localModuleTemplatePath"]] != {"proxies+": [{
+    "name": "TikTok-ISP-Local", "type": "socks5", "server": "FILL_ME_PROXY_HOST",
+    "port": "FILL_ME_PROXY_PORT", "username": "FILL_ME_USERNAME",
+    "password": "FILL_ME_PASSWORD", "udp": False, "dialer-proxy": "日本-入口",
+}]}:
+    fail("Japan/Loongproxy local template must append only the placeholder SOCKS5 node")
 for needle in ("[YAML]", "name: TikTok-ISP-Local", "type: socks5", "udp: false",
                "dialer-proxy: 日本-入口", "FILL_ME_PROXY_HOST", "FILL_ME_PROXY_PORT",
                "FILL_ME_USERNAME", "FILL_ME_PASSWORD"):

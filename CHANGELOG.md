@@ -7,6 +7,8 @@
 - `日本-入口` 组手选 iKuu 日本节点，本地 `TikTok-ISP-Local` 配置 `dialer-proxy: 日本-入口`，其他境外流量仍走美国组。
 - 沿用中国大陆直连、Google/Play 美国优先、TikTok REJECT，以及现有 129 条 `DOMAIN-SUFFIX` Manual-Direct；云覆写通过 inline payload 提供完整手动规则，刷新该模块并重启即可应用。
 - ISP 凭据仅存路由器本地；新增候选版本及校验约束，不以 PC 测试结果冒充路由器验收。
+- 接续审查修复候选 YAML 未闭合引号及重复配置块，补齐日本入口空组 REJECT。校验增加实际 YAML 解析、重复键拒绝、策略组结构与 TikTok 拒绝规则紧邻检查；保护全部 129 条原始域名记录。
+- J3/J4/J6/J8–J12：明确开发分支远程订阅地址、独立部署设置及失败判据，移除对旧 SocksTun/IPRoyal 部署步骤的引用；本机私有交付文件按授权放在仓库外。保持 draft/candidate，不合并 main、不发布稳定版。
 
 只记录形成版本的长期变化。临时命令、失败尝试和排查流水不写入本文件。
 

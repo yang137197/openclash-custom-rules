@@ -246,7 +246,7 @@
       "currentVersion": null,
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "f05cd8da8d0dc36d87d49254db83981193d6c7839e18b3babf9a67516a36baf4",
+      "latestModuleSha256": "c40a1834f843ccaf6295dfb2d5de24ab34c5fc673ac8d180797dcf6aa0d22b30",
       "immutableVersionDirectories": [],
       "candidateVersions": {
         "1.0.0": {
@@ -278,7 +278,7 @@
           "tiktokGroup": "TikTok-ISP",
           "firstHopGroup": "日本-入口",
           "foreignGroup": "美国",
-          "moduleSha256": "f05cd8da8d0dc36d87d49254db83981193d6c7839e18b3babf9a67516a36baf4"
+          "moduleSha256": "c40a1834f843ccaf6295dfb2d5de24ab34c5fc673ac8d180797dcf6aa0d22b30"
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"

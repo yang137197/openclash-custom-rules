@@ -49,7 +49,7 @@
 - `rules/manual-direct.yaml`：当前生效的人工直连数据；每次修改都必须形成新版本，以便由 Git 标签恢复历史快照；
 - `CHANGELOG.md`：版本级长期记录，不保存排查流水；
 - `AGENTS.md`：未来维护者必须遵守的修改边界；
-- `scripts/validate_repository.py`：不依赖第三方库的一致性检查。
+- `scripts/validate_repository.py`：版本与行为一致性检查；通过固定版本 PyYAML 实际解析全部覆写和规则源，拒绝重复映射键。首次执行前运行 `python -m pip install -r scripts/requirements-validation.txt`。重复的域名列表条目仍保留，不与重复 YAML 键混淆。
 
 `tiktok-sockstun-us` 的既有覆写通过 HTTP Rule Provider 引用 `main/rules/manual-direct.yaml`。已弃用的 `tiktok-router-iproyal-us` beta.3 使用 inline payload，作为历史快照保留。当前 `tiktok-router-isp-us` 使用独立 `rules/manual-direct-isp.yaml`：完整保留共享源的 129 条规则并统一改为 `DOMAIN-SUFFIX`，覆盖条目及全部子域名；完整云覆写的 inline payload 和滚动模块必须与该方案专属规则源在同一提交同步，路由器只刷新该完整覆写并重启，不单独刷新 Rule Provider。不得因此改写其他方案共用的 `rules/manual-direct.yaml`。
 
@@ -65,7 +65,7 @@
 
 ## 状态定义
 
-`developmentProfile` 指向最新授权开发方案，`currentProfile` 仍指向已发布稳定方案。新独立方案可以 `status=candidate`、`currentVersion=null`，在 `candidateVersions` 内声明合同与文件；不得为了通过旧校验而伪造稳定版本。当前 `tiktok-router-isp-us v1.0.0` 使用 C1–C11，不继承旧 R1 的手机 SocksTun 路径，也不改变旧快照。只追加节点的路由器本地凭据模块可与一套完整分流模块配合，不属于叠加两套完整方案；凭据模块不得提交仓库。
+`developmentProfile` 指向最新授权开发方案，`currentProfile` 仍指向已发布稳定方案。新独立方案可以 `status=candidate`、`currentVersion=null`，在 `candidateVersions` 内声明合同与文件；不得为了通过旧校验而伪造稳定版本。当前 `tiktok-router-loongproxy-jp-us v1.0.0` 使用 J1–J12，旧 `tiktok-router-isp-us v1.0.0` 保留 C1–C11；两者不继承旧 R1 的手机 SocksTun 路径。只追加节点的本地凭据模块可与一套完整分流模块配合，不属于叠加两套完整方案；按用户授权生成的本机交付文件必须放在仓库外，凭据模块不得提交仓库。
 
 历史：`tiktok-router-iproyal-us v1.0.1` 曾针对 IPRoyal 直连拨号超时尝试机场美国首跳；后续 IPRoyal beta 快照均保留，但用户现已明确弃用这条候选，不再用于测试或维护入口。
 

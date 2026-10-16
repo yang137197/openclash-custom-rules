@@ -20,8 +20,9 @@
 
 ## 当前事实来源
 
-- 最新用户目标及开发候选：`tiktok-router-isp-us v1.0.0`（C1–C11，candidate）；所有手机 → OpenClash → 手选机场`美国`首跳 → 路由器本地 LoongProxy ISP → TikTok，无需 PC 测试或 SocksTun。完整云覆写与本地节点模块分离；本地节点统一名 `TikTok-ISP-Local`，真实凭据只留路由器。本候选的 129 条 Manual-Direct 副本全部使用 `DOMAIN-SUFFIX`，在同一个完整云模块内联并与 `rules/manual-direct-isp.yaml` 同步；只刷新该模块并重启。
-- 新方案设置与验收：`profiles/tiktok-router-isp-us/versions/v1.0.0/SETUP.md`、`REQUIREMENTS.md`。GitHub 云订阅发布状态以当前远端核验为准；未完成手机实机验收前保持 candidate，不提升稳定入口。
+- 最新用户目标及开发候选：`tiktok-router-loongproxy-jp-us v1.0.0`（J1–J12，candidate）；手机 → OpenClash → 手选已在 PC 验证的 iKuu 日本首跳 → 本地 Loongproxy 美国 SOCKS5 → TikTok。其他境外流量仍手选`美国`。129 条 Manual-Direct 以 `DOMAIN-SUFFIX` 内嵌并与 `rules/manual-direct-isp.yaml` 同步。PC 成功为用户报告，不替代路由器验收。
+- 新方案设置与验收：`profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md`、`REQUIREMENTS.md`。候选远程订阅使用 `feature/tiktok-router-loongproxy-jp-us-v1.0.0` 分支；未合并 main、未完成实机验收前保持 candidate，不提升稳定入口。
+- `tiktok-router-isp-us v1.0.0`（C1–C11）保留为先前美国首跳候选；不作为本轮测试入口。真实凭据仅放用户授权的本机交付文件及路由器本地模块，禁止进入 Git。
 - `tiktok-router-iproyal-us` 已按用户要求弃用；原 beta 快照及版本目录保留不可改写，仅作历史记录，不得再作为当前测试建议。
 - 当前方案：`tiktok-sockstun-us`
 - 当前稳定版本：`v2.0.0`
@@ -39,7 +40,7 @@
 - 兼容覆写入口：`overwrite/openclash-overwrite.conf`
 - 共享人工直连规则：`rules/manual-direct.yaml`
 - 当前共享人工直连数据：129 条；`DOMAIN-SUFFIX,alimama.com` 覆盖阿里妈妈子域名，`DOMAIN-SUFFIX,mmstat.com` 覆盖 mmstat.com 主域名及全部子域名。
-- 新 LoongProxy ISP 滚动覆写入口：`profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf`；inline payload 必须与方案专属 `rules/manual-direct-isp.yaml` 同一提交同步，禁止要求用户单独刷新 Rule Provider。
+- 新日本首跳滚动覆写入口：`profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf`；inline payload 必须与 `rules/manual-direct-isp.yaml` 同一提交同步，禁止要求用户单独刷新 Rule Provider。旧美国首跳入口独立保留。
 - IPRoyal 滚动覆写入口保留于 `profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf`，仅供历史核验；该 profile 已弃用。
 - 候选人工日本规则：`rules/manual-japan.yaml`
 
@@ -47,7 +48,7 @@
 
 ## 不得擅自改变
 
-1. 已发布 `tiktok-sockstun-us` 的 TikTok 路径保持手机 SocksTun/IPRoyal，核心拒绝泄漏；当前独立候选 `tiktok-router-isp-us` 使用 OpenClash 本地 LoongProxy ISP 节点，手机无需 SocksTun。两者都禁止 TikTok 回退机场或 DIRECT。新方案的 `TikTok-ISP` 只筛选本地精确节点名 `TikTok-ISP-Local`，且必须保留紧随其后的 TikTok REJECT，阻止不支持 UDP 时继续匹配。已弃用的 IPRoyal 路由候选只保留历史文件。
+1. 已发布 `tiktok-sockstun-us` 的 TikTok 路径保持手机 SocksTun/IPRoyal，核心拒绝泄漏；当前独立候选 `tiktok-router-loongproxy-jp-us` 使用日本首跳和 OpenClash 本地 Loongproxy ISP，手机无需 SocksTun。两者都禁止 TikTok 回退机场或 DIRECT。新方案的 `TikTok-ISP` 只筛选本地精确节点名 `TikTok-ISP-Local`，且必须保留紧随其后的 TikTok REJECT，阻止不支持 UDP 时继续匹配。三个组均手选且空组 REJECT；日本名称筛选不代表节点已验证，必须选择用户实测的同一节点。旧美国首跳及已弃用的 IPRoyal 路由候选保留历史文件。
 2. 除 TikTok 外的国外流量最终走用户手工选择的机场美国节点。
 3. 中国大陆域名和 IP 直连；所有方案均须保留原有人工直连条目。LoongProxy ISP 候选可维护独立副本 `rules/manual-direct-isp.yaml`，将清单中的每项统一扩大为 `DOMAIN-SUFFIX`；不得因此改写稳定方案使用的共享源 `rules/manual-direct.yaml`。
 4. Google 和 Google Play 必须在中国规则之前走`美国`，不得破坏已经验证的下载路径。
