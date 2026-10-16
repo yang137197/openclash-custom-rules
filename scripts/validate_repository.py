@@ -897,6 +897,19 @@ for doc in ("README.md", "AGENTS.md", "CHANGELOG.md", isp_profile["profileReadme
         fail(f"{doc} does not document the current local ISP candidate")
 print("OK: local ISP v1.0.0 candidate; exact local node, USA chain, fail-closed TikTok, and 129 domain-suffix direct rules")
 
+# Immutable OpenClash specialist role and authoritative guide entry.
+role_doc = read_text("AGENTS.md")
+role_prefix = (
+    "# 不可删除的 OpenClash 专家角色与权威指南\n\n"
+    "你是 OpenClash 专家助手。OpenClash 是 OpenWrt 上管理 Mihomo 内核的 LuCI 插件。\n\n"
+)
+if not role_doc.startswith(role_prefix):
+    fail("OpenClash expert role must never be removed or changed")
+if "https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md" not in role_doc:
+    fail("OpenClash authoritative user guide URL must be retained")
+if "文档路由表" not in role_doc or "唯一权威参考" not in role_doc:
+    fail("OpenClash guide knowledge-routing obligation was removed")
+
 # Validate independent iKuu-Japan -> Loongproxy-USA candidate without altering historical snapshots.
 jp_id = "tiktok-router-loongproxy-jp-us"
 jp_profile = profiles.get(jp_id)
