@@ -20,3 +20,7 @@ jobs:
         env:
           BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: python3 scripts/validate_repository.py --base-ref "$BASE_REF"
+      - name: Check diff whitespace
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: git diff --check "$BASE_REF"...HEAD

@@ -6,6 +6,8 @@
 
 此角色与指南读取规则不可删除、变更或绕过；本文其余维护约束继续有效。
 
+**本次独立开发候选：`tiktok-router-loongproxy-jp-us v1.0.0`**。仅在独立开发分支/草稿 PR 中修改，沿用 129 条 Manual-Direct；iKuu 日本节点作为第一跳，本地 Loongproxy 美国 SOCKS5 为 TikTok 出口；实机验收前不得修改稳定入口或已发布历史版本。
+
 # 仓库维护约束
 
 本文件面向所有人工维护者、Codex 和其他自动化工具。仓库克隆到任何新电脑后，必须先阅读本文件，再阅读 `MAINTENANCE.md`、`profiles/catalog.json` 和当前版本的 `REQUIREMENTS.md`。
