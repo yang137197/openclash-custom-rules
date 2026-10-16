@@ -1,245 +1,52 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "tagConvention": "{profileId}-v{version}",
-  "currentProfile": "tiktok-sockstun-us",
+  "currentProfile": "tiktok-router-loongproxy-jp-us",
   "profiles": {
-    "tiktok-sockstun-us": {
-      "title": "手机 SocksTun + IPRoyal，美国机场处理其他国外流量",
+    "tiktok-router-loongproxy-jp-us": {
+      "title": "iKuuu 日本首跳 + 本地 Loongproxy 美国 SOCKS5 TikTok 正式方案",
       "status": "stable",
-      "currentVersion": "2.0.0",
-      "tag": "tiktok-sockstun-us-v2.0.0",
-      "legacyTag": false,
-      "requirements": [
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R6",
-        "R7",
-        "R8",
-        "R11",
-        "R12"
-      ],
-      "versionDirectory": "profiles/tiktok-sockstun-us/versions/v2.0.0",
-      "modulePath": "profiles/tiktok-sockstun-us/versions/v2.0.0/openclash-overwrite.conf",
-      "requirementsPath": "profiles/tiktok-sockstun-us/versions/v2.0.0/REQUIREMENTS.md",
-      "profileReadmePath": "profiles/tiktok-sockstun-us/README.md",
-      "compatibilityModulePath": "overwrite/openclash-overwrite.conf",
-      "sharedManualRulesPath": "rules/manual-direct.yaml",
-      "moduleSha256": "b789b8d101e070bb2d4a70b0a47c725db1e2627e2ae5616d227d2c5301baa8b3",
-      "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-      "manualRuleCount": 129,
+      "currentVersion": "1.0.0",
+      "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
+      "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
+      "latestModuleSha256": "e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30",
       "immutableVersionDirectories": [
-        "profiles/tiktok-sockstun-us/versions/v1.0.0",
-        "profiles/tiktok-sockstun-us/versions/v2.0.0"
+        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0"
       ],
-      "candidateVersions": {
-        "1.1.0": {
-          "status": "candidate",
-          "requirements": [
-            "R1",
-            "R2",
-            "R3",
-            "R4",
-            "R5",
-            "R6",
-            "R7",
-            "R8",
-            "R9",
-            "R10"
-          ],
-          "versionDirectory": "profiles/tiktok-sockstun-us/versions/v1.1.0",
-          "modulePath": "profiles/tiktok-sockstun-us/versions/v1.1.0/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-sockstun-us/versions/v1.1.0/REQUIREMENTS.md",
-          "manualJapanRulesPath": "rules/manual-japan.yaml",
-          "moduleSha256": "c2e7cdd674501a4460033bfed5d0dbf68e766ee921fb640a79b441e63eab0d55",
-          "manualJapanRulesSha256": "49f72ca76bf879768db990d8d935c4990ced5c210a5c56cbb865295903ccf980",
-          "manualJapanRuleCount": 6,
-          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-          "manualRuleCount": 129
-        }
-      },
-      "kind": "guide-mainland-bypass",
-      "setupPath": "profiles/tiktok-sockstun-us/versions/v2.0.0/SETUP.md",
-      "acceptanceSource": "user-confirmed",
-      "acceptedAt": "2026-10-15"
-    },
-    "tiktok-hybrid-device-us": {
-      "title": "指定设备 TikTok 走机场美国，其他设备使用 SocksTun/IPRoyal",
-      "status": "stable",
-      "currentVersion": "1.0.1",
-      "tag": "tiktok-hybrid-device-us-v1.0.1",
-      "legacyTag": false,
-      "requirements": [
-        "H1",
-        "H2",
-        "H3",
-        "H4",
-        "H5",
-        "H6",
-        "H7",
-        "H8",
-        "H9"
-      ],
-      "versionDirectory": "profiles/tiktok-hybrid-device-us/versions/v1.0.1",
-      "modulePath": "profiles/tiktok-hybrid-device-us/versions/v1.0.1/openclash-overwrite.conf",
-      "requirementsPath": "profiles/tiktok-hybrid-device-us/versions/v1.0.1/REQUIREMENTS.md",
-      "profileReadmePath": "profiles/tiktok-hybrid-device-us/README.md",
-      "sharedManualRulesPath": "rules/manual-direct.yaml",
-      "moduleSha256": "3875f634b3ca55837e91c17b0f241c7435be852264fa3d9a6360f7f0918a1a92",
-      "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-      "manualRuleCount": 129,
-      "authorizedTikTokUsDevices": [
-        "192.168.100.198/32"
-      ],
-      "immutableVersionDirectories": [
-        "profiles/tiktok-hybrid-device-us/versions/v1.0.0",
-        "profiles/tiktok-hybrid-device-us/versions/v1.0.1"
-      ],
-      "candidateVersions": {}
-    },
-    "tiktok-router-iproyal-us": {
-      "title": "所有手机经 OpenClash 本地 IPRoyal 访问 TikTok，无需 SocksTun",
-      "status": "deprecated",
-      "currentVersion": null,
-      "profileReadmePath": "profiles/tiktok-router-iproyal-us/README.md",
-      "sharedManualRulesPath": "rules/manual-direct.yaml",
-      "latestModulePath": "profiles/tiktok-router-iproyal-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "56e8cf0380ff9014774dabcd1ce876a6a23ed332cb1fdb573ea03e04c96e8fff",
-      "immutableVersionDirectories": [
-        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1",
-        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2",
-        "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3"
-      ],
-      "candidateVersions": {
+      "versions": {
         "1.0.0": {
-          "kind": "router-iproyal",
-          "status": "candidate",
-          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"],
-          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.0",
-          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.0/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.0/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.0/SETUP.md",
-          "localProxyName": "IPRoyal-US-ISP",
-          "tiktokGroup": "TikTok-ISP",
-          "moduleSha256": "80f43171f2c5d632c9c3a21cebf70b9fc259c1f12977b5aa7dd72f6a28c6eae1",
-          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-          "manualRuleCount": 129
-        },
-        "1.0.1": {
-          "kind": "router-iproyal",
-          "status": "candidate",
-          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
-          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.1",
-          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.1/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.1/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.1/SETUP.md",
-          "chainPatchPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.1/iproyal-chain-hop.conf",
-          "localProxyName": "IPRoyal-US-ISP",
-          "tiktokGroup": "TikTok-ISP",
-          "moduleSha256": "344492bc3e92ed0fe8fbfde1fcbfb7df1ecbc09bfde92438cd4ccf9f335857ad",
-          "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
-          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-          "manualRuleCount": 129
-        },
-        "1.0.2-beta.1": {
-          "kind": "router-iproyal",
-          "status": "candidate",
-          "tag": "tiktok-router-iproyal-us-v1.0.2-beta.1",
-          "releaseType": "pre-release",
-          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
-          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1",
-          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/SETUP.md",
-          "chainPatchPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.1/iproyal-chain-hop.conf",
-          "localProxyName": "IPRoyal-US-ISP",
-          "tiktokGroup": "TikTok-ISP",
-          "moduleSha256": "b4303939a81ea72071473edbfb3147bc954e041a46ffe208b5e48f90e343c71f",
-          "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
-          "manualRulesSha256": "49ef958515dab7ed19d4736ca36ad8dcf070bcc1d04fe917d535ea45da8666da",
-          "manualRuleCount": 129
-        },
-        "1.0.2-beta.2": {
-          "kind": "router-iproyal",
-          "status": "candidate",
-          "tag": "tiktok-router-iproyal-us-v1.0.2-beta.2",
-          "releaseType": "pre-release",
-          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
-          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2",
-          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/SETUP.md",
-          "chainPatchPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.2/iproyal-chain-hop.conf",
-          "localProxyName": "IPRoyal-US-ISP",
-          "tiktokGroup": "TikTok-ISP",
-          "moduleSha256": "1959be444461e9344affd4e4ce39f719e6129957267e074f629f57c452942533",
-          "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
-          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-          "manualRuleCount": 129
-        },
-        "1.0.2-beta.3": {
-          "kind": "router-iproyal",
-          "status": "candidate",
-          "tag": "tiktok-router-iproyal-us-v1.0.2-beta.3",
-          "releaseType": "pre-release",
-          "requirements": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "P11"],
-          "versionDirectory": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3",
-          "modulePath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/SETUP.md",
-          "chainPatchPath": "profiles/tiktok-router-iproyal-us/versions/v1.0.2-beta.3/iproyal-chain-hop.conf",
-          "localProxyName": "IPRoyal-US-ISP",
-          "tiktokGroup": "TikTok-ISP",
-          "moduleSha256": "56e8cf0380ff9014774dabcd1ce876a6a23ed332cb1fdb573ea03e04c96e8fff",
-          "chainPatchSha256": "0877fe4fa5a415263a7bf81736d93f82bceae12a50ff8212520eefa64a55f7c7",
-          "manualRulesSha256": "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd",
-          "manualRuleCount": 129
-        }
-      },
-      "supersededBy": "tiktok-router-isp-us"
-    },
-    "tiktok-router-isp-us": {
-      "title": "云端中国直连与美国分流 + 本地 TikTok ISP 链式节点",
-      "status": "candidate",
-      "currentVersion": null,
-      "profileReadmePath": "profiles/tiktok-router-isp-us/README.md",
-      "latestModulePath": "profiles/tiktok-router-isp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "a79caa3147025fc6dad16cb12a70af27876487afa8064250a5561eaf801c6f63",
-      "immutableVersionDirectories": [],
-      "candidateVersions": {
-        "1.0.0": {
-          "kind": "router-isp-local-node",
-          "status": "candidate",
+          "kind": "router-loongproxy-jp-us",
+          "status": "stable",
           "requirements": [
-            "C1",
-            "C2",
-            "C3",
-            "C4",
-            "C5",
-            "C6",
-            "C7",
-            "C8",
-            "C9",
-            "C10",
-            "C11"
+            "J1",
+            "J2",
+            "J3",
+            "J4",
+            "J5",
+            "J6",
+            "J7",
+            "J8",
+            "J9",
+            "J10",
+            "J11"
           ],
-          "versionDirectory": "profiles/tiktok-router-isp-us/versions/v1.0.0",
-          "modulePath": "profiles/tiktok-router-isp-us/versions/v1.0.0/openclash-overwrite.conf",
-          "requirementsPath": "profiles/tiktok-router-isp-us/versions/v1.0.0/REQUIREMENTS.md",
-          "setupPath": "profiles/tiktok-router-isp-us/versions/v1.0.0/SETUP.md",
-          "localModuleTemplatePath": "profiles/tiktok-router-isp-us/versions/v1.0.0/local-tiktok-proxy.conf.example",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/local-tiktok-proxy.conf.example",
+          "manualRulesPath": "rules/manual-direct-isp.yaml",
+          "manualRulesSha256": "aa8fc4343a50a64cd572e4de48bb5d0bd5b3353f41abf37aa474192af2661f6e",
+          "manualRuleCount": 129,
           "localProxyName": "TikTok-ISP-Local",
           "tiktokGroup": "TikTok-ISP",
-          "manualRulesPath": "rules/manual-direct-isp.yaml",
-          "moduleSha256": "a79caa3147025fc6dad16cb12a70af27876487afa8064250a5561eaf801c6f63",
-          "manualRulesSha256": "aa8fc4343a50a64cd572e4de48bb5d0bd5b3353f41abf37aa474192af2661f6e",
-          "manualRuleCount": 129
+          "firstHopGroup": "日本-入口",
+          "firstHopProvider": "iKuuu",
+          "foreignGroup": "美国",
+          "moduleSha256": "e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30"
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"
     }
-  },
-  "developmentProfile": "tiktok-router-isp-us"
+  }
 }
