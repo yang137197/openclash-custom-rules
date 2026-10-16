@@ -12,7 +12,7 @@
 ## 安装前
 
 1. 在 OpenClash「配置管理」备份当前配置。
-2. 在「运行状态 → 覆写模块」里停用其他 TikTok 完整覆写，包括 IPRoyal 候选；停用旧 IPRoyal 节点及其链式补丁。保留文件即可，不要把两套完整方案同时启用。
+2. 在「运行状态 → 覆写模块」里停用其他 TikTok 完整覆写，停用旧本地 ISP 节点及其链式补丁。保留文件即可，不要把两套完整方案同时启用。
 3. 确认当前`美国`策略组已手动选中一个可用机场节点。
 
 ## 添加两个模块
@@ -28,9 +28,9 @@
 
 ## 插件界面设置
 
-本方案只在 YAML 中改路由，不写 OpenClash UCI 开关。Fake-IP 增强、规则模式、大陆 IPv4 绕过、DNS 转发、DNS/Meta 选项和 Geo 数据更新，沿用仓库当前稳定版 [v2.0.0 设置说明](../../../tiktok-sockstun-us/versions/v2.0.0/SETUP.md) 的第 3–5 节。若你的界面或 Mihomo 内核不支持规则型 Fake-IP 过滤或 CN MRS，先停在此处，不要凭猜测换选项。
+本方案只在 YAML 中改路由，不写 OpenClash UCI 开关。Fake-IP 增强、规则模式、大陆 IPv4 绕过、DNS 转发、DNS/Meta 选项和 Geo 数据更新，参照 [日本首跳候选设置说明](../../../tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md#独立手工设置) 的「独立手工设置」表（仅共享插件开关；本方案节点仍经美国组）。若你的界面或 Mihomo 内核不支持规则型 Fake-IP 过滤或 CN MRS，先停在此处，不要凭猜测换选项。
 
-旧 SocksTun/IPRoyal 方案要求添加 IPRoyal 服务器 IPv4 到“本地 IPv4 网络绕过列表”；本候选不要照搬该条。这里的本地 TikTok 节点显式配置 `dialer-proxy: 美国`，设计目标是由机场美国节点链式拨号。
+本候选不要求手工添加 ISP 服务器到“本地 IPv4 网络绕过列表”。这里的本地 TikTok 节点显式配置 `dialer-proxy: 美国`，设计目标是由机场美国节点链式拨号。
 
 ## 启动后核对
 
@@ -46,7 +46,7 @@
 
 ## 手机验收
 
-1. 手机连 OpenClash 路由器 Wi-Fi，关闭移动数据、SocksTun 和其他 VPN；关闭并重新打开 TikTok，产生新连接。
+1. 手机连 OpenClash 路由器 Wi-Fi，关闭移动数据和手机 VPN；关闭并重新打开 TikTok，产生新连接。
 2. 连续刷新推荐页、打开视频播放至少数分钟。在 OpenClash 连接/运行日志中确认 TikTok 域名命中 `TikTok-ISP` 且实际使用 `TikTok-ISP-Local`；观察流量计数是否增长。无需用代理测速值判断 SOCKS5/TikTok 是否正常。
 3. 在同一手机检查一个常用中国大陆网站和一个境外网站：前者应命中 CN/`Manual-Direct` 并走 `DIRECT`，后者应走手选的`美国`机场节点。Google Play 下载仍走`美国`。
 4. 若日志显示 `TikTok-ISP[REJECT]`，优先检查模块是否都启用、完整路径是否匹配、模块顺序与节点名是否精确。若显示 `dial TikTok-ISP-Local ... timeout`，说明规则已选本地节点但链路未连通；保留该条脱敏日志。若命中本地节点、连接成功且 TikTok 可播放，才算本次业务路径通过。

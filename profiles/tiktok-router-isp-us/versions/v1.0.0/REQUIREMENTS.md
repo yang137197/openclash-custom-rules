@@ -1,6 +1,6 @@
 # tiktok-router-isp-us v1.0.0 — 候选需求合同
 
-状态：candidate。仅完成配置静态整理，尚未在目标 OpenClash 路由器和手机上验收。此候选取代 IPRoyal 路由器候选作为当前开发方向；IPRoyal 历史文件仅归档。
+状态：candidate。仅完成配置静态整理，尚未在目标 OpenClash 路由器和手机上验收。这是保留的美国首跳独立候选；当前开发主线为日本首跳候选，不混用两个完整覆写。
 
 ## 需求
 

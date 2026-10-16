@@ -15,15 +15,15 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/feature/tikt
 ```
 
 4. 两个模块匹配同一当前机场配置的**完整路径**，例如 `/etc/openclash/config/实际机场文件名.yaml`；也支持 `all`，但会作用于所有配置，不能只填文件名。云模块放在本地节点模块上方；列表越靠上合并越晚。启用二者，核对下表后统一**重启 OpenClash**。
-5. 在仪表盘 `日本-入口` 中手选 **PC 上成功的同一个 iKuu 日本节点**；`美国` 中手选美国机场节点；`TikTok-ISP` 应只有 `TikTok-ISP-Local`。若只显示 REJECT，先停止手机测试，核对节点与订阅加载，不能增加 DIRECT/其他国家作回退。
+5. 在仪表盘 `日本-入口` 中从自动纳入的日本节点里手选首跳，优先使用 PC 上成功的节点；`美国` 中手选美国机场节点；`TikTok-ISP` 应只有 `TikTok-ISP-Local`。若只显示 REJECT，先停止手机测试，核对节点与订阅加载，不能增加 DIRECT/其他国家作回退。
 
-日本组只按「日本」「🇯🇵」「Japan」或 JP 标记筛选，不自动识别供应商，也不证明所有日本节点均可用。若成功节点未出现，提供其完整名称后精确调整，不放宽为全部节点。
+日本组以 `include-all: true` 自动纳入当前配置中已加载的顶层节点和 proxy-providers，名称任意位置含 `jp`、`日本`、`Japan` 或 🇯🇵 即可，忽略大小写，无需提供完整节点名。节点名称匹配不证明供应商身份或可达性；此模块不会下载 iKuu 订阅。刷新云覆写并重启后若仍只有 REJECT，说明组内仍未纳入匹配节点，应先生成调试日志，检查运行配置的节点、代理提供商加载和生效筛选，不添加其他国家或 DIRECT 回退。
 
 PR 未合并时用上述分支 URL，`main/profiles/tiktok-router-loongproxy-jp-us/...` 不是当前测试地址。验收期间保留开发分支；合并、稳定入口和标签另行处理。
 
 ## 独立手工设置
 
-下列路径均在「服务 → OpenClash」下。模块只含 `[YAML]`，不修改插件开关；不套用旧 SocksTun/IPRoyal 的服务器绕过和手机设置。
+下列路径均在「服务 → OpenClash」下。模块只含 `[YAML]`，不修改插件开关。
 
 | 页面 | 设置 | 本轮值 |
 | --- | --- | --- |
@@ -58,7 +58,7 @@ DNS 顺序为 TikTok/Google Fake-IP → 私网/Manual-Direct real-ip → CN real
 
 先做第 1 项，成功后继续；失败不连续更换首跳或开关。
 
-1. 手机连路由器 Wi-Fi，关闭移动数据、SocksTun 和其他 VPN。重新打开 TikTok，查看新连接的规则、链路及上下行：命中 TikTok 专属策略，包含 `TikTok-ISP-Local` 与所选日本入口，视频持续加载；保存脱敏证据。普通浏览器 IP 查询默认走美国组，不能据此证明 TikTok ISP 出口；测速成功也不能替代播放验收。
+1. 手机连路由器 Wi-Fi，关闭移动数据和手机 VPN。重新打开 TikTok，查看新连接的规则、链路及上下行：命中 TikTok 专属策略，包含 `TikTok-ISP-Local` 与所选日本入口，视频持续加载；保存脱敏证据。普通浏览器 IP 查询默认走美国组，不能据此证明 TikTok ISP 出口；测速成功也不能替代播放验收。
 2. 验证 Google Play 完整下载、其他境外网站经美国；国内 App、局域网与典型 Manual-Direct 域名及子域名正常。只看到 DIRECT 不等于应用正常响应。
 3. 失败关闭：停用本地 ISP 模块并重启，新 TikTok 连接应被空组 REJECT，不能回退美国/直连；然后恢复。ISP 存在但连接失败时应连接报错，不必命中下一条 REJECT。`udp: false` 的 TikTok UDP 若进入核心，应继续匹配紧邻 REJECT；已在防火墙被拦截的 UDP/443 不能当作核心规则验收。
 4. 仅覆盖进入 Mihomo 且命中 TikTok 分类的流量；未知域名、私有 DNS/HTTPDNS、其他网关/IPv6 和应用账号状态不在静态保证范围内。

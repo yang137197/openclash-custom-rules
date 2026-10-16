@@ -11,6 +11,6 @@
 
 云模块没有凭据。真实 SOCKS5 地址、端口、用户名和密码仅保存在路由器本地节点模块。仓库里的模板值为占位符，不能原样启用。
 
-人工直连数据保留了既有 129 条域名条目，并将每项统一扩展为 `DOMAIN-SUFFIX`。这份方案专属副本不改变 `tiktok-sockstun-us` 等其他方案使用的 `rules/manual-direct.yaml`。
+人工直连数据保留了既有 129 条域名条目，并将每项统一扩展为 `DOMAIN-SUFFIX`。这份方案专属副本不改写原始 `rules/manual-direct.yaml`。当前测试主线见 [日本首跳候选](../tiktok-router-loongproxy-jp-us/README.md)。
 
 此版本尚未完成手机实机验收；静态校验通过不证明 ISP 链路或 TikTok 应用正常。
