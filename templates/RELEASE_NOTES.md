@@ -20,7 +20,11 @@
 
 ## 部署
 
-- 本版本固定覆写链接：`https://raw.githubusercontent.com/yang137197/openclash-custom-rules/{profileId}-v{version}/profiles/{profileId}/versions/v{version}/openclash-overwrite.conf`
+- 本版本固定覆写订阅链接必须在 Release 正文中完整显示为独立一行，保证用户可直接点击或复制；不能只提供隐藏式 Markdown 链接文字，也不能用滚动 `main` 地址代替：
+
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/{profileId}-v{version}/profiles/{profileId}/versions/v{version}/openclash-overwrite.conf
+
+- 覆写模块 SHA-256：
 - 需求合同：`profiles/{profileId}/versions/v{version}/REQUIREMENTS.md`
 - 本地凭据占位模板（如适用）：
 - 本地模板唯一的 Release 附件下载链接（需要本地模块时必填；否则注明“不适用”）：

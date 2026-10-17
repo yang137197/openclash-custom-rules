@@ -9,8 +9,15 @@ TikTok 的 Loongproxy 美国 SOCKS5 出口必须经用户手选的 iKuuu 日本�
 - 日本入口自动纳入已加载节点中名称包含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点；实际使用时手动选择 iKuuu 日本节点。
 - TikTok 仅走本地 `TikTok-ISP-Local` SOCKS5，固定 `dialer-proxy: 日本-入口`、`udp: false`；链路缺少日本首跳时失败关闭。
 - 保留 129 条 Manual-Direct；Google/Play 与其他境外流量走手选美国组；中国大陆域名/IP 直连。
-- 固定版本覆写：[v1.0.0 配置](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf)，SHA-256：`e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30`。
 - LuCI 设置建议、部署、验收与回退步骤见[部署说明](https://github.com/yang137197/openclash-custom-rules/blob/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)。
+
+### 固定版本覆写订阅链接
+
+OpenClash 订阅使用以下 v1.0.0 标签固定地址；该链接不会随 `main` 更新：
+
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf
+
+覆写模块 SHA-256：`e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30`。
 
 ### 本地模块模板和填写
 
