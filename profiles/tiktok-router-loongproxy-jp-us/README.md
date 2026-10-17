@@ -8,6 +8,7 @@
 - [滚动云覆写](overwrite/openclash-overwrite.conf)
 - [本地节点占位模板（不含凭据）](versions/v1.0.0/local-tiktok-proxy.conf.example)
 - [v1.0.0 Release 独立下载本地节点模板](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module.conf.example)；填写字段和保留项见[标签固定部署说明](https://github.com/yang137197/openclash-custom-rules/blob/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)。真实凭据只填写到路由器本地副本。
+- [带字段注释的本地节点模板（推荐下载）](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-with-field-comments.conf.example)；[逐字段填写说明](../../docs/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-filling-guide.md)逐项说明 server、port、username、password 的 ISP 信息来源，并列出必须保留的链路字段。
 
 正式云覆写订阅链接：
 
