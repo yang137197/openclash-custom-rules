@@ -23,14 +23,13 @@
 - 本版本固定覆写链接：`https://raw.githubusercontent.com/yang137197/openclash-custom-rules/{profileId}-v{version}/profiles/{profileId}/versions/v{version}/openclash-overwrite.conf`
 - 需求合同：`profiles/{profileId}/versions/v{version}/REQUIREMENTS.md`
 - 本地凭据占位模板（如适用）：
-- 本地模板的独立 Release 附件文件名及下载链接（需要本地模块时必填；否则注明“不适用”）：
+- 本地模板唯一的 Release 附件下载链接（需要本地模块时必填；否则注明“不适用”）：
 - 附件 SHA-256：
-- 标签固定的填写说明（`SETUP.md`）链接：
-- 应填写的服务商字段及必须保留的节点/链路字段：
+- 在 Release 正文中说明服务商字段对应关系、填写格式、必须保留的节点/链路字段，并提供明确标为虚构的填写示例：
 - 真实配置的安全保存位置及不得公开的内容：
 - 模块 SHA-256：
 
-> 需要本地模块的方案必须单独上传占位模板作为 Release 附件。GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是标签源码快照，不能代替模板附件。不得在模板、Release 或公开仓库中加入真实凭据。
+> 需要本地模块的方案只上传一个与标签文件一致的占位模板作为 Release 附件；不要另附注释模板或填写指南。GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是标签源码快照，不能代替模板附件。不得在模板、Release 或公开仓库中加入真实凭据。
 
 ## 验收与限制
 
