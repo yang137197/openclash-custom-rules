@@ -2,6 +2,12 @@
 
 **v1.0.0 stable**：TikTok 必须使用 iKuuu 日本节点作为 Loongproxy 美国 SOCKS5 的链式第一跳。用户于 2026-10-16 确认实机验收通过并授权正式发布。
 
+**v1.0.1 candidate**：新增 `update.kies.samsung.com` 精确域名直连规则，尚待路由器验收；稳定入口仍是 v1.0.0。
+
+- [v1.0.1 候选覆写](versions/v1.0.1/openclash-overwrite.conf)
+- [v1.0.1 候选需求与验收条件](versions/v1.0.1/REQUIREMENTS.md)
+- [v1.0.1 候选部署与设置](versions/v1.0.1/SETUP.md)
+
 - [部署、验收及本地 ISP 密码修改](versions/v1.0.0/SETUP.md)
 - [J1–J11 正式需求合同](versions/v1.0.0/REQUIREMENTS.md)
 - [固定版本完整覆写](versions/v1.0.0/openclash-overwrite.conf)

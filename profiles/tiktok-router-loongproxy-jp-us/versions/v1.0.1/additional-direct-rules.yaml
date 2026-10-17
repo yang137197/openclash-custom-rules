@@ -1,0 +1,3 @@
+# v1.0.1 候选新增的精确域名直连规则；原 129 条 Manual-Direct 清单保持不变。
+payload:
+  - DOMAIN,update.kies.samsung.com,DIRECT

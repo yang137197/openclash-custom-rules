@@ -48,6 +48,24 @@
           "firstHopProvider": "iKuuu",
           "foreignGroup": "美国",
           "moduleSha256": "e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30"
+        },
+        "1.0.1": {
+          "kind": "router-loongproxy-jp-us",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1/ENVIRONMENT.json",
+          "moduleSha256": "621d35681f1c09f5a7e3b3929553d18bb624ca146d6965a8f6e4747191d42a6f",
+          "requirements": [
+            "J12"
+          ],
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1/local-tiktok-proxy.conf.example",
+          "additionalDirectRulesPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.1/additional-direct-rules.yaml",
+          "manualRulesPath": "rules/manual-direct-isp.yaml",
+          "manualRuleCount": 129,
+          "manualRulesSha256": "f3c60bd9e93ae2d3579beb64155a189469186c96e04d238b0c7c3a12a4207b3c"
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"
