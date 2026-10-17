@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the published Japan-first profile, inline rules and authorized retirements."""
+"""Validate profile catalogs, version evidence and profile-specific OpenClash contracts."""
 
 import hashlib
 import json
@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 from argparse import ArgumentParser
+from datetime import date
 from functools import cmp_to_key
 from pathlib import Path
 
@@ -14,8 +15,9 @@ from strict_yaml import load_yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 JP = "tiktok-router-loongproxy-jp-us"
-ACTIVE = {JP}
 BASELINE_VERSION = "1.0.0"
+# The first stable release predates environment manifests and remains immutable.
+LEGACY_ENVIRONMENT_EXEMPTIONS = {(JP, "1.0.0")}
 # User-approved cleanup baseline. Only retired files/snapshots listed in this
 # baseline may be removed; published files that remain active cannot be edited.
 RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
@@ -33,7 +35,7 @@ ROLE_PREFIX = (
 VERSION_POLICY_TEXT = (
     "## 不可变版本规则\n\n"
     "正式版本 `tiktok-router-loongproxy-jp-us v1.0.0` 是本仓库第一版正式版。此前的历史版本及 beta 版本已从当前文件树、Git 标签和 GitHub Releases 清理；Git 提交历史保留。\n\n"
-    "每个后续候选版和正式版都必须使用严格高于仓库已记录最高版本的 SemVer；禁止回退、复用或覆盖版本号。每个新版本必须在 `CHANGELOG.md` 增加同版本标题和具体更新内容。已发布版本目录、标签和 Release 不得改写；更新一律创建递增版本。\n\n"
+    "每个方案（profile）独立维护 SemVer：同一方案的新候选版和正式版必须严格高于该方案已记录最高版本；禁止回退、复用或覆盖。不同方案的版本号互不比较，例如 A v1.0.0 与 B v1.0.0 可以同时存在。每个新版本必须在 `CHANGELOG.md` 增加同方案、同版本标题和具体更新内容。已发布版本目录、标签和 Release 不得改写；更新一律在对应方案内创建递增版本。\n\n"
     "`AGENTS.md` 开头的专家角色和官方指南入口，以及正式版 `SETUP.md` 中的 OpenClash 设置建议，都是不可删除的仓库前提；任何整理不得删除或削弱这些内容。"
 )
 SEMVER_PATTERN = re.compile(
@@ -128,6 +130,41 @@ def sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def valid_iso_date(value):
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
+def validate_no_raw_debug_logs():
+    section_markers = {"## 系统信息", "## 依赖检查", "## 内核检查", "## 插件设置",
+                       "## 覆写模块设置", "## 活动连接信息"}
+    candidates = git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split("\0")
+    for relative in candidates:
+        if not relative:
+            continue
+        path = ROOT / relative
+        if not path.is_file() or path.is_symlink():
+            continue
+        if path.suffix.lower() == ".log":
+            raise ValueError(f"raw log files must not be committed: {relative}")
+        if path.suffix.lower() in {".txt", ".md"}:
+            found = set()
+            overlap = ""
+            overlap_size = max(map(len, section_markers)) - 1
+            with path.open(encoding="utf-8", errors="ignore") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), ""):
+                    sample = overlap + chunk
+                    found.update(marker for marker in section_markers if marker in sample)
+                    if len(found) >= 3:
+                        raise ValueError(f"raw OpenClash debug log sections detected: {relative}")
+                    overlap = sample[-overlap_size:]
+
+
 def git(*args):
     return subprocess.run(["git", *args], cwd=ROOT, check=True,
                           capture_output=True, encoding="utf-8").stdout
@@ -196,14 +233,220 @@ def validate_version_catalog(profile_id, profile, changelog):
             stable_versions.append(version)
             immutable_directories.add(entry["versionDirectory"])
         else:
-            require(compare_versions(version, current_version) > 0,
-                    f"{profile_id}: candidate {version} must exceed current stable {current_version}")
-    require(stable_versions and current_version == max(stable_versions, key=cmp_to_key(compare_versions)),
-            f"{profile_id}: currentVersion must be the latest stable version")
-    require(profile["status"] == versions[current_version]["status"] == "stable",
-            f"{profile_id}: current profile must point to a stable version")
+            if stable_versions:
+                latest_stable = max(stable_versions, key=cmp_to_key(compare_versions))
+                require(compare_versions(version, latest_stable) > 0,
+                        f"{profile_id}: candidate {version} must exceed current stable {latest_stable}")
+    if stable_versions:
+        latest_stable = max(stable_versions, key=cmp_to_key(compare_versions))
+        require(current_version == latest_stable,
+                f"{profile_id}: currentVersion must be the latest stable version")
+        require(profile["status"] == versions[current_version]["status"] == "stable",
+                f"{profile_id}: stable profile must point to its latest stable version")
+    else:
+        latest_candidate = max(versions, key=cmp_to_key(compare_versions))
+        require(profile["status"] == "candidate" and
+                versions[current_version]["status"] == "candidate" and
+                current_version == latest_candidate,
+                f"{profile_id}: a profile without a stable release must point to its latest candidate")
     require(set(profile["immutableVersionDirectories"]) == immutable_directories,
             f"{profile_id}: immutable directories must match published stable versions")
+
+
+def validate_environment_record(profile_id, version, status, record):
+    require(record.get("schemaVersion") == 1, f"{profile_id} v{version}: environment schema must be 1")
+    require(record.get("profileId") == profile_id and record.get("version") == version,
+            f"{profile_id} v{version}: environment identity mismatch")
+    require(record.get("status") in {"pending", "verified"},
+            f"{profile_id} v{version}: invalid environment status")
+    require(isinstance(record.get("behaviorChanged"), bool),
+            f"{profile_id} v{version}: behaviorChanged must be boolean")
+    environment = record.get("environment")
+    required_environment = {"openclashVersion", "openclashBuild", "mihomoVersion", "mihomoBuild",
+                            "openwrtVersion", "deviceArchitecture", "deviceModel"}
+    require(isinstance(environment, dict) and set(environment) == required_environment,
+            f"{profile_id} v{version}: invalid environment fields")
+    require(all(isinstance(value, str) and value.strip() for value in environment.values()),
+            f"{profile_id} v{version}: environment fields must be explicit strings")
+    runtime = record.get("runtimeConfiguration")
+    runtime_fields = {"activeConfigLabel", "enabledModulesInOrder", "settingsBaseline", "settingsDeviations"}
+    require(isinstance(runtime, dict) and set(runtime) == runtime_fields,
+            f"{profile_id} v{version}: invalid runtime configuration fields")
+    require(isinstance(runtime.get("activeConfigLabel"), str) and runtime["activeConfigLabel"].strip() and
+            isinstance(runtime.get("enabledModulesInOrder"), list) and
+            all(isinstance(name, str) and name.strip() for name in runtime["enabledModulesInOrder"]) and
+            runtime.get("settingsBaseline") in {"unknown", "matched-setup", "deviations"} and
+            isinstance(runtime.get("settingsDeviations"), list) and
+            all(isinstance(item, str) and item.strip() for item in runtime["settingsDeviations"]),
+            f"{profile_id} v{version}: invalid active configuration or settings snapshot")
+    evidence = record.get("evidence")
+    required_evidence = {"source", "capturedAt", "rawDebugLogCommitted",
+                         "runtimeAcceptance", "userConfirmed", "summary"}
+    require(isinstance(evidence, dict) and set(evidence) == required_evidence,
+            f"{profile_id} v{version}: invalid environment evidence fields")
+    require(evidence.get("source") in {"none", "user-report", "debug-log", "reused"},
+            f"{profile_id} v{version}: invalid environment evidence source")
+    require(evidence.get("runtimeAcceptance") in {"not-run", "passed", "failed"},
+            f"{profile_id} v{version}: invalid runtime acceptance state")
+    require(isinstance(evidence.get("userConfirmed"), bool) and
+            evidence.get("rawDebugLogCommitted") is False,
+            f"{profile_id} v{version}: confirmation must be boolean and raw logs must stay out of Git")
+    require(isinstance(evidence.get("summary"), str) and evidence["summary"].strip(),
+            f"{profile_id} v{version}: evidence summary is required")
+    if evidence["source"] == "debug-log":
+        require(valid_iso_date(evidence["capturedAt"]),
+                f"{profile_id} v{version}: debug-log date must use YYYY-MM-DD")
+    reused_from = record.get("reusedFromVersion")
+    require(reused_from is None or isinstance(reused_from, str),
+            f"{profile_id} v{version}: reusedFromVersion must be a version or null")
+    require(record.get("setupDocument") == "SETUP.md",
+            f"{profile_id} v{version}: setupDocument must point to SETUP.md")
+
+    if record["status"] == "verified":
+        require(all(value.lower() not in {"unknown", "not provided", "待补充"}
+                    for value in environment.values()),
+                f"{profile_id} v{version}: verified environment versions cannot be unknown")
+        require(runtime["activeConfigLabel"].lower() != "unknown" and
+                runtime["enabledModulesInOrder"] and
+                runtime["settingsBaseline"] in {"matched-setup", "deviations"},
+                f"{profile_id} v{version}: verified record must capture active config, modules and settings baseline")
+        require((runtime["settingsBaseline"] == "deviations") == bool(runtime["settingsDeviations"]),
+                f"{profile_id} v{version}: settings deviations must be documented consistently")
+        if evidence["source"] == "debug-log":
+            require(valid_iso_date(evidence["capturedAt"]) and
+                    evidence["runtimeAcceptance"] == "passed" and evidence["userConfirmed"],
+                    f"{profile_id} v{version}: verified log-backed environment needs accepted runtime testing")
+        else:
+            require(evidence["source"] == "reused" and not record["behaviorChanged"] and reused_from,
+                    f"{profile_id} v{version}: verified environment needs a log or an unchanged-version reference")
+
+    if status == "candidate":
+        if record["status"] == "verified":
+            require(evidence["source"] == "debug-log" and evidence["capturedAt"] and
+                    evidence["runtimeAcceptance"] == "passed" and evidence["userConfirmed"],
+                    f"{profile_id} v{version}: verified candidate needs log-backed accepted runtime evidence")
+        return
+
+    require(record["status"] == "verified", f"{profile_id} v{version}: stable release needs verified environment evidence")
+    if record["behaviorChanged"]:
+        require(evidence["source"] == "debug-log" and
+                valid_iso_date(evidence["capturedAt"]) and
+                evidence["runtimeAcceptance"] == "passed" and evidence["userConfirmed"],
+                f"{profile_id} v{version}: behavior-changing stable release needs dated debug-log and user acceptance")
+        require(reused_from is None, f"{profile_id} v{version}: behavior-changing release cannot reuse old evidence")
+    else:
+        require(evidence["source"] in {"reused", "debug-log"},
+                f"{profile_id} v{version}: no-behavior-change release needs reusable or fresh environment evidence")
+        if evidence["source"] == "reused":
+            require(reused_from and compare_versions(reused_from, version) < 0,
+                    f"{profile_id} v{version}: reused environment must cite an earlier version")
+        else:
+            require(reused_from is None and
+                    valid_iso_date(evidence["capturedAt"]) and
+                    evidence["runtimeAcceptance"] == "passed" and evidence["userConfirmed"],
+                    f"{profile_id} v{version}: fresh environment evidence needs dated accepted runtime testing")
+        require(all(value.lower() not in {"unknown", "not provided", "待补充"}
+                    for value in environment.values()),
+                f"{profile_id} v{version}: stable environment values cannot be unknown")
+
+
+def validate_reused_environment_source(profile_id, version, profile, record):
+    source_version = record["reusedFromVersion"]
+    versions = profile["versions"]
+    require(source_version in versions,
+            f"{profile_id} v{version}: reused environment source version {source_version} is not indexed")
+    prior_stable = [candidate for candidate, entry in versions.items()
+                    if entry.get("status") == "stable" and compare_versions(candidate, version) < 0]
+    require(prior_stable and source_version == max(prior_stable, key=cmp_to_key(compare_versions)),
+            f"{profile_id} v{version}: reused environment must cite the latest earlier stable version")
+    source_entry = versions[source_version]
+    source_path = source_entry.get("environmentPath")
+    require((profile_id, source_version) not in LEGACY_ENVIRONMENT_EXEMPTIONS and source_path,
+            f"{profile_id} v{version}: reused environment source has no environment record")
+    source_record = json.loads(read(source_path))
+    require(source_record.get("status") == "verified" and
+            source_record.get("environment") == record.get("environment") and
+            source_record.get("runtimeConfiguration") == record.get("runtimeConfiguration"),
+            f"{profile_id} v{version}: reused environment must match a verified source snapshot")
+
+
+def validate_profile_artifacts(profile_id, profile, modules):
+    profile_readme = profile["profileReadmePath"]
+    require(profile_readme == f"profiles/{profile_id}/README.md", f"{profile_id}: invalid profile README path")
+    profile_readme_text = read(profile_readme)
+    test_path = f"scripts/test_profile_{profile_id.replace('-', '_')}.py"
+    require(profile.get("validationTestPath") == test_path and (ROOT / test_path).is_file(),
+            f"{profile_id}: dedicated profile regression test is required at {test_path}")
+    environment_records = {}
+    for version, entry in profile["versions"].items():
+        directory = f"profiles/{profile_id}/versions/v{version}"
+        require(entry.get("versionDirectory") == directory, f"{profile_id} v{version}: invalid version directory")
+        expected = {
+            "modulePath": directory + "/openclash-overwrite.conf",
+            "requirementsPath": directory + "/REQUIREMENTS.md",
+            "setupPath": directory + "/SETUP.md",
+        }
+        for key, path in expected.items():
+            require(entry.get(key) == path, f"{profile_id} v{version}: invalid {key}")
+            read(path)
+        module_path = entry["modulePath"]
+        require(module_path in modules, f"{profile_id} v{version}: module missing from parsed modules")
+        require(entry.get("moduleSha256") == sha(read(module_path)),
+                f"{profile_id} v{version}: module hash mismatch")
+        requirement_ids = entry.get("requirements", [])
+        require(isinstance(requirement_ids, list) and requirement_ids,
+                f"{profile_id} v{version}: requirement IDs are required")
+        contract = read(entry["requirementsPath"])
+        for requirement in requirement_ids:
+            require(isinstance(requirement, str) and
+                    re.search(rf"(?m)^- {re.escape(requirement)}(?: |：)", contract),
+                    f"{profile_id} v{version}: missing requirement {requirement}")
+        setup = read(entry["setupPath"])
+        require("OpenClash" in setup and "设置" in setup,
+                f"{profile_id} v{version}: OpenClash setup guidance is missing")
+        if entry["status"] == "candidate":
+            require(f"v{version}" in profile_readme_text and "candidate" in profile_readme_text,
+                    f"{profile_id} v{version}: candidate must be indexed in its profile README")
+
+        environment_path = entry.get("environmentPath")
+        if (profile_id, version) in LEGACY_ENVIRONMENT_EXEMPTIONS:
+            require(environment_path is None,
+                    f"{profile_id} v{version}: immutable legacy version must not be rewritten")
+        else:
+            require(environment_path == directory + "/ENVIRONMENT.json",
+                    f"{profile_id} v{version}: ENVIRONMENT.json path is required")
+            record = json.loads(read(environment_path))
+            validate_environment_record(profile_id, version, entry["status"], record)
+            environment_records[version] = record
+
+        local_template_path = entry.get("localModuleTemplatePath")
+        if local_template_path:
+            require(local_template_path == directory + "/local-tiktok-proxy.conf.example",
+                    f"{profile_id} v{version}: invalid local credential template path")
+            require(local_template_path in modules,
+                    f"{profile_id} v{version}: local template missing from parsed modules")
+
+        if entry["status"] == "stable":
+            tag = f"{profile_id}-v{version}"
+            module_url = ("https://raw.githubusercontent.com/yang137197/openclash-custom-rules/"
+                          f"{tag}/{module_path}")
+            release_url = f"https://github.com/yang137197/openclash-custom-rules/releases/tag/{tag}"
+            require(entry.get("releaseTag") == tag and entry.get("versionedModuleUrl") == module_url and
+                    entry.get("releaseUrl") == release_url,
+                    f"{profile_id} v{version}: immutable release tag and module links are required")
+
+    for version, record in environment_records.items():
+        if record.get("evidence", {}).get("source") == "reused":
+            validate_reused_environment_source(profile_id, version, profile, record)
+
+    if profile.get("status") == "stable":
+        rolling = f"profiles/{profile_id}/overwrite/openclash-overwrite.conf"
+        require(profile.get("latestModulePath") == rolling and rolling in modules,
+                f"{profile_id}: stable profile rolling module path is required")
+        current = profile["versions"][profile["currentVersion"]]
+        require(read(rolling) == read(current["modulePath"]) and
+                profile.get("latestModuleSha256") == current["moduleSha256"],
+                f"{profile_id}: rolling module must match its latest stable version")
 
 
 def validate_stable(profile_id, profile, modules, manual):
@@ -271,18 +514,17 @@ def validate_stable(profile_id, profile, modules, manual):
 
 def check_version_progression(base_ref, catalog):
     changelog = read("CHANGELOG.md")
-    prior_versions = []
-    prior_current_version = None
+    base_profiles = {}
     if base_ref and set(base_ref) != {"0"}:
         base = json.loads(git("show", f"{base_ref}:profiles/catalog.json"))
-        prior = base["profiles"].get(JP)
-        if prior:
-            prior_versions = list(prior["versions"])
-            prior_current_version = prior["currentVersion"]
-    profile = catalog["profiles"][JP]
-    validate_version_sequence(JP, profile["versions"], prior_versions, changelog,
-                              profile["currentVersion"], prior_current_version)
-    print("OK: version sequence is monotonic and each version has CHANGELOG update content")
+        base_profiles = base["profiles"]
+    for profile_id, profile in catalog["profiles"].items():
+        prior = base_profiles.get(profile_id, {})
+        prior_versions = list(prior.get("versions", {}))
+        prior_current_version = prior.get("currentVersion")
+        validate_version_sequence(profile_id, profile["versions"], prior_versions, changelog,
+                                  profile.get("currentVersion"), prior_current_version)
+    print("OK: version sequences are monotonic independently for each profile")
 
 
 def check_history(base_ref, profiles):
@@ -291,7 +533,8 @@ def check_history(base_ref, profiles):
         return
     base = json.loads(git("show", f"{base_ref}:profiles/catalog.json"))
     approved = json.loads(git("show", f"{RETIREMENT_BASELINE}:profiles/catalog.json"))
-    retired = set(approved["profiles"]) - ACTIVE
+    retired = set(approved["profiles"]) - {JP}
+    require(not (retired & set(profiles)), "retired profiles must not be reintroduced")
     require(set(base["profiles"]) - set(profiles) <= retired, "unapproved profile retirement")
     for profile_id in retired:
         require(not any(p.is_file() for p in (ROOT / "profiles" / profile_id).rglob("*")), "retired profile files remain")
@@ -319,12 +562,22 @@ def main():
     args = parser.parse_args()
     catalog = json.loads(read("profiles/catalog.json"))
     require(catalog["schemaVersion"] == 3 and catalog["tagConvention"] == "{profileId}-v{version}", "catalog schema")
-    require(catalog["currentProfile"] == JP and set(catalog["profiles"]) == ACTIVE,
-            "catalog must point to the sole stable Japan-first profile")
+    require(isinstance(catalog.get("profiles"), dict) and catalog["profiles"] and
+            catalog.get("currentProfile") in catalog["profiles"],
+            "catalog must index one or more profiles and identify a default profile")
+    require(catalog["profiles"][catalog["currentProfile"]]["status"] == "stable",
+            "catalog default profile must be stable")
     require(not (ROOT / "overwrite/openclash-overwrite.conf").exists(), "retired compatibility entry remains")
     require(read("AGENTS.md").startswith(ROLE_PREFIX), "immutable expert role/guide changed")
     for path in ("AGENTS.md", "MAINTENANCE.md"):
         require(VERSION_POLICY_TEXT in read(path), f"{path}: immutable version policy changed or removed")
+    require("DEVELOPMENT_RULES.md" in read("AGENTS.md") and
+            "DEVELOPMENT_RULES.md" in read("README.md"),
+            "cross-tool development workflow must be discoverable from AGENTS.md and README.md")
+    require("请你先读取仓库，我们继续开发" in read("DEVELOPMENT_RULES.md") and
+            "请你先读取仓库，我们继续开发" in read("README.md"),
+            "tool-agnostic repository handoff prompt must be documented")
+    validate_no_raw_debug_logs()
     original_text = read("rules/manual-direct.yaml")
     require(sha(original_text) == MANUAL_HASH, "original 129 direct records changed without authorization")
     original = load_yaml(original_text)["payload"]
@@ -340,16 +593,30 @@ def main():
         modules[relative] = load_yaml(content, module=True)
     expected_modules = set()
     for profile in catalog["profiles"].values():
-        expected_modules.add(profile["latestModulePath"])
+        if profile["status"] == "stable":
+            expected_modules.add(profile["latestModulePath"])
         for version_entry in profile["versions"].values():
             expected_modules.update(version_entry[key] for key in ("modulePath", "localModuleTemplatePath")
                                     if key in version_entry)
     require(set(modules) == expected_modules, "module files must match the version catalog")
     for profile_id, profile in catalog["profiles"].items():
         validate_version_catalog(profile_id, profile, read("CHANGELOG.md"))
-        validate_stable(profile_id, profile, modules, manual)
+        validate_profile_artifacts(profile_id, profile, modules)
+        if profile_id == JP and profile["status"] == "stable":
+            validate_stable(profile_id, profile, modules, manual)
     for path in ("README.md", "AGENTS.md", "MAINTENANCE.md", "CHANGELOG.md"):
-        require(JP in read(path), f"{path}: missing current stable profile")
+        content = read(path)
+        for profile_id in catalog["profiles"]:
+            require(profile_id in content, f"{path}: missing indexed profile {profile_id}")
+            if path == "README.md":
+                profile = catalog["profiles"][profile_id]
+                current_version = profile["currentVersion"]
+                require(f"v{current_version}" in content and profile["status"] in content,
+                        f"README.md: missing current version/status for {profile_id}")
+                if profile["status"] == "stable":
+                    entry = profile["versions"][current_version]
+                    require(entry["releaseUrl"] in content and entry["versionedModuleUrl"] in content,
+                            f"README.md: missing fixed release links for {profile_id} v{current_version}")
     for path in ROOT.rglob("*.md"):
         if ".git" in path.parts:
             continue

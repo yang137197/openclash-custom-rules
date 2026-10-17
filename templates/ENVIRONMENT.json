@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "REPLACE_WITH_PROFILE_ID",
+  "version": "REPLACE_WITH_SEMVER",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "unknown",
+    "openclashBuild": "unknown",
+    "mihomoVersion": "unknown",
+    "mihomoBuild": "unknown",
+    "openwrtVersion": "unknown",
+    "deviceArchitecture": "unknown",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "none",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "待补充；不要推断或虚构验收结果。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

@@ -8,13 +8,15 @@
 
 # 仓库维护约束
 
-先读本文件、`MAINTENANCE.md`、`profiles/catalog.json` 和当前稳定版本的 `REQUIREMENTS.md`。
+先读本文件、`DEVELOPMENT_RULES.md`、`MAINTENANCE.md`、`README.md`、`profiles/catalog.json` 和当前稳定版本的 `REQUIREMENTS.md`、`SETUP.md`。新候选版本还须阅读其 `ENVIRONMENT.json`。
+
+当用户说“请你先读取仓库，我们继续开发”或表达同一意思时，按 `DEVELOPMENT_RULES.md` 的“跨工具接续”流程恢复上下文并继续当前工作。
 
 ## 不可变版本规则
 
 正式版本 `tiktok-router-loongproxy-jp-us v1.0.0` 是本仓库第一版正式版。此前的历史版本及 beta 版本已从当前文件树、Git 标签和 GitHub Releases 清理；Git 提交历史保留。
 
-每个后续候选版和正式版都必须使用严格高于仓库已记录最高版本的 SemVer；禁止回退、复用或覆盖版本号。每个新版本必须在 `CHANGELOG.md` 增加同版本标题和具体更新内容。已发布版本目录、标签和 Release 不得改写；更新一律创建递增版本。
+每个方案（profile）独立维护 SemVer：同一方案的新候选版和正式版必须严格高于该方案已记录最高版本；禁止回退、复用或覆盖。不同方案的版本号互不比较，例如 A v1.0.0 与 B v1.0.0 可以同时存在。每个新版本必须在 `CHANGELOG.md` 增加同方案、同版本标题和具体更新内容。已发布版本目录、标签和 Release 不得改写；更新一律在对应方案内创建递增版本。
 
 `AGENTS.md` 开头的专家角色和官方指南入口，以及正式版 `SETUP.md` 中的 OpenClash 设置建议，都是不可删除的仓库前提；任何整理不得删除或削弱这些内容。
 
@@ -39,4 +41,4 @@
 
 ## 每次变更
 
-标明需求编号与版本类型，更新对应合同、设置说明和 `CHANGELOG.md`；运行 `python scripts/validate_repository.py`、解析回归测试和 `git diff --check`，审查完整差异。仓库校验与实机验收分别记录，不保存冗长排查流水账。
+按 `DEVELOPMENT_RULES.md` 完成候选信息收集、环境记录、隐私检查和发布门禁；标明方案 ID、需求编号与版本类型，更新对应合同、设置说明和 `CHANGELOG.md`。运行 `python -m unittest discover -s scripts -p "test_*.py"`、`python scripts/validate_repository.py --base-ref origin/main` 和 `git diff --check`，审查完整差异。仓库校验与实机验收分别记录，不保存冗长排查流水账。

@@ -8,6 +8,7 @@
       "status": "stable",
       "currentVersion": "1.0.0",
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
+      "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us.py",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
       "latestModuleSha256": "e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30",
       "immutableVersionDirectories": [
@@ -17,6 +18,9 @@
         "1.0.0": {
           "kind": "router-loongproxy-jp-us",
           "status": "stable",
+          "releaseTag": "tiktok-router-loongproxy-jp-us-v1.0.0",
+          "releaseUrl": "https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.0",
+          "versionedModuleUrl": "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf",
           "requirements": [
             "J1",
             "J2",

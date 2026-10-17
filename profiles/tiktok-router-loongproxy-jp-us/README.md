@@ -14,4 +14,6 @@
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
 ```
 
+固定使用 v1.0.0 时，请使用对应的 [GitHub Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.0) 和[标签固定覆写链接](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf)。Release 标签中的文件不会随 `main` 更新。
+
 日本组按名称自动纳入已加载节点，但实际使用时必须手选 iKuuu 的日本节点。缺少匹配的日本节点时保持 REJECT，不得改用其他首跳或添加机场/DIRECT 回退。真实 ISP 地址和凭据只配置在路由器本地模块。
