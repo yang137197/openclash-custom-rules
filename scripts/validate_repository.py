@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 from argparse import ArgumentParser
+from functools import cmp_to_key
 from pathlib import Path
 
 from strict_yaml import load_yaml
@@ -14,6 +15,7 @@ from strict_yaml import load_yaml
 ROOT = Path(__file__).resolve().parents[1]
 JP = "tiktok-router-loongproxy-jp-us"
 ACTIVE = {JP}
+BASELINE_VERSION = "1.0.0"
 # User-approved cleanup baseline. Only retired files/snapshots listed in this
 # baseline may be removed; published files that remain active cannot be edited.
 RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
@@ -28,11 +30,92 @@ ROLE_PREFIX = (
     "并根据其文档路由表读取问题对应子文档完整 raw URL。指南为唯一权威参考；禁止凭记忆编造 LuCI 路径、CLI 指令、诊断流程或 Issue 结论。\n\n"
     "此角色与指南读取规则不可删除、变更或绕过；本文其余维护约束继续有效。\n"
 )
+VERSION_POLICY_TEXT = (
+    "## 不可变版本规则\n\n"
+    "正式版本 `tiktok-router-loongproxy-jp-us v1.0.0` 是本仓库第一版正式版。此前的历史版本及 beta 版本已从当前文件树、Git 标签和 GitHub Releases 清理；Git 提交历史保留。\n\n"
+    "每个后续候选版和正式版都必须使用严格高于仓库已记录最高版本的 SemVer；禁止回退、复用或覆盖版本号。每个新版本必须在 `CHANGELOG.md` 增加同版本标题和具体更新内容。已发布版本目录、标签和 Release 不得改写；更新一律创建递增版本。\n\n"
+    "`AGENTS.md` 开头的专家角色和官方指南入口，以及正式版 `SETUP.md` 中的 OpenClash 设置建议，都是不可删除的仓库前提；任何整理不得删除或削弱这些内容。"
+)
+SEMVER_PATTERN = re.compile(
+    r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    r"(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$"
+)
 
 
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def semver_parts(version):
+    match = SEMVER_PATTERN.fullmatch(version)
+    require(match is not None, f"invalid SemVer version: {version}")
+    prerelease = match.group(4)
+    identifiers = prerelease.split(".") if prerelease is not None else None
+    if identifiers:
+        require(all(identifiers), f"invalid SemVer prerelease: {version}")
+        require(all(not (part.isdigit() and len(part) > 1 and part.startswith("0"))
+                    for part in identifiers), f"invalid numeric prerelease: {version}")
+    return tuple(int(match.group(i)) for i in range(1, 4)), identifiers
+
+
+def compare_versions(left, right):
+    left_core, left_pre = semver_parts(left)
+    right_core, right_pre = semver_parts(right)
+    if left_core != right_core:
+        return (left_core > right_core) - (left_core < right_core)
+    if left_pre is None or right_pre is None:
+        if left_pre is None and right_pre is None:
+            return 0
+        return 1 if left_pre is None else -1
+    for left_id, right_id in zip(left_pre, right_pre):
+        if left_id == right_id:
+            continue
+        left_numeric = left_id.isdigit()
+        right_numeric = right_id.isdigit()
+        if left_numeric and right_numeric:
+            return (int(left_id) > int(right_id)) - (int(left_id) < int(right_id))
+        if left_numeric != right_numeric:
+            return -1 if left_numeric else 1
+        return (left_id > right_id) - (left_id < right_id)
+    return (len(left_pre) > len(right_pre)) - (len(left_pre) < len(right_pre))
+
+
+def changelog_has_update(changelog, profile_id, version):
+    header = re.compile(rf"^##\s+{re.escape(profile_id)} v{re.escape(version)}(?:\s|$)", re.M)
+    match = header.search(changelog)
+    if not match:
+        return False
+    next_heading = re.search(r"^##\s+", changelog[match.end():], re.M)
+    body = changelog[match.end():match.end() + next_heading.start()] if next_heading else changelog[match.end():]
+    return any(re.match(r"^\s*[-*]\s+\S", line) for line in body.splitlines())
+
+
+def validate_version_sequence(profile_id, versions, prior_versions, changelog,
+                              current_version=None, prior_current_version=None):
+    version_set = set(versions)
+    require(version_set, f"{profile_id}: version catalog must not be empty")
+    for version in version_set:
+        require(compare_versions(version, BASELINE_VERSION) >= 0,
+                f"{profile_id}: version precedes the v{BASELINE_VERSION} baseline")
+    require(set(prior_versions) <= version_set,
+            f"{profile_id}: a recorded version was removed or reused")
+    if current_version is not None and prior_current_version is not None:
+        require(compare_versions(current_version, prior_current_version) >= 0,
+                f"{profile_id}: current version cannot move backwards from {prior_current_version}")
+    added = sorted(version_set - set(prior_versions), key=cmp_to_key(compare_versions))
+    if prior_versions:
+        threshold = max(prior_versions, key=cmp_to_key(compare_versions))
+        for version in added:
+            require(compare_versions(version, threshold) > 0,
+                    f"{profile_id}: new version {version} must exceed {threshold}")
+            require(changelog_has_update(changelog, profile_id, version),
+                    f"{profile_id}: new version {version} needs a CHANGELOG entry with update content")
+            threshold = version
+    else:
+        for version in added:
+            require(changelog_has_update(changelog, profile_id, version),
+                    f"{profile_id}: new version {version} needs a CHANGELOG entry with update content")
 
 
 def read(path):
@@ -93,14 +176,40 @@ def expected_rules():
     ]
 
 
+def validate_version_catalog(profile_id, profile, changelog):
+    versions = profile["versions"]
+    require(isinstance(versions, dict) and versions, f"{profile_id}: version catalog must not be empty")
+    current_version = profile["currentVersion"]
+    require(current_version in versions, f"{profile_id}: current version is not indexed")
+    stable_versions = []
+    immutable_directories = set()
+    for version, entry in versions.items():
+        semver_parts(version)
+        require(compare_versions(version, BASELINE_VERSION) >= 0,
+                f"{profile_id}: version precedes the v{BASELINE_VERSION} baseline")
+        require(entry["versionDirectory"] == f"profiles/{profile_id}/versions/v{version}",
+                f"{profile_id}: invalid version directory for {version}")
+        require(entry["status"] in {"stable", "candidate"}, f"{profile_id}: invalid status for {version}")
+        require(changelog_has_update(changelog, profile_id, version),
+                f"{profile_id}: CHANGELOG entry missing for {version}")
+        if entry["status"] == "stable":
+            stable_versions.append(version)
+            immutable_directories.add(entry["versionDirectory"])
+        else:
+            require(compare_versions(version, current_version) > 0,
+                    f"{profile_id}: candidate {version} must exceed current stable {current_version}")
+    require(stable_versions and current_version == max(stable_versions, key=cmp_to_key(compare_versions)),
+            f"{profile_id}: currentVersion must be the latest stable version")
+    require(profile["status"] == versions[current_version]["status"] == "stable",
+            f"{profile_id}: current profile must point to a stable version")
+    require(set(profile["immutableVersionDirectories"]) == immutable_directories,
+            f"{profile_id}: immutable directories must match published stable versions")
+
+
 def validate_stable(profile_id, profile, modules, manual):
-    require(profile["status"] == "stable" and profile["currentVersion"] == "1.0.0",
-            f"{profile_id}: expected the accepted stable v1.0.0")
-    require(set(profile["immutableVersionDirectories"]) ==
-            {f"profiles/{profile_id}/versions/v1.0.0"}, f"{profile_id}: published snapshot missing")
-    require(set(profile["versions"]) == {"1.0.0"}, f"{profile_id}: unexpected published versions")
-    entry = profile["versions"]["1.0.0"]
-    directory = f"profiles/{profile_id}/versions/v1.0.0"
+    version = profile["currentVersion"]
+    entry = profile["versions"][version]
+    directory = f"profiles/{profile_id}/versions/v{version}"
     require(entry["versionDirectory"] == directory and entry["status"] == "stable", "stable path/status")
     expected_paths = {"modulePath": directory + "/openclash-overwrite.conf",
                       "requirementsPath": directory + "/REQUIREMENTS.md",
@@ -149,11 +258,31 @@ def validate_stable(profile_id, profile, modules, manual):
     require("必须通过用户手选的 iKuuu 日本节点" in contract and
             "不得换用美国首跳" in contract, f"{profile_id}: mandatory iKuuu chain missing")
     for path in (entry["requirementsPath"], entry["setupPath"], profile["profileReadmePath"]):
-        require("stable" in read(path) and "v1.0.0" in read(path), f"{path}: missing version/status")
+        require("stable" in read(path) and f"v{version}" in read(path), f"{path}: missing version/status")
     setup = read(entry["setupPath"])
     require("修改本地 Loongproxy ISP 密码" in setup and "password" in setup and
             "运行状态" in setup and "覆写模块" in setup, f"{profile_id}: local password instructions missing")
-    print(f"OK: {profile_id} v1.0.0 stable; mandatory iKuuu hop, routing, 129 inline entries and placeholders")
+    setup_markers = ["## 独立手工设置", "运行模式 / 代理模式", "实验性：绕过指定区域 IPv4",
+                     "禁用 QUIC", "IPv6 设置", "DNS 顺序为"]
+    require(all(marker in setup for marker in setup_markers),
+            f"{profile_id}: protected OpenClash settings recommendations are missing")
+    print(f"OK: {profile_id} v{version} stable; mandatory iKuuu hop, routing, 129 inline entries and placeholders")
+
+
+def check_version_progression(base_ref, catalog):
+    changelog = read("CHANGELOG.md")
+    prior_versions = []
+    prior_current_version = None
+    if base_ref and set(base_ref) != {"0"}:
+        base = json.loads(git("show", f"{base_ref}:profiles/catalog.json"))
+        prior = base["profiles"].get(JP)
+        if prior:
+            prior_versions = list(prior["versions"])
+            prior_current_version = prior["currentVersion"]
+    profile = catalog["profiles"][JP]
+    validate_version_sequence(JP, profile["versions"], prior_versions, changelog,
+                              profile["currentVersion"], prior_current_version)
+    print("OK: version sequence is monotonic and each version has CHANGELOG update content")
 
 
 def check_history(base_ref, profiles):
@@ -194,6 +323,8 @@ def main():
             "catalog must point to the sole stable Japan-first profile")
     require(not (ROOT / "overwrite/openclash-overwrite.conf").exists(), "retired compatibility entry remains")
     require(read("AGENTS.md").startswith(ROLE_PREFIX), "immutable expert role/guide changed")
+    for path in ("AGENTS.md", "MAINTENANCE.md"):
+        require(VERSION_POLICY_TEXT in read(path), f"{path}: immutable version policy changed or removed")
     original_text = read("rules/manual-direct.yaml")
     require(sha(original_text) == MANUAL_HASH, "original 129 direct records changed without authorization")
     original = load_yaml(original_text)["payload"]
@@ -207,8 +338,15 @@ def main():
         content = read(relative)
         require("uci set " not in content.lower(), f"{relative}: plugin mutation not allowed")
         modules[relative] = load_yaml(content, module=True)
-    require(len(modules) == 3, "only the stable profile's fixed, rolling and local template modules may remain")
+    expected_modules = set()
+    for profile in catalog["profiles"].values():
+        expected_modules.add(profile["latestModulePath"])
+        for version_entry in profile["versions"].values():
+            expected_modules.update(version_entry[key] for key in ("modulePath", "localModuleTemplatePath")
+                                    if key in version_entry)
+    require(set(modules) == expected_modules, "module files must match the version catalog")
     for profile_id, profile in catalog["profiles"].items():
+        validate_version_catalog(profile_id, profile, read("CHANGELOG.md"))
         validate_stable(profile_id, profile, modules, manual)
     for path in ("README.md", "AGENTS.md", "MAINTENANCE.md", "CHANGELOG.md"):
         require(JP in read(path), f"{path}: missing current stable profile")
@@ -219,8 +357,9 @@ def main():
             if "://" in target or target.startswith("#"):
                 continue
             require((path.parent / target.split("#")[0]).exists(), f"broken local link in {path.relative_to(ROOT)}: {target}")
+    check_version_progression(args.base_ref, catalog)
     check_history(args.base_ref, catalog["profiles"])
-    print("OK: 3 strict YAML modules; role, source records, catalog hashes and local documentation links")
+    print("OK: strict YAML modules; role, version policy, source records, catalog hashes and local links")
 
 
 if __name__ == "__main__":

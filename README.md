@@ -21,6 +21,6 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 2026-10-16，用户确认 CatWrt/OpenClash 实机验收通过并授权正式发布。验收记录按用户总体确认保存，不补造逐项日志。Loongproxy 必须通过 iKuuu 日本首跳建立链式代理，是此正式方案不可更改的前提。
 
-当前仓库只维护这一条正式链路。已停用方案的当前目录已清理；Git 历史和已有标签/Release 保留。真实 ISP 地址、用户名和密码只能放在路由器的本地模块，不能提交到云覆写或 Git。
+当前仓库以 `v1.0.0` 作为首个正式版本，当前记录只保留这一正式方案。旧版本和 beta 的标签与 Release 已清理，Git 提交历史保留。后续版本必须严格递增并在 `CHANGELOG.md` 记录具体更新内容。正式版部署文档中的 OpenClash 设置建议、仓库专家角色和官方指南入口均为不可删除前提。真实 ISP 地址、用户名和密码只能放在路由器的本地模块，不能提交到云覆写或 Git。
 
 维护前阅读 [AGENTS.md](AGENTS.md)、[MAINTENANCE.md](MAINTENANCE.md)、[版本索引](profiles/catalog.json) 和本版本 [REQUIREMENTS.md](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md)。OpenClash 技术依据为[官方用户指南及文档路由表](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)。

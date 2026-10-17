@@ -1,5 +1,13 @@
 # 仓库维护规范
 
+## 不可变版本规则
+
+正式版本 `tiktok-router-loongproxy-jp-us v1.0.0` 是本仓库第一版正式版。此前的历史版本及 beta 版本已从当前文件树、Git 标签和 GitHub Releases 清理；Git 提交历史保留。
+
+每个后续候选版和正式版都必须使用严格高于仓库已记录最高版本的 SemVer；禁止回退、复用或覆盖版本号。每个新版本必须在 `CHANGELOG.md` 增加同版本标题和具体更新内容。已发布版本目录、标签和 Release 不得改写；更新一律创建递增版本。
+
+`AGENTS.md` 开头的专家角色和官方指南入口，以及正式版 `SETUP.md` 中的 OpenClash 设置建议，都是不可删除的仓库前提；任何整理不得删除或削弱这些内容。
+
 ## 当前正式基线
 
 当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.0`（J1–J11，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-16 确认实机验收通过并授权正式发布；不补写用户未提供的逐项日志或指标。
@@ -20,8 +28,8 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 - 保持规则优先级：私网/局域网 → TikTok ISP → 同范围 TikTok REJECT → Google/Play → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
 - `rules/manual-direct.yaml` 保留原始 129 条；`rules/manual-direct-isp.yaml` 按原顺序逐条转换为 `DOMAIN-SUFFIX` 并保留重复项。若授权改规则，须同步固定模块、滚动模块、inline payload、校验和与文档。
-- 已发布版本目录和标签不可改写、移动或覆盖。行为变化须建立新候选版本及独立完整 URL；真实设备验收前保持 candidate。晋升 stable、创建正式标签和 GitHub Release 需用户明确授权。
-- 已停用方案当前文件已清理；历史 Git 提交、标签和 Release 保留。不要为清理而重写历史。
+- 已发布版本目录和标签不可改写、移动或覆盖。行为变化须建立高于已记录最高版本的新候选版本及独立完整 URL；真实设备验收前保持 candidate。晋升 stable、创建正式标签和 GitHub Release 需用户明确授权。
+- 当前版本记录只保留 `v1.0.0` 首个正式版；旧版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
 
 ## 每次变更门禁
 

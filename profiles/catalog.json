@@ -36,7 +36,7 @@
           "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md",
           "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/local-tiktok-proxy.conf.example",
           "manualRulesPath": "rules/manual-direct-isp.yaml",
-          "manualRulesSha256": "aa8fc4343a50a64cd572e4de48bb5d0bd5b3353f41abf37aa474192af2661f6e",
+          "manualRulesSha256": "f3c60bd9e93ae2d3579beb64155a189469186c96e04d238b0c7c3a12a4207b3c",
           "manualRuleCount": 129,
           "localProxyName": "TikTok-ISP-Local",
           "tiktokGroup": "TikTok-ISP",
