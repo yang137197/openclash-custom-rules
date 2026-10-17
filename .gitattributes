@@ -1,5 +1,4 @@
 *.conf text eol=lf
-/docs/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-with-field-comments.conf.example text eol=lf
 *.json text eol=lf
 *.md text eol=lf
 *.py text eol=lf

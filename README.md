@@ -15,7 +15,6 @@
 - [部署、验收与本地 ISP 密码修改说明](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)
 - [J1–J11 正式需求合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md)
 - [正式完整云覆写](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf)
-- [本地节点占位模板（不含凭据）](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/local-tiktok-proxy.conf.example)
 
 ## 正式云覆写链接
 

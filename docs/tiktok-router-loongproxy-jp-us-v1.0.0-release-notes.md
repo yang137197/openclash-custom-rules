@@ -1,44 +1,40 @@
 ## 正式版 v1.0.0
 
-TikTok 的 Loongproxy 美国 SOCKS5 出口必须经用户手选的 iKuuu 日本节点建立链式代理。iKuuu 日本节点是强制首跳；不得换用美国或其他机场首跳，也不得在节点缺失时回退机场或 DIRECT。
+TikTok 的 Loongproxy 美国 SOCKS5 出口必须经用户手选的 iKuuu 日本节点建立链式代理。日本节点是强制首跳；不得改用美国或其他机场首跳，也不得在首跳缺失时回退机场或 DIRECT。
 
-用户于 2026-10-16 确认 CatWrt/OpenClash 实机验收通过并授权正式发布，目标版本为 OpenClash v0.48.002 / alpha-gbc76c13。验收按用户总体确认记录，不补造逐项日志或指标。
+用户于 2026-10-16 确认 CatWrt/OpenClash 实机验收通过并授权正式发布。验收环境为 OpenClash v0.48.002 / alpha-gbc76c13；不补造未提供的逐项日志或指标。
 
-### 配置内容
+### 规则与配置
 
-- 唯一当前正式方案：**tiktok-router-loongproxy-jp-us v1.0.0**。
-- 日本入口自动纳入已加载节点中名称含 **jp**、**日本**、**Japan** 或 🇯🇵 的节点；部署时需手动选实际 iKuuu 日本节点。
-- TikTok 仅走本地 **TikTok-ISP-Local** SOCKS5，固定 **dialer-proxy: 日本-入口**、**udp: false**；缺少首跳时失败关闭。
+- 日本入口自动纳入已加载节点中名称包含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点；实际使用时手动选择 iKuuu 日本节点。
+- TikTok 仅走本地 `TikTok-ISP-Local` SOCKS5，固定 `dialer-proxy: 日本-入口`、`udp: false`；链路缺少日本首跳时失败关闭。
 - 保留 129 条 Manual-Direct；Google/Play 与其他境外流量走手选美国组；中国大陆域名/IP 直连。
-- 本地 ISP 密码修改说明见[标签固定部署与验收说明](https://github.com/yang137197/openclash-custom-rules/blob/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)。真实代理凭据只存路由器本地模块。
+- 固定版本覆写：[v1.0.0 配置](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf)，SHA-256：`e930c44c6bd06ea6d819f8d86b91efc5786dd63a26aec41fff0b218053d6ce30`。
+- LuCI 设置建议、部署、验收与回退步骤见[部署说明](https://github.com/yang137197/openclash-custom-rules/blob/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)。
+
+### 本地模块模板和填写
+
+只需下载这一个模板：[本地 SOCKS5 模块模板](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module.conf.example)。SHA-256：`d7639bd7ac733c2312103bcb8e73764b2b354b3ccb7bcb578f7ee5d3706da522`。
+
+把模板中的 `FILL_ME_PROXY_HOST`、`FILL_ME_PROXY_PORT`、`FILL_ME_USERNAME`、`FILL_ME_PASSWORD` 替换为 ISP 提供的信息：`server` 填“代理地址”，不要填“出口 IP”；`port` 填代理端口数字；`username` 和 `password` 填对应账号密码。字符串保留单引号，端口不加引号。保持 `name: TikTok-ISP-Local`、`type: socks5`、`udp: false` 和 `dialer-proxy: 日本-入口` 不变。
+
+例如，假设 ISP 信息为代理地址 `198.51.100.27`、端口 `20001`、用户名 `EXAMPLE_USER`、密码 `EXAMPLE_PASSWORD`，而出口 IP 为 `203.0.113.8`，模板中的对应内容应为：
+
+```ini
+[YAML]
+proxies+:
+  - name: TikTok-ISP-Local
+    type: socks5
+    server: '198.51.100.27'
+    port: 20001
+    username: 'EXAMPLE_USER'
+    password: 'EXAMPLE_PASSWORD'
+    udp: false
+    dialer-proxy: 日本-入口
+```
+
+以上 IP 是文档专用地址，账号和密码是虚构值，不能用于连接。真实地址和凭据只填入路由器本地模块，切勿提交或公开填好的文件。
 
 ### 验证
 
-- GitHub Actions PR 校验通过。
-- 6 个 Python 回归测试通过。
-- 仓库验证通过：稳定版本合同、强制 iKuuu 首跳、129 条规则、模块哈希、凭据占位符、历史保护和本地文档链接。
-- git diff --check 通过。
-
-### 本地节点模板下载与填写
-
-建议下载带逐字段提示的模板和说明：
-
-- [下载带字段注释的本地模块模板](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-with-field-comments.conf.example)
-- 带注释模板 SHA-256：724f031f49d3018244540f99cfe8d6bfa484040effd6ee9838e465d3e90c9b21
-- [下载逐字段填写说明](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-filling-guide.md)；说明包含一组虚构 ISP 面板数据及对应填写结果，特别区分代理地址与出口 IP。
-- 填写说明 SHA-256：ab90c557e1295569ffbaa12b1df2d759b7569ab9e186f3e80c0087953f9817dc
-
-字段对应关系：
-
-- server 填 ISP 信息中的“代理地址 / Proxy Address”所给的服务器 IP，保留左右单引号。它是连接代理服务器的地址；如果与“出口 IP”不同，不要填“出口 IP”。
-- port 填 ISP 信息中的“代理端口 / Proxy Port”数字，不加引号。
-- username、password 分别填 ISP 提供的用户名和密码，保留左右单引号。
-- name: TikTok-ISP-Local、type: socks5、udp: false 和 dialer-proxy: 日本-入口 必须保持不变；还须在运行面板中手动选择 iKuuu 日本节点。
-- 填好后仅导入路由器本地 OpenClash 模块。不要公开或提交包含真实 ISP 地址、用户名或密码的文件。
-
-原始标签占位模板仍可单独下载，且与 v1.0.0 标签内的文件逐字节一致：
-
-- [下载原始本地模块模板](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module.conf.example)
-- 原始模板 SHA-256：d7639bd7ac733c2312103bcb8e73764b2b354b3ccb7bcb578f7ee5d3706da522
-
-完整操作步骤见[标签固定部署与验收说明](https://github.com/yang137197/openclash-custom-rules/blob/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)。
+GitHub Actions、24 项 Python 测试、仓库校验和 `git diff --check` 均通过。实机验收依据用户确认记录。
