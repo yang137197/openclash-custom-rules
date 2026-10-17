@@ -20,7 +20,7 @@
 
 - 一个 `profileId` 表示一组明确、可独立选择的用户需求和流量规则。A 规则与 B 规则如果出口、规则顺序、DNS 或 OpenClash 设置要求不同，必须建立不同 `profileId`、需求合同、版本目录、固定覆写 URL、部署说明和 Release。
 - 每个方案独立维护 SemVer。新版本必须高于**同一方案**已记录的最高版本；不同方案互不比较，因此 A v1.0.0 与 B v1.0.0 可以同时存在。不得在同一方案内回退、复用或覆盖已记录版本号。
-- Release 标签使用 `{profileId}-v{version}`。每个方案版本的完整模块固定存放在 `profiles/{profileId}/versions/v{version}/openclash-overwrite.conf`，Release 提供标签固定的 `raw.githubusercontent.com` 直链。滚动入口按方案分别存放在 `profiles/{profileId}/overwrite/openclash-overwrite.conf`，不能把它当作历史版本链接，也不能跨方案共用。
+- Release 标签使用 `{profileId}-v{version}`。每个方案版本的完整模块固定存放在 `profiles/{profileId}/versions/v{version}/openclash-overwrite.conf`，Release 提供标签固定的 `raw.githubusercontent.com` 直链。固定 URL 必须在 Release 正文中完整显示并单独占一行，确保可直接点击或复制；不得只放隐藏式 Markdown 链接文字，也不得用滚动 `main` 地址代替。滚动入口按方案分别存放在 `profiles/{profileId}/overwrite/openclash-overwrite.conf`，不能把它当作历史版本链接，也不能跨方案共用。
 - 根 `README.md` 是方案总览目录；每个方案 README 和 Release 都必须告诉用户适用需求、当前状态、对应版本、固定覆写链接、部署设置说明及验证状态。单个 OpenClash 配置只启用一个完整方案及其配套本地模块。
 - 已发布版本目录、标签和 Release 不可改写、移动或复用。行为更新在原方案内新建更高版本；需求目标不同则新建方案。新方案不能复活已清理的 IPRoyal、SocksTun 等已弃用方案，除非用户明确要求。
 
@@ -50,7 +50,7 @@
 - 每个新版本目录至少包含 `openclash-overwrite.conf`、`REQUIREMENTS.md`、`SETUP.md` 和 `ENVIRONMENT.json`；按方案需要附本地模块占位模板及规则源。当前首发稳定版 `tiktok-router-loongproxy-jp-us v1.0.0` 是既有历史快照，不要求为补环境清单而修改它，也不追补没有提供过的日志。
 - `ENVIRONMENT.json` 的 `evidence.source` 为 `debug-log` 时，日志仅作为版本提取来源，原始日志仍不得入仓。候选允许环境待定，但必须如实标记。凡运行行为有变化且将发布为 stable，环境记录必须列出确切插件、核心和系统版本，引用该候选对应的调试日志日期，记录实机运行测试通过及用户确认；缺任一项则保持 candidate。纯文档变化可引用同方案最新已验收稳定版的环境，但必须存在可核验的 `ENVIRONMENT.json`，并证明版本和运行配置快照一致；若历史稳定版没有环境记录，则须为新稳定版采集并记录当前环境及验收证据，不得虚构复用来源。
 - 实机日志只能证明被采集到的配置和状态；应用功能验收还需按版本合同记录用户实际测试结果。静态校验、核心夹具和实机验收须分开报告，不能相互替代。
-- 正式 Release 标题、标签和正文明确 `profileId` 与 SemVer，说明适用需求、规则优先级、OpenClash 设置基线、实测环境、验收状态、限制、变更内容、部署/回退文档、配套本地模板，以及**标签固定**的覆写链接。同时提供该版本的 `SETUP.md`、`REQUIREMENTS.md`、`ENVIRONMENT.json` 和模块 SHA-256。README 总览中的每个入口必须对应正确方案与版本。
+- 正式 Release 标题、标签和正文明确 `profileId` 与 SemVer，说明适用需求、规则优先级、OpenClash 设置基线、实测环境、验收状态、限制、变更内容、部署/回退文档、配套本地模板，以及**完整显示、单独占一行且可点击或复制的标签固定覆写订阅 URL**。同时提供该版本的 `SETUP.md`、`REQUIREMENTS.md`、`ENVIRONMENT.json` 和模块 SHA-256。README 总览中的每个入口必须对应正确方案与版本，并提供相同的固定版本地址。
 - 方案需要路由器本地节点或凭据模块时，每个正式 Release 只提供**一个**与该版本占位模板一致的 `.example` 附件，并在正文列出下载链接及 SHA-256。不得另附注释版模板或独立填写指南；Release 正文直接说明每个占位字段对应的服务商信息、填写格式、必须保留的节点/协议/链路字段，并给一个明确标为虚构的填写示例。说明真实凭据只填写到路由器本地，不得提交或公开填好的文件。GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是标签源码快照，不能代替该模板附件。无需本地模块的方案须明确注明“不适用”。
 - 每个方案的 `SETUP.md` 必须保留 OpenClash 设置建议，并给出 LuCI 路径、建议值、该项是否为方案必需、适用条件和已验证环境。新安装或恢复默认设置的用户应能仅按该文档逐项配置；不得用含个人订阅凭据的整份配置替代设置说明。
 - 每个方案还必须有覆盖自身规则合同的静态回归检查，文件名固定为 `scripts/test_profile_{profileId中的连字符替换为下划线}.py`，路径写入 `profiles/catalog.json`。增加新 profile 时同步新增专属测试，不能只依赖当前日本首跳方案的断言。

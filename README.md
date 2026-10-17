@@ -16,13 +16,17 @@
 - [J1–J11 正式需求合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/REQUIREMENTS.md)
 - [正式完整云覆写](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf)
 
-## 正式云覆写链接
+## 云覆写订阅链接
 
-下面是随当前稳定版滚动更新的入口。需要固定使用某个历史版本时，应使用上方方案目录中对应 Release 的标签固定链接。
+当前稳定版的滚动入口会随 `main` 更新：
 
 ```text
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
 ```
+
+固定使用 v1.0.0 时，请使用对应 Release 的标签固定地址；此链接不会随 `main` 更新：
+
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.0/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/openclash-overwrite.conf
 
 日本入口自动筛选当前配置中已加载节点和 proxy-provider 里名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点，忽略大小写；用户需在策略组中手动选择 iKuuu 的日本节点。名称筛选不会验证节点所属供应商或连通性。没有匹配的 iKuuu 日本首跳时，相关链路保持失败关闭。
 
