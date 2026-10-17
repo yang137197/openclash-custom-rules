@@ -10,6 +10,8 @@
 
 新增规则需求应建立独立方案，不能复用其他方案的需求合同、版本 URL 或滚动入口。候选版和正式版的开发、环境信息、Release 内容及验收要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。
 
+当前另有未验收候选 `tiktok-router-loongproxy-jp-us v1.0.1`，仅新增 `update.kies.samsung.com` 精确域名直连；稳定入口仍为 v1.0.0。候选覆写和验收要求见[方案说明](profiles/tiktok-router-loongproxy-jp-us/README.md)。
+
 更换 AI 开发工具或开启新对话时，在已打开本仓库的工具中说“请你先读取仓库，我们继续开发”，按开发规则读取当前方案、版本、Git 状态和未完成事项后接续。工具需先能访问本仓库；跨工具交接以仓库文件为准。
 
 - [部署、验收与本地 ISP 密码修改说明](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0/SETUP.md)

@@ -1,5 +1,12 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us v1.0.1 — 2026-10-17
+
+状态：candidate；影响 J12。用户提供的连接日志显示 `update.kies.samsung.com` 命中 `MATCH → 美国`，候选尚未实机验收。
+
+- 新增精确规则 `DOMAIN,update.kies.samsung.com,DIRECT`，范围仅限该完整主机名。
+- 保持 v1.0.0 发布快照、129 条 Manual-Direct、其他分流和 iKuuu 日本首跳链路不变。
+
 ## Release 固定覆写链接展示 — 2026-10-17
 
 - 在 v1.0.0 Release 正文单独展示完整、标签固定的覆写订阅 URL，并保留模块 SHA-256。
