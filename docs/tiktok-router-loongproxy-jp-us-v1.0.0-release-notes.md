@@ -25,8 +25,8 @@ TikTok 的 Loongproxy 美国 SOCKS5 出口必须经用户手选的 iKuuu 日本�
 
 - [下载带字段注释的本地模块模板](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-with-field-comments.conf.example)
 - 带注释模板 SHA-256：724f031f49d3018244540f99cfe8d6bfa484040effd6ee9838e465d3e90c9b21
-- [下载逐字段填写说明](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-filling-guide.md)
-- 填写说明 SHA-256：22841c325647598d5e86bf2e55de47a87663af48f2357234a2f862d7f1f68a40
+- [下载逐字段填写说明](https://github.com/yang137197/openclash-custom-rules/releases/download/tiktok-router-loongproxy-jp-us-v1.0.0/tiktok-router-loongproxy-jp-us-v1.0.0-local-module-filling-guide.md)；说明包含一组虚构 ISP 面板数据及对应填写结果，特别区分代理地址与出口 IP。
+- 填写说明 SHA-256：ab90c557e1295569ffbaa12b1df2d759b7569ab9e186f3e80c0087953f9817dc
 
 字段对应关系：
 

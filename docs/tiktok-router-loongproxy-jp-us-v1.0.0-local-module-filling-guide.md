@@ -22,9 +22,34 @@
 | udp | 不从 ISP 信息填写 | 必须保持 false。 |
 | dialer-proxy | 不从 ISP 信息填写 | 必须保持 日本-入口。它指定链式代理的日本入口组；在运行面板中还必须手动选中实际的 iKuuu 日本节点。 |
 
-例如，server 对应 ISP 面板中的“代理地址”列。将 FILL_ME_PROXY_HOST 替换为该地址后，保留左右单引号，例如 server: '你的代理服务器IP'。不要把“出口 IP”列的值误当成代理地址，除非 ISP 给出的两者确实相同。
+## 示例：从 ISP 信息填写模板
 
-port 是数值字段，不加引号，例如 port: 20001。server、username、password 是字符串字段，要保留模板中的单引号。若密码本身含单引号，在 YAML 单引号字符串中将密码里的每个单引号写成两个连续单引号。
+下面的 ISP 面板数据和结果都只是格式示例，不能用于连接。示例中的两个 IP 属于文档专用地址段，用户名和密码也是虚构值。
+
+假设 ISP 面板显示：
+
+| ISP 面板项目 | 示例值 |
+| --- | --- |
+| 代理地址 | `198.51.100.27` |
+| 代理端口 | `20001` |
+| 用户名 | `EXAMPLE_USER` |
+| 密码 | `EXAMPLE_PASSWORD` |
+| 出口 IP | `203.0.113.8` |
+
+填写模板时，`server` 取“代理地址”一栏的 `198.51.100.27`，不要取“出口 IP”一栏的 `203.0.113.8`；出口 IP 是代理连接成功后的出口信息，不是要连接的代理服务器地址。对应填写结果如下：
+
+```yaml
+name: TikTok-ISP-Local
+type: socks5
+server: '198.51.100.27'
+port: 20001
+username: 'EXAMPLE_USER'
+password: 'EXAMPLE_PASSWORD'
+udp: false
+dialer-proxy: 日本-入口
+```
+
+实际使用时，把示例值逐项替换为 ISP 提供的真实值：`server`、`username`、`password` 保留左右单引号，`port` 填纯数字且不加引号。若密码本身含单引号，在 YAML 单引号字符串中将密码里的每个单引号写成两个连续单引号。`name`、`type`、`udp` 和 `dialer-proxy` 按示例保持不变。
 
 ## 填写和导入
 
