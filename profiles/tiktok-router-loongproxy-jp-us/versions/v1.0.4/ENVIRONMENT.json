@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.4",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "unknown",
+    "openclashBuild": "unknown",
+    "mihomoVersion": "unknown",
+    "mihomoBuild": "unknown",
+    "openwrtVersion": "unknown",
+    "deviceArchitecture": "unknown",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "user-report",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "用户于 2026-10-20 粘贴的连接日志显示 github.com 命中 DomainSuffix(github.com) → TikTok-ISP[TikTok-ISP-Local]；仪表盘截图显示 GitHub 1150 ms，用户报告启用 v1.0.3 前下载正常。此证据确认了 GitHub 被送入 TikTok-ISP，性能回退与该候选的路由变化相关，但未单独证明唯一性能根因。v1.0.4 将 github.com、githubusercontent.com 和 githubassets.com 改走美国组，尚未加载；未收到本候选对应的新调试日志，环境版本与完整运行配置均未知。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

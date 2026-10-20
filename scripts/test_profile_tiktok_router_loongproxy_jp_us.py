@@ -101,6 +101,42 @@ class JapanFirstProfileTests(unittest.TestCase):
         self.assertLess(last_claude_rule, rules.index("RULE-SET,Manual-Direct,DIRECT"))
         self.assertEqual(candidate["manualRuleCount"], 129)
 
+    def test_latest_candidate_keeps_claude_on_isp_and_github_on_us(self):
+        catalog = json.loads(validator.read("profiles/catalog.json"))
+        profile = catalog["profiles"][validator.JP]
+        candidate = profile["versions"]["1.0.4"]
+        self.assertEqual(candidate["status"], "candidate")
+        self.assertEqual(candidate["requirements"], ["J13", "J14", "J15"])
+        module = load_yaml(validator.read(candidate["modulePath"]), module=True)
+        rules = module["rules!"]
+        expected_private = validator.expected_rules()[:12]
+        expected_service_rules = [
+            "DOMAIN-SUFFIX,anthropic.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,claude.ai,TikTok-ISP",
+            "DOMAIN-SUFFIX,claude.com,TikTok-ISP",
+            "DOMAIN,storage.googleapis.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,npmjs.org,TikTok-ISP",
+            "DOMAIN-SUFFIX,claudeusercontent.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,claudemcpcontent.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,github.com,美国",
+            "DOMAIN-SUFFIX,githubusercontent.com,美国",
+            "DOMAIN-SUFFIX,githubassets.com,美国",
+            "DOMAIN-WILDCARD,*-review.googlesource.com,TikTok-ISP",
+            "DOMAIN,http-intake.logs.us5.datadoghq.com,TikTok-ISP",
+            "DOMAIN,browser-intake-us5-datadoghq.com,TikTok-ISP",
+            "DOMAIN,formulae.brew.sh,TikTok-ISP",
+        ]
+        self.assertEqual(rules[:len(expected_private)], expected_private)
+        start = len(expected_private)
+        self.assertEqual(rules[start:start + len(expected_service_rules)], expected_service_rules)
+        end = start + len(expected_service_rules)
+        self.assertLessEqual(end, rules.index("GEOSITE,tiktok,TikTok-ISP"))
+        self.assertLess(end, rules.index("RULE-SET,Manual-Direct,DIRECT"))
+        self.assertNotIn("DOMAIN-SUFFIX,github.com,TikTok-ISP", rules)
+        self.assertNotIn("DOMAIN-SUFFIX,githubusercontent.com,TikTok-ISP", rules)
+        self.assertNotIn("DOMAIN-SUFFIX,githubassets.com,TikTok-ISP", rules)
+        self.assertEqual(candidate["manualRuleCount"], 129)
+
 
 if __name__ == "__main__":
     unittest.main()

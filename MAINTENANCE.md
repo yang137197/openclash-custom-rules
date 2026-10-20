@@ -18,7 +18,7 @@
 
 当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.0`（J1–J11，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-16 确认实机验收通过并授权正式发布；不补写用户未提供的逐项日志或指标。
 
-当前未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；最新 `v1.0.3` 继承 Claude Code 端点并将 Claude 网页 Anthropic/Claude 第一方域名（含 `claudemcpcontent.com`）统一指向 TikTok-ISP。v1.0.3 尚未实机加载或验收，不替换 v1.0.0 稳定入口。
+当前未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP；最新 `v1.0.4` 保持该 Claude 出口，并将 `github.com`、`githubusercontent.com`、`githubassets.com` 明确指向美国组。v1.0.4 尚未实机加载或验收，不替换 v1.0.0 稳定入口。
 
 **不可改变的链路前提：**路由器本地 Loongproxy 美国 SOCKS5 必须通过用户手选的 iKuuu 日本节点建立链式代理。`TikTok-ISP-Local` 必须保留 `dialer-proxy: 日本-入口` 与 `udp: false`。日本入口自动筛选已加载节点中名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点（忽略大小写），但必须由用户选中实际 iKuuu 日本节点。日本节点缺失或不可用时失败关闭，严禁切换美国首跳、其他机场首跳、机场/DIRECT 回退。
 
