@@ -4,6 +4,15 @@
 
 **v1.0.1 candidate**：新增 `update.kies.samsung.com` 精确域名直连规则，尚待路由器验收；稳定入口仍是 v1.0.0。
 
+**v1.0.2 candidate**：按 Claude Code 官方网络端点把相关域名指向 `TikTok-ISP`，由用户实机验证；不按设备 IP 或进程分流，也不包含尚未验收的 v1.0.1 Samsung 规则。稳定入口仍是 v1.0.0。
+
+测试覆写订阅链接（分支候选）：
+
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/claude-code-tiktok-test/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2/openclash-overwrite.conf
+
+- [v1.0.2 候选覆写](versions/v1.0.2/openclash-overwrite.conf)
+- [v1.0.2 候选需求与验收条件](versions/v1.0.2/REQUIREMENTS.md)
+- [v1.0.2 候选部署与设置](versions/v1.0.2/SETUP.md)
 - [v1.0.1 候选覆写](versions/v1.0.1/openclash-overwrite.conf)
 - [v1.0.1 候选需求与验收条件](versions/v1.0.1/REQUIREMENTS.md)
 - [v1.0.1 候选部署与设置](versions/v1.0.1/SETUP.md)

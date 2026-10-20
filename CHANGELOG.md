@@ -1,5 +1,9 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us v1.0.2 — 2026-10-20
+
+- 状态：candidate，等待用户实机验证。新增 J13：Claude Code 官方文档列出的端点域名按规则走 TikTok-ISP，测试链接位于候选分支。该测试按域名作用于所有客户端；不修改稳定 v1.0.0、滚动入口、ISP 凭据或本地模块；不包含仍待验收的 v1.0.1 Samsung J12。官方来源：https://code.claude.com/docs/en/corporate-proxy。
+
 ## tiktok-router-loongproxy-jp-us v1.0.1 — 2026-10-17
 
 状态：candidate；影响 J12。用户提供的连接日志显示 `update.kies.samsung.com` 命中 `MATCH → 美国`，候选尚未实机验收。

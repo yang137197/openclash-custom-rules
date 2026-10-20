@@ -66,6 +66,22 @@
           "manualRulesPath": "rules/manual-direct-isp.yaml",
           "manualRuleCount": 129,
           "manualRulesSha256": "f3c60bd9e93ae2d3579beb64155a189469186c96e04d238b0c7c3a12a4207b3c"
+        },
+        "1.0.2": {
+          "kind": "router-loongproxy-jp-us",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2/ENVIRONMENT.json",
+          "moduleSha256": "af1c40710bb2c2b87d637a18752334d2f8b20402fdd341afc349b3546df0b25d",
+          "requirements": [
+            "J13"
+          ],
+          "manualRulesPath": "rules/manual-direct-isp.yaml",
+          "manualRuleCount": 129,
+          "manualRulesSha256": "f3c60bd9e93ae2d3579beb64155a189469186c96e04d238b0c7c3a12a4207b3c"
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"
