@@ -1,5 +1,11 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us v1.0.3 — 2026-10-20
+
+- 状态：candidate，等待用户实机验证。沿用 v1.0.2 的 Claude Code 官方端点规则，并新增 J14：Claude 网页相关 Anthropic/Claude 第一方域名后缀统一走 TikTok-ISP；补齐官方文档中的 `claudemcpcontent.com` 交互组件域名。
+- 保持 iKuuu 日本首跳与 Loongproxy 美国静态 ISP 链路；共享第三方 CDN 不整体改道，规则命中不作为公网出口 IP 恒定的证明。v1.0.0 稳定版和 v1.0.1/v1.0.2 候选快照不改写。
+- 依据：[Anthropic 官方网络配置文档](https://code.claude.com/docs/en/network-config)，包括 Claude Code 网络访问表及 Claude Desktop/网页端点说明。
+
 ## tiktok-router-loongproxy-jp-us v1.0.2 — 2026-10-20
 
 - 状态：candidate，等待用户实机验证。新增 J13：Claude Code 官方文档列出的端点域名按规则走 TikTok-ISP，测试链接位于候选分支。该测试按域名作用于所有客户端；不修改稳定 v1.0.0、滚动入口、ISP 凭据或本地模块；不包含仍待验收的 v1.0.1 Samsung J12。官方来源：https://code.claude.com/docs/en/corporate-proxy。

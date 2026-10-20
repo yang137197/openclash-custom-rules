@@ -6,10 +6,16 @@
 
 **v1.0.2 candidate**：按 Claude Code 官方网络端点把相关域名指向 `TikTok-ISP`，由用户实机验证；不按设备 IP 或进程分流，也不包含尚未验收的 v1.0.1 Samsung 规则。稳定入口仍是 v1.0.0。
 
-测试覆写订阅链接（分支候选）：
+**v1.0.3 candidate（最新测试版）**：继承 v1.0.2 的 Claude Code 端点分流，并将 Claude 网页相关 Anthropic/Claude 第一方域名（含 `claudemcpcontent.com`）统一指向 `TikTok-ISP`，目标是让相关连接使用同一 Loongproxy 静态 ISP 出口和 iKuuu 日本首跳。待路由器实测；规则命中不证明公网出口 IP 恒定。稳定入口仍是 v1.0.0。
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/claude-code-tiktok-test/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.2/openclash-overwrite.conf
+最新测试覆写订阅链接（v1.0.3 分支候选）：
 
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/claude-code-tiktok-test/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.3/openclash-overwrite.conf
+
+- [v1.0.3 候选覆写](versions/v1.0.3/openclash-overwrite.conf)
+- [v1.0.3 候选需求与验收条件](versions/v1.0.3/REQUIREMENTS.md)
+- [v1.0.3 候选部署与设置](versions/v1.0.3/SETUP.md)
+- [v1.0.3 环境记录](versions/v1.0.3/ENVIRONMENT.json)
 - [v1.0.2 候选覆写](versions/v1.0.2/openclash-overwrite.conf)
 - [v1.0.2 候选需求与验收条件](versions/v1.0.2/REQUIREMENTS.md)
 - [v1.0.2 候选部署与设置](versions/v1.0.2/SETUP.md)
