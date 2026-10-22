@@ -101,12 +101,13 @@ class JapanFirstProfileTests(unittest.TestCase):
         self.assertLess(last_claude_rule, rules.index("RULE-SET,Manual-Direct,DIRECT"))
         self.assertEqual(candidate["manualRuleCount"], 129)
 
-    def test_latest_candidate_keeps_claude_on_isp_and_github_on_us(self):
+    def test_latest_stable_keeps_claude_on_isp_and_github_on_us(self):
         catalog = json.loads(validator.read("profiles/catalog.json"))
         profile = catalog["profiles"][validator.JP]
         candidate = profile["versions"]["1.0.4"]
-        self.assertEqual(candidate["status"], "candidate")
+        self.assertEqual(candidate["status"], "stable")
         self.assertEqual(candidate["requirements"], ["J13", "J14", "J15"])
+        self.assertEqual(candidate["releaseTag"], "tiktok-router-loongproxy-jp-us-v1.0.4")
         module = load_yaml(validator.read(candidate["modulePath"]), module=True)
         rules = module["rules!"]
         expected_private = validator.expected_rules()[:12]

@@ -1,9 +1,10 @@
 # 版本记录
 
-## tiktok-router-loongproxy-jp-us v1.0.4 — 2026-10-20
+## tiktok-router-loongproxy-jp-us v1.0.4 — 2026-10-22
 
-- 状态：candidate。用户于 2026-10-22 确认本候选已验收；对应调试日志和环境快照仍待补，正式发布门禁未满足。用户此前的连接记录确认 GitHub 命中 v1.0.3 中的 `TikTok-ISP` 规则，仪表盘显示 1150 ms，且报告更新前下载正常；新增 J15 将 `github.com`、`githubusercontent.com` 与 GitHub 静态资源域 `githubassets.com` 明确改走美国组。
-- Claude/Anthropic 第一方域名仍统一走 TikTok-ISP，保留 Loongproxy 经 iKuuu 日本首跳；不修改 v1.0.0 稳定快照和 v1.0.1–v1.0.3 候选目录。用户已确认候选验收；未提供性能指标，不补造数据，现有旧日志仍不能单独证明性能问题的唯一根因。
+- 状态：stable。用户于 2026-10-22 确认实机验收通过；调试日志环境信息、活动配置标识、设置基线及用户确认的模块顺序已记入 `ENVIRONMENT.json`，原始日志未入仓。
+- 新增 J15：Claude/Anthropic 第一方域名继续走 TikTok-ISP；`github.com`、`githubusercontent.com` 与 `githubassets.com` 改走美国组，避免 GitHub 下载经过受限带宽 ISP。保持 iKuuu 日本首跳、失败关闭和 129 条 Manual-Direct；v1.0.0 发布快照不改写。
+- 验收记录不包含可复核的时延/下载速度指标；本版本不宣称 GitHub 延迟或无线端加载已恢复。
 
 ## tiktok-router-loongproxy-jp-us v1.0.3 — 2026-10-20
 

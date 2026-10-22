@@ -213,6 +213,29 @@ def expected_rules():
     ]
 
 
+def expected_stable_rules(profile_id, version):
+    rules = expected_rules()
+    if profile_id == JP and version == "1.0.4":
+        # Claude/Anthropic endpoints stay on the static ISP, while GitHub uses US.
+        rules[12:12] = [
+            "DOMAIN-SUFFIX,anthropic.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,claude.ai,TikTok-ISP",
+            "DOMAIN-SUFFIX,claude.com,TikTok-ISP",
+            "DOMAIN,storage.googleapis.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,npmjs.org,TikTok-ISP",
+            "DOMAIN-SUFFIX,claudeusercontent.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,claudemcpcontent.com,TikTok-ISP",
+            "DOMAIN-SUFFIX,github.com,美国",
+            "DOMAIN-SUFFIX,githubusercontent.com,美国",
+            "DOMAIN-SUFFIX,githubassets.com,美国",
+            "DOMAIN-WILDCARD,*-review.googlesource.com,TikTok-ISP",
+            "DOMAIN,http-intake.logs.us5.datadoghq.com,TikTok-ISP",
+            "DOMAIN,browser-intake-us5-datadoghq.com,TikTok-ISP",
+            "DOMAIN,formulae.brew.sh,TikTok-ISP",
+        ]
+    return rules
+
+
 def validate_version_catalog(profile_id, profile, changelog):
     versions = profile["versions"]
     require(isinstance(versions, dict) and versions, f"{profile_id}: version catalog must not be empty")
@@ -477,7 +500,8 @@ def validate_stable(profile_id, profile, modules, manual):
               group("美国", USA_FILTER, "include-all")]
     expected = {
         "ipv6": False, "profile": {"store-selected": True, "store-fake-ip": True},
-        "dns": expected_dns(), "proxy-groups!": groups, "rules!": expected_rules(),
+        "dns": expected_dns(), "proxy-groups!": groups,
+        "rules!": expected_stable_rules(profile_id, version),
         "rule-providers": {
             "oc-cn-domain": {"type": "http", "behavior": "domain", "format": "mrs", "proxy": "美国",
                              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs",
@@ -494,10 +518,17 @@ def validate_stable(profile_id, profile, modules, manual):
                               "password": "FILL_ME_PASSWORD", "udp": False, "dialer-proxy": hop}]}
     require(modules[entry["localModuleTemplatePath"]] == template, f"{profile_id}: only placeholder local node allowed")
     requirement_ids = [f"J{i}" for i in range(1, 12)]
-    require(entry["requirements"] == requirement_ids, f"{profile_id}: requirement IDs")
-    contract = read(entry["requirementsPath"])
+    require(entry["requirements"], f"{profile_id}: current stable requirement IDs")
+    baseline_contract = read(f"profiles/{profile_id}/versions/v1.0.0/REQUIREMENTS.md")
     for requirement in requirement_ids:
+        require(re.search(rf"(?m)^- {requirement}(?: |：)", baseline_contract),
+                f"{profile_id}: baseline contract missing {requirement}")
+    contract = read(entry["requirementsPath"])
+    for requirement in entry["requirements"]:
         require(re.search(rf"(?m)^- {requirement}(?: |：)", contract), f"{profile_id}: missing {requirement}")
+    if version != "1.0.0":
+        require("J1–J11" in contract and "v1.0.0" in contract,
+                f"{profile_id}: stable contract must preserve the original baseline reference")
     require("必须通过用户手选的 iKuuu 日本节点" in contract and
             "不得换用美国首跳" in contract, f"{profile_id}: mandatory iKuuu chain missing")
     for path in (entry["requirementsPath"], entry["setupPath"], profile["profileReadmePath"]):

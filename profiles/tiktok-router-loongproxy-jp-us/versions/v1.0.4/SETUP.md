@@ -1,29 +1,109 @@
-# tiktok-router-loongproxy-jp-us v1.0.4 — 候选部署与测试
+# tiktok-router-loongproxy-jp-us v1.0.4 — 部署与验收
 
-**状态：candidate。** 用户于 2026-10-22 确认本候选已验收；对应调试日志和环境快照仍待补充，故尚未发布为 stable。本候选保持 Claude Code/Claude 网页 Anthropic 第一方域名走 TikTok-ISP，同时将 GitHub 及相关下载域名改为走美国组。稳定版 v1.0.0、滚动云覆写、Release 和本地凭据模块均不修改。
+**状态：stable。** 用户于 2026-10-22 确认 v1.0.4 实机验收通过。对应日志记录的环境为 OpenClash 0.48.002、Mihomo alpha-gbc76c13、OpenWrt 24.10.2 r7492-3fda82b52（x86_64，QEMU Standard PC 2C2T），活动配置标识为 ikuuu。用户确认的模块顺序为云覆写在上、本地 TikTok-ISP 模块在下。Loongproxy 必须经 iKuuu 日本节点作为链式第一跳，这是本方案的强制前提。
 
-## 导入候选覆写
+## 本轮导入两个配套模块
 
-测试链接（分支候选，尚未合并 main）：
+入口：**服务 → OpenClash → 运行状态 → 顶部「覆写模块」按钮**，弹出模块编辑窗口；不是菜单「覆写设置」。
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/claude-code-tiktok-test/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4/openclash-overwrite.conf
+1. 保存当前配置、启用模块清单及插件设置截图。保留旧文件，停用其他完整分流覆写、旧本地 ISP 模块，以及原本启用且会修改 DNS/规则/策略组的 default、Google_Play 等模块。
+2. **添加新模块 → 本地模块**：上传路由器本地填写的 `local-tiktok-proxy.conf.example`。公共仓库 `.example` 仅是占位模板。代理节点名必须为 `TikTok-ISP-Local`；真实地址、账号、密码只存在此本地模块。
+3. **添加新模块 → 订阅链接**：使用正式 main URL；模块名建议 `tiktok-router-loongproxy-jp-us-cloud`。
 
-按 **服务 → OpenClash → 运行状态 → 页面顶部「覆写模块」** 添加订阅模块，匹配当前配置的完整路径或 all。保留本地 TikTok-ISP-Local 节点模块，真实 ISP 凭据不需要改动；需要重建本地模块时，使用同目录的 [占位模板](local-tiktok-proxy.conf.example)，不得公开填入真实凭据的文件。测试时只启用一个完整云覆写：启用 v1.0.4 候选模块，停用当前完整云覆写模块；保留原模块以便回退。候选中的测试规则已保留私网直连并排在后续分流规则之前。保存后重启 OpenClash。
+```text
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
+```
 
-OpenClash 的模块格式、规则前置操作符及重启生效机制见官方指南 [16-overwrite-module-format.md §16.1、§16.2.3](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md) 和 [17-overwrite-module-examples.md §17.3.5](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/17-overwrite-module-examples.md)。官方指南入口的路由表见 [SKILL.md](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)。
+4. 两个模块匹配同一当前机场配置的**完整路径**，例如 `/etc/openclash/config/实际机场文件名.yaml`；也支持 `all`，但会作用于所有配置，不能只填文件名。云模块放在本地节点模块上方；列表越靠上合并越晚。启用二者，核对下表后统一**重启 OpenClash**。
+5. 在仪表盘 `日本-入口` 中从自动纳入的日本节点里手选**iKuuu 提供的日本节点**；这是 Loongproxy 链式代理的强制首跳。`美国` 中手选美国机场节点；`TikTok-ISP` 应只有 `TikTok-ISP-Local`。若没有 iKuuu 日本节点或组内只显示 REJECT，先停止 TikTok 测试，检查 iKuuu 机场订阅；不能换用美国首跳、其他机场首跳或添加 DIRECT 回退。
 
-## 测试 Claude 与 GitHub 分流
+日本组以 `include-all: true` 自动纳入当前配置中已加载的顶层节点和 proxy-providers，名称任意位置含 `jp`、`日本`、`Japan` 或 🇯🇵 即可，忽略大小写，无需提供完整节点名。节点名称匹配不证明供应商身份或可达性；此模块不会下载 iKuuu 订阅。刷新云覆写并重启后若仍只有 REJECT，说明组内仍未纳入匹配节点，应先生成调试日志，检查运行配置的节点、代理提供商加载和生效筛选，不添加其他国家或 DIRECT 回退。
 
-1. 仪表盘中确认 TikTok-ISP 选择本地节点 TikTok-ISP-Local；确认该节点仍设置 dialer-proxy: 日本-入口，并在 日本-入口 中手选实际 iKuuu 日本节点。这是 Loongproxy 链路的强制首跳。
-2. 打开 Claude 网页，重新登录（如需要）并发送一条消息。检查本次实际出现的 `claude.ai`、`assets.claude.ai`、`assets-proxy.anthropic.com`、`s-cdn.anthropic.com` 等 Anthropic/Claude 连接，均命中 TikTok-ISP；连接详情应显示本地 TikTok-ISP-Local 及已手选的 iKuuu 日本首跳。
-3. 如果对话中使用 MCP 交互组件，再检查实际出现的 `*.claudemcpcontent.com` 请求；Chrome 扩展/Artifact 等其他可选功能也只有在触发后才验证。Claude Code 可另外发起一条请求，检查实际出现的 `api.anthropic.com` 等端点。
-4. 访问 GitHub 并下载文件。`github.com`、`githubusercontent.com`、`githubassets.com`（包括 `github.githubassets.com`）和 GitHub Release 实际下载主机应命中美国组，不得命中 TikTok-ISP；对比延迟及下载速度。其他应用访问这些域名也会走美国组。
-5. 确认 Claude 网页及 Claude Code 请求正常完成。若要确认公网出口 IP，使用外部 IP 检测核对；仅看到策略组命中不能证明 ISP 公网 IP 恒定。共享的第三方字体/CDN、用户自定义 MCP 和插件域名不在本候选保证范围内。
+## 修改本地 Loongproxy ISP 密码
 
-## 继承的 OpenClash 设置与回退
+密码变更后只改路由器上的**本地节点模块**，不要改远程云覆写、公共模板或机场订阅：
 
-本候选不更改插件设置。此前已验收设置建议、ISP 凭据填写方法、日本首跳选择和完整部署说明继续见 [v1.0.0 SETUP.md](../v1.0.0/SETUP.md)。v1.0.1 的 Samsung 直连候选不在本候选内。
+1. 打开 **服务 → OpenClash → 运行状态**，点击页面顶部的 **覆写模块**按钮。
+2. 选中本地模块（模块正文包含 `name: TikTok-ISP-Local`），点编辑；不要编辑 `tiktok-router-loongproxy-jp-us-cloud` 云模块。
+3. 在 `[YAML]` 段修改 SOCKS5 节点的 `password`。只有服务商同时更改了其他连接参数时，才同步更新 `username`、`server` 或 `port`。
+4. 保持节点名 `TikTok-ISP-Local`、`type: socks5`、`udp: false` 和 `dialer-proxy: 日本-入口` 不变。特别是不能删除或替换 `dialer-proxy`：Loongproxy 必须经 iKuuu 日本首跳连接。
+5. 保存模块并重启 OpenClash；随后确认 `TikTok-ISP` 仍指向本地节点，并选择 iKuuu 日本首跳。
 
-回退时停用 v1.0.4 候选完整云覆写，重新启用原稳定云覆写并重启 OpenClash；保留 TikTok-ISP-Local 本地模块。不要将真实 ISP 凭据写入云覆写或仓库。
+本地占位模板中的字段示例：
 
-正式发布门禁需要对应本次验收的调试日志和确切环境记录；门禁补齐前，本候选不替换稳定入口、不创建 Release 或正式标签。
+```yaml
+name: TikTok-ISP-Local
+type: socks5
+server: FILL_ME_PROXY_HOST
+port: FILL_ME_PROXY_PORT
+username: FILL_ME_USERNAME
+password: FILL_ME_PASSWORD
+udp: false
+dialer-proxy: 日本-入口
+```
+
+不要把填入真实凭据的本地文件上传到 GitHub、聊天或公开日志。OpenClash 的模块编辑入口、保存和重启行为见官方指南 `16-overwrite-module-format.md` §16.1、§16.2。
+
+稳定版入口为 main 分支上述 URL；正式发布标签为 `tiktok-router-loongproxy-jp-us-v1.0.4`。固定版本覆写链接见 [v1.0.4 Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.4)。本地模块模板也可从该 Release 下载；字段对应和虚构示例见 Release 正文。
+
+## 独立手工设置
+
+下列路径均在「服务 → OpenClash」下。模块只含 `[YAML]`，不修改插件开关。
+
+| 页面 | 设置 | 本轮值 |
+| --- | --- | --- |
+| 插件设置 → 模式设置 | 运行模式 / 代理模式 | Fake-IP（增强），非 TUN、非混合；规则模式 |
+| 同上 | UDP 流量转发 | 开启；本地 SOCKS5 仍固定 `udp: false` |
+| 同上 | 旁路网关兼容 | 主路由或回程正常时关闭；仅依据旁路回程证据调整 |
+| 插件设置 → 流量控制 | 路由器本机代理 | 开启 |
+| 同上 | 实验性：绕过指定区域 IPv4 | 绕过中国大陆；数据源 MetaCubeX `cn.mrs` |
+| 同上 | 禁用 QUIC | 开启，作为本 v1.0.4 正式版设置 |
+| 同上 | 绕过服务器地址 / 仅允许内网访问 | 开启 |
+| 同上 | 仅允许常用端口流量 | 关闭 |
+| 插件设置 → IPv6 设置 | IPv6 代理 / IPv6 DNS / 区域 IPv6 绕过 | 关闭；核对手机没有独立 IPv6 出口 |
+| 插件设置 → DNS 设置 | 本地 DNS 劫持 | Dnsmasq 转发 |
+| 覆写设置 → DNS 设置 | 自定义上游 DNS / 遵守路由规则 / Fake-IP 持久化 | 开启；若界面要求上游条目，保留 HTTPS `223.5.5.5:443` |
+| 同上 | 附加上游 DNS / 自动追加默认 DNS / Fallback | 关闭；解析器列表由云模块管理 |
+| 同上 | 自定义 Fake-IP-Filter | 开启，规则（rule）模式，不填旧黑名单列表 |
+| 覆写设置 → Meta 设置 | 域名嗅探 / 纯 IP 嗅探 / 进程查找 | 嗅探开启；进程查找 off |
+| 覆写设置 → 规则设置 | 仅代理命中规则流量 / 额外本地自定义规则 | 关闭 |
+| 插件设置 → GEO 数据库订阅 / 大陆白名单订阅 | GeoSite、GeoIP、大陆 IPv4 列表 | 确认下载有效，保持更新 |
+
+DNS 顺序为 TikTok/Google Fake-IP → 私网/Manual-Direct real-ip → CN real-ip → 其他 Fake-IP。TikTok 专用 DoH 经 `TikTok-ISP`，Google/Play 专用 DoH 经`美国`，国内解析独立。初次启动需要 GEO 数据和 CN provider 可用，本地静态测试不证明路由器能下载它们。
+
+大陆真实 IP 可在防火墙旁路，未出现在核心面板不表示失败。禁用 QUIC 可在核心前拒绝 UDP/443，境外目标的人工 DIRECT UDP/443 业务也可能受影响。关闭 IPv6 代理不等于全网 IPv6 关闭。手机使用路由器 DNS；存在私有 DNS、额外 DNS 服务或另一网关时，先核对实际路径。
+
+## v1.0.4 Claude 与 GitHub 分流
+
+- Claude Code 官方端点及 Claude 网页的 Anthropic/Claude 第一方域名按后缀规则走 `TikTok-ISP`，以维持同一静态 ISP 出口。规则作用于经过 OpenClash 的所有客户端，不按进程或设备识别 Claude。
+- `github.com`、`githubusercontent.com` 与 `githubassets.com` 走 `美国`，覆盖 GitHub 网站、API、内容/Release 下载和网页静态资源；GitHub 不能走受限带宽的 TikTok ISP 链路。
+- Google/Google Play 与其他境外流量继续走 `美国`；中国大陆及 Manual-Direct 行为保持基线。完整规则顺序和边界见 [REQUIREMENTS.md](REQUIREMENTS.md)。
+- 用户已确认 v1.0.4 实机验收通过；仓库不记录未经提供的时延或下载速度指标，不据此宣称 GitHub 或无线端性能已恢复。
+
+## 单次刷新规则
+
+129 条原始人工直连记录全部保留，包括重复记录；每条 `DOMAIN-SUFFIX` 覆盖该域名及下级域名，不扩大到父域名/兄弟域名。inline payload 与 `rules/manual-direct-isp.yaml`、v1.0.4 固定目录保持同步。
+
+日后更新本仓库规则：**只刷新这一个云覆写模块 → 重启 OpenClash**。本地凭据模块保持本地，不单独刷新 Manual-Direct Rule Provider。刷新只下载，重启才合并生效。机场订阅、GeoSite/GeoIP/CN 外部数据仍有各自更新机制。
+
+## 手机验收与回退
+
+先做第 1 项，成功后继续；失败不连续更换首跳或开关。
+
+1. 手机连路由器 Wi-Fi，关闭移动数据和手机 VPN。重新打开 TikTok，查看新连接的规则、链路及上下行：命中 TikTok 专属策略，包含 `TikTok-ISP-Local` 与所选日本入口，视频持续加载；保存脱敏证据。普通浏览器 IP 查询默认走美国组，不能据此证明 TikTok ISP 出口；测速成功也不能替代播放验收。
+2. 验证 Google Play 完整下载、其他境外网站经美国；国内 App、局域网与典型 Manual-Direct 域名及子域名正常。只看到 DIRECT 不等于应用正常响应。
+3. 失败关闭：停用本地 ISP 模块并重启，新 TikTok 连接应被空组 REJECT，不能回退美国/直连；然后恢复。ISP 存在但连接失败时应连接报错，不必命中下一条 REJECT。`udp: false` 的 TikTok UDP 若进入核心，应继续匹配紧邻 REJECT；已在防火墙被拦截的 UDP/443 不能当作核心规则验收。
+4. 仅覆盖进入 Mihomo 且命中 TikTok 分类的流量；未知域名、私有 DNS/HTTPDNS、其他网关/IPv6 和应用账号状态不在静态保证范围内。
+
+启动错误、链路不符或播放失败时，先到 **运行日志 → 调试日志 → 生成日志**，保留故障时间和连接详情；分享前遮盖代理凭据、订阅与面板密钥。证据不足，不归因为“其他地区被封”。
+
+回退：停用本方案两个模块，恢复此前唯一完整覆写、配套节点及设置截图，**最后统一重启一次**。不要在所有完整覆写关闭的过渡状态测试手机。
+
+## 技术依据
+
+- [官方指南入口与文档路由](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)
+- [16-overwrite-module-format.md §16.1.1 / §16.2.3](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)：入口、顺序、操作符与重启。
+- [08-settings-mode-traffic.md §8.2 / §8.3](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/08-settings-mode-traffic.md)、[09-settings-dns-ac-ipv6.md §9.1 / §9.5](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/09-settings-dns-ac-ipv6.md)、[11-overwrite-settings.md §11.3 / §11.4 / §11.6](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/11-overwrite-settings.md)、[10-settings-geo-misc-src.md §10.1](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/10-settings-geo-misc-src.md)：设置与更新。
+- 按指南查证 [Mihomo dialer-proxy](https://wiki.metacubex.one/config/proxies/dialer-proxy/)、[策略组](https://wiki.metacubex.one/config/proxy-groups/)、[规则优先级](https://wiki.metacubex.one/config/rules/)：链式拨号、空组回退、UDP 继续匹配。
+
+指南核对日期 2026-10-16；dev 文档可能变化，不能据此宣称目标 alpha-gbc76c13 已实测兼容。

@@ -2,30 +2,33 @@
   "schemaVersion": 1,
   "profileId": "tiktok-router-loongproxy-jp-us",
   "version": "1.0.4",
-  "status": "pending",
+  "status": "verified",
   "behaviorChanged": true,
   "environment": {
-    "openclashVersion": "unknown",
-    "openclashBuild": "unknown",
-    "mihomoVersion": "unknown",
-    "mihomoBuild": "unknown",
-    "openwrtVersion": "unknown",
-    "deviceArchitecture": "unknown",
-    "deviceModel": "unknown"
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the supplied version label",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (2C2T)"
   },
   "runtimeConfiguration": {
-    "activeConfigLabel": "unknown",
-    "enabledModulesInOrder": [],
-    "settingsBaseline": "unknown",
+    "activeConfigLabel": "ikuuu",
+    "enabledModulesInOrder": [
+      "云覆写（v1.0.4）",
+      "本地 TikTok-ISP 节点模块"
+    ],
+    "settingsBaseline": "matched-setup",
     "settingsDeviations": []
   },
   "evidence": {
-    "source": "user-report",
-    "capturedAt": null,
+    "source": "debug-log",
+    "capturedAt": "2026-10-22",
     "rawDebugLogCommitted": false,
     "runtimeAcceptance": "passed",
     "userConfirmed": true,
-    "summary": "用户于 2026-10-20 提供的日志显示 github.com 命中 TikTok-ISP，截图显示 GitHub 1150 ms；该候选将 github.com、githubusercontent.com 和 githubassets.com 改走美国组。用户于 2026-10-22 确认 v1.0.4 已验收。尚未收到对应本次验收的 OpenClash 调试日志，因此 OpenClash/Mihomo/OpenWrt 确切版本、当前配置标识、启用模块顺序及设置基线仍未知；按仓库正式发布门禁继续保持 candidate。"
+    "summary": "根据用户提供的 2026-10-22 OpenClash 调试日志记录运行环境：OpenClash 0.48.002，Mihomo alpha-gbc76c13，OpenWrt 24.10.2 r7492-3fda82b52，x86_64 / QEMU Standard PC（2C2T），活动配置标识 ikuuu。日志记录的运行模式、IPv6、UDP、QUIC、中国大陆 IPv4 绕过和路由器本机代理等设置与方案设置建议一致。用户确认的模块顺序为云覆写在上、本地 TikTok-ISP 节点模块在下。用户于 2026-10-22 确认 v1.0.4 实机验收通过；此记录不表示 GitHub 延迟或下载速度已恢复，也不补造延迟指标。原始调试日志未提交。"
   },
   "reusedFromVersion": null,
   "setupDocument": "SETUP.md"
