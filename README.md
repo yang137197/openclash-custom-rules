@@ -10,7 +10,7 @@
 
 新增规则需求应建立独立方案，不能复用其他方案的需求合同、版本 URL 或滚动入口。候选版和正式版的开发、环境信息、Release 内容及验收要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。
 
-当前另有未验收候选：v1.0.1 仅新增 `update.kies.samsung.com` 精确域名直连；v1.0.2 用于 Claude Code 端点分流；v1.0.3 增加 Claude 网页 Anthropic/Claude 第一方域名的 TikTok-ISP 路由；最新 v1.0.4 保留该 Claude 出口，并将 GitHub 网站、内容下载及静态资源域名改走美国组。稳定入口仍为 v1.0.0。候选覆写和验收要求见[方案说明](profiles/tiktok-router-loongproxy-jp-us/README.md)。
+当前另有候选：v1.0.1 仅新增 `update.kies.samsung.com` 精确域名直连；v1.0.2 用于 Claude Code 端点分流；v1.0.3 增加 Claude 网页 Anthropic/Claude 第一方域名的 TikTok-ISP 路由；最新 v1.0.4 保留该 Claude 出口，并将 GitHub 网站、内容下载及静态资源域名改走美国组。用户已确认 v1.0.4 验收，但对应调试日志和环境快照仍待补；稳定入口仍为 v1.0.0。候选覆写和验收要求见[方案说明](profiles/tiktok-router-loongproxy-jp-us/README.md)。
 
 v1.0.4 测试覆写链接：
 

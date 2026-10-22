@@ -109,6 +109,7 @@
           "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4/SETUP.md",
           "environmentPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4/ENVIRONMENT.json",
           "moduleSha256": "46b7a230769423a891d044ed8b5e0875b88137b29d32f7517479a14296c90bc5",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4/local-tiktok-proxy.conf.example",
           "requirements": [
             "J13",
             "J14",

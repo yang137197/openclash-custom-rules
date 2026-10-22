@@ -1,6 +1,6 @@
 # tiktok-router-loongproxy-jp-us v1.0.4 — 候选部署与测试
 
-**状态：candidate，待用户实机验证。** 本候选保持 Claude Code/Claude 网页 Anthropic 第一方域名走 TikTok-ISP，同时将 GitHub 及相关下载域名改为走美国组。稳定版 v1.0.0、滚动云覆写、Release 和本地凭据模块均不修改。
+**状态：candidate。** 用户于 2026-10-22 确认本候选已验收；对应调试日志和环境快照仍待补充，故尚未发布为 stable。本候选保持 Claude Code/Claude 网页 Anthropic 第一方域名走 TikTok-ISP，同时将 GitHub 及相关下载域名改为走美国组。稳定版 v1.0.0、滚动云覆写、Release 和本地凭据模块均不修改。
 
 ## 导入候选覆写
 
@@ -8,7 +8,7 @@
 
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/claude-code-tiktok-test/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4/openclash-overwrite.conf
 
-按 **服务 → OpenClash → 运行状态 → 页面顶部「覆写模块」** 添加订阅模块，匹配当前配置的完整路径或 all。保留本地 TikTok-ISP-Local 节点模块，真实 ISP 凭据不需要改动。测试时只启用一个完整云覆写：启用 v1.0.4 候选模块，停用当前完整云覆写模块；保留原模块以便回退。候选中的测试规则已保留私网直连并排在后续分流规则之前。保存后重启 OpenClash。
+按 **服务 → OpenClash → 运行状态 → 页面顶部「覆写模块」** 添加订阅模块，匹配当前配置的完整路径或 all。保留本地 TikTok-ISP-Local 节点模块，真实 ISP 凭据不需要改动；需要重建本地模块时，使用同目录的 [占位模板](local-tiktok-proxy.conf.example)，不得公开填入真实凭据的文件。测试时只启用一个完整云覆写：启用 v1.0.4 候选模块，停用当前完整云覆写模块；保留原模块以便回退。候选中的测试规则已保留私网直连并排在后续分流规则之前。保存后重启 OpenClash。
 
 OpenClash 的模块格式、规则前置操作符及重启生效机制见官方指南 [16-overwrite-module-format.md §16.1、§16.2.3](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md) 和 [17-overwrite-module-examples.md §17.3.5](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/17-overwrite-module-examples.md)。官方指南入口的路由表见 [SKILL.md](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md)。
 
@@ -26,4 +26,4 @@ OpenClash 的模块格式、规则前置操作符及重启生效机制见官方�
 
 回退时停用 v1.0.4 候选完整云覆写，重新启用原稳定云覆写并重启 OpenClash；保留 TikTok-ISP-Local 本地模块。不要将真实 ISP 凭据写入云覆写或仓库。
 
-实机测试完成前，本候选不替换稳定入口、不创建 Release 或正式标签。
+正式发布门禁需要对应本次验收的调试日志和确切环境记录；门禁补齐前，本候选不替换稳定入口、不创建 Release 或正式标签。

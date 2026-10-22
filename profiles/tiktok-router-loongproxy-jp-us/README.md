@@ -8,7 +8,7 @@
 
 **v1.0.3 candidate**：继承 v1.0.2 的 Claude Code 端点分流，并将 Claude 网页相关 Anthropic/Claude 第一方域名（含 `claudemcpcontent.com`）统一指向 `TikTok-ISP`。该版本规则命中不证明公网出口 IP 恒定；测试改进见 v1.0.4。稳定入口仍是 v1.0.0。
 
-**v1.0.4 candidate（最新测试版）**：延续 Claude/Anthropic 第一方域名经 `TikTok-ISP`，并把 `github.com`、`githubusercontent.com`、`githubassets.com` 明确改走美国组，覆盖 GitHub 网站、内容下载及页面静态资源，避免这些连接经过带宽受限的 ISP。依据是用户日志确认 GitHub 命中 v1.0.3 的 TikTok 规则及用户报告的变慢；性能恢复待实测。稳定入口仍是 v1.0.0。
+**v1.0.4 candidate（最新候选）**：延续 Claude/Anthropic 第一方域名经 `TikTok-ISP`，并把 `github.com`、`githubusercontent.com`、`githubassets.com` 明确改走美国组，覆盖 GitHub 网站、内容下载及页面静态资源。用户于 2026-10-22 确认候选已验收；对应调试日志和环境快照待补齐后才能发布为 stable。稳定入口仍是 v1.0.0。
 
 最新测试覆写订阅链接（v1.0.4 分支候选）：
 
@@ -18,6 +18,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/claude
 - [v1.0.4 候选需求与验收条件](versions/v1.0.4/REQUIREMENTS.md)
 - [v1.0.4 候选部署与设置](versions/v1.0.4/SETUP.md)
 - [v1.0.4 环境记录](versions/v1.0.4/ENVIRONMENT.json)
+- [v1.0.4 本地模块占位模板](versions/v1.0.4/local-tiktok-proxy.conf.example)
 - [v1.0.3 候选覆写](versions/v1.0.3/openclash-overwrite.conf)
 - [v1.0.3 候选需求与验收条件](versions/v1.0.3/REQUIREMENTS.md)
 - [v1.0.3 候选部署与设置](versions/v1.0.3/SETUP.md)
