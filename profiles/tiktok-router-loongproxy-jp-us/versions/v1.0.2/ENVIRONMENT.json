@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.2",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "v0.48.002",
+    "openclashBuild": "alpha-gbc76c13",
+    "mihomoVersion": "unknown",
+    "mihomoBuild": "unknown",
+    "openwrtVersion": "unknown",
+    "deviceArchitecture": "unknown",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "user-report",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "用户授权测试 Claude Code 官方端点经 TikTok-ISP；OpenClash v0.48.002 / alpha-gbc76c13 来自既有用户报告。未提供本候选对应的调试日志、Mihomo/OpenWrt 版本或当前运行模块快照；候选尚未实机加载。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

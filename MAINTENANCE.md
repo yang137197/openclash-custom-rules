@@ -16,9 +16,9 @@
 
 ## 当前正式基线
 
-当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.0`（J1–J11，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-16 确认实机验收通过并授权正式发布；不补写用户未提供的逐项日志或指标。
+当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.4`（继承 J1–J11，新增 J13–J15，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-22 确认实机验收通过；环境摘要和模块顺序记录在该版本 `ENVIRONMENT.json`。不补写未提供的逐项日志或性能指标。
 
-当前候选 `v1.0.1` 只增加 `update.kies.samsung.com` 的精确域名直连规则。用户日志已确认该域名命中美国组；新候选仍待实机加载和验收，不替换 v1.0.0 稳定入口。
+当前未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。正式版 `v1.0.4` 延续 Claude/Anthropic 出口，并将 `github.com`、`githubusercontent.com`、`githubassets.com` 明确指向美国组。用户于 2026-10-22 确认 v1.0.4 实机验收通过；对应调试日志环境摘要和模块顺序已记录。
 
 **不可改变的链路前提：**路由器本地 Loongproxy 美国 SOCKS5 必须通过用户手选的 iKuuu 日本节点建立链式代理。`TikTok-ISP-Local` 必须保留 `dialer-proxy: 日本-入口` 与 `udp: false`。日本入口自动筛选已加载节点中名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点（忽略大小写），但必须由用户选中实际 iKuuu 日本节点。日本节点缺失或不可用时失败关闭，严禁切换美国首跳、其他机场首跳、机场/DIRECT 回退。
 
@@ -35,10 +35,10 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 ## 规则与版本
 
-- 保持规则优先级：私网/局域网 → TikTok ISP → 同范围 TikTok REJECT → Google/Play → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
+- 保持规则优先级：私网/局域网 → Claude Code 与 Claude/Anthropic 第一方域名走 TikTok-ISP、GitHub 指定域名走美国 → 通用 TikTok ISP → 同范围 TikTok REJECT → Google/Play 美国 → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
 - `rules/manual-direct.yaml` 保留原始 129 条；`rules/manual-direct-isp.yaml` 按原顺序逐条转换为 `DOMAIN-SUFFIX` 并保留重复项。若授权改规则，须同步固定模块、滚动模块、inline payload、校验和与文档。
 - 已发布版本目录和标签不可改写、移动或覆盖。现有方案的行为变化须建立高于该方案已记录最高版本的新候选版本及独立完整 URL；新需求应建立独立方案并从自己的版本线开始。真实设备验收前保持 candidate。晋升 stable、创建正式标签和 GitHub Release 需用户明确授权。
-- 当前版本记录只保留 `v1.0.0` 首个正式版；旧版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
+- 当前稳定版本为 `v1.0.4`；同一方案的候选版本按递增版本线保留，不视为正式发布。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
 
 ## 每次变更门禁
 

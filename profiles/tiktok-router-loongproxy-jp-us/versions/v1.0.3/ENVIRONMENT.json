@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.3",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "v0.48.002",
+    "openclashBuild": "unknown",
+    "mihomoVersion": "alpha-gbc76c13",
+    "mihomoBuild": "unknown",
+    "openwrtVersion": "unknown",
+    "deviceArchitecture": "unknown",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "debug-log",
+    "capturedAt": "2026-10-20",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "已审阅用户于 2026-10-20 提供的调试日志：OpenClash v0.48.002、Mihomo alpha-gbc76c13；其中 claude.ai、assets.claude.ai、assets-proxy.anthropic.com、s-cdn.anthropic.com 命中 TikTok-ISP-Local，链路显示日本节点。日志对应此前测试，不包含 v1.0.3 新增的 claudemcpcontent.com 规则，且不能证明公网出口 IP 长期恒定。v1.0.3 尚未在路由器加载；OpenWrt 版本和当前完整模块快照仍未知。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}
