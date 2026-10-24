@@ -8,7 +8,9 @@
 
 `AGENTS.md` 开头的专家角色和官方指南入口，以及正式版 `SETUP.md` 中的 OpenClash 设置建议，都是不可删除的仓库前提；任何整理不得删除或削弱这些内容。
 
-本仓库现行发布门禁要求需要本地模块的正式 Release 只附一个与标签占位模板逐字节一致的 `.example` 文件；字段填写说明和虚构示例直接写在 Release 正文，不另附注释模板或填写指南。GitHub 自动生成的源码归档不能代替模板附件。
+需要本地模块的 Release 只附一个与版本目录模板逐字节一致、扩展名为 `.conf` 的可导入文件；OpenClash 官方本地模块上传器支持 `.txt`、`.conf`，因此 `.example` 不能作为最终附件扩展名。字段填写说明和虚构示例直接写在 Release 正文，不另附注释模板或填写指南。GitHub 自动生成的源码归档不能代替模板附件。
+
+已发布的 v1.0.4 Release 仍保留其 `.conf.example` 附件及内容，不改写历史；需要使用该历史附件时，先将文件名改为 `.conf`。v1.0.5 正式版已将本地模块模板修正为 `.conf`。本次未在路由器文件选择器上实测，不声称通过该项实机测试。
 
 用户于 2026-10-17 明确授权整理 v1.0.0 Release：保留原始模板附件与标签源码不变，删除额外注释模板及独立填写指南附件，并把填写映射和示例直接写入 Release 正文。该授权不涉及版本目录、配置或 Git 标签。
 
@@ -16,9 +18,9 @@
 
 ## 当前正式基线
 
-当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.4`（继承 J1–J11，新增 J13–J15，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-22 确认实机验收通过；环境摘要和模块顺序记录在该版本 `ENVIRONMENT.json`。不补写未提供的逐项日志或性能指标。
+当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.5`（继承 J1–J11、J13–J15，新增 J16，stable），索引位于 `profiles/catalog.json`。用户于 2026-10-22 确认 v1.0.4 实机验收通过；v1.0.5 复用其环境摘要和模块顺序，不改变运行行为。v1.0.5 文件选择器没有实机测试证据，不补写未提供的逐项日志或性能指标。
 
-当前未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。正式版 `v1.0.4` 延续 Claude/Anthropic 出口，并将 `github.com`、`githubusercontent.com`、`githubassets.com` 明确指向美国组。用户于 2026-10-22 确认 v1.0.4 实机验收通过；对应调试日志环境摘要和模块顺序已记录。
+当前未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。正式版 `v1.0.5` 继承 v1.0.4 的 Claude/Anthropic 与 GitHub 分流，仅修正本地模板扩展名。用户于 2026-10-22 确认 v1.0.4 实机验收通过；对应调试日志环境摘要和模块顺序已记录。
 
 **不可改变的链路前提：**路由器本地 Loongproxy 美国 SOCKS5 必须通过用户手选的 iKuuu 日本节点建立链式代理。`TikTok-ISP-Local` 必须保留 `dialer-proxy: 日本-入口` 与 `udp: false`。日本入口自动筛选已加载节点中名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点（忽略大小写），但必须由用户选中实际 iKuuu 日本节点。日本节点缺失或不可用时失败关闭，严禁切换美国首跳、其他机场首跳、机场/DIRECT 回退。
 
@@ -29,16 +31,16 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 - 单个配置仅启用一个完整云覆写及其配套本地节点模块。云模块管理规则；本地模块只追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
 - 更新规则只刷新正式云覆写模块并重启 OpenClash；机场节点订阅、GEO 数据各自更新。
 - 修改 Loongproxy 密码时，只在路由器本地 `TikTok-ISP-Local` 模块改 `password`；按本地服务商提供的信息同步修改 `username`、`server`、`port`（如有变化）。保留节点名、`type: socks5`、`udp: false`、`dialer-proxy: 日本-入口`。详细 UI 路径见版本 `SETUP.md`。
-- 真实 ISP 主机、账号和密码只存路由器本地模块，不进入仓库、云覆写、PR 或日志。公共仓库只保留 `.example` 占位模板。
-- 需要本地模块的每个正式 Release 只附一个独立可下载的 `.example` 模板并列出 SHA-256；字段填写说明和虚构示例直接写在 Release 正文，不另附注释模板或填写指南。固定覆写订阅 URL 必须完整显示并单独占一行，供用户直接点击或复制。
+- 真实 ISP 主机、账号和密码只存路由器本地模块，不进入仓库、云覆写、PR 或日志。公共仓库只保存占位模板；供 OpenClash 导入的模板使用 `.conf` 后缀。
+- 需要本地模块的每个正式 Release 只附一个独立可下载的 `.conf` 模板并列出 SHA-256；字段填写说明和虚构示例直接写在 Release 正文，不另附注释模板或填写指南。固定覆写订阅 URL 必须完整显示并单独占一行，供用户直接点击或复制。
 - 所有模块仅含 `[YAML]`；OpenClash 插件选项由用户在 LuCI 手工设置，禁止覆写模块写入 `[General]`、UCI 或自动修改插件设置。
 
 ## 规则与版本
 
 - 保持规则优先级：私网/局域网 → Claude Code 与 Claude/Anthropic 第一方域名走 TikTok-ISP、GitHub 指定域名走美国 → 通用 TikTok ISP → 同范围 TikTok REJECT → Google/Play 美国 → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
 - `rules/manual-direct.yaml` 保留原始 129 条；`rules/manual-direct-isp.yaml` 按原顺序逐条转换为 `DOMAIN-SUFFIX` 并保留重复项。若授权改规则，须同步固定模块、滚动模块、inline payload、校验和与文档。
-- 已发布版本目录和标签不可改写、移动或覆盖。现有方案的行为变化须建立高于该方案已记录最高版本的新候选版本及独立完整 URL；新需求应建立独立方案并从自己的版本线开始。真实设备验收前保持 candidate。晋升 stable、创建正式标签和 GitHub Release 需用户明确授权。
-- 当前稳定版本为 `v1.0.4`；同一方案的候选版本按递增版本线保留，不视为正式发布。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
+- 已发布版本目录和标签不可改写、移动或覆盖。现有方案的运行行为变化须建立高于该方案已记录最高版本的新候选版本及独立完整 URL；新需求应建立独立方案并从自己的版本线开始。运行行为变化须经真实设备验收后才能标 stable。纯打包或文档版本可复用未改变的最新稳定环境快照，但必须把未做的文件/应用验收明确列为未验证。晋升 stable、创建正式标签和 GitHub Release 需用户明确授权。
+- 当前稳定版本为 `v1.0.5`；同一方案的未验收候选版本按递增版本线保留，不视为正式发布。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
 
 ## 每次变更门禁
 

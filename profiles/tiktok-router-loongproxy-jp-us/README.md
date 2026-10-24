@@ -1,23 +1,24 @@
 # tiktok-router-loongproxy-jp-us
 
-**v1.0.4 stable**：用户于 2026-10-22 确认实机验收通过。Claude Code 与 Claude 网页的 Anthropic/Claude 第一方域名保持走 TikTok-ISP；GitHub 网站、内容下载和静态资源域名走美国组。GitHub 策略命中已确认，但没有可复核的性能改善指标，本版本不宣称延迟或下载速度已恢复。
+**v1.0.5 stable**：仅修正本地节点模板的扩展名为 `.conf`；完整分流云覆写与 v1.0.4 完全一致。v1.0.4 已由用户确认实机验收通过；v1.0.5 复用其环境快照，本地文件选择器本次未在路由器实测。
 
 Loongproxy 美国 SOCKS5 必须经用户手选的 iKuuu 日本节点作为链式第一跳。TikTok 与 Claude/Anthropic 相关请求使用 `TikTok-ISP-Local` 静态 ISP 出口；链路缺失时失败关闭，不回退普通机场或 DIRECT。保留 129 条 Manual-Direct、Google/Play 美国分流、中国大陆直连及其余境外美国分流。v1.0.4 不包含未验收的 v1.0.1 Samsung 规则。
 
 ## 当前正式版
 
-- [v1.0.4 GitHub Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.4)
-- [v1.0.4 正式需求与验收范围](versions/v1.0.4/REQUIREMENTS.md)
-- [v1.0.4 部署、设置与验收说明](versions/v1.0.4/SETUP.md)
-- [v1.0.4 OpenClash 环境记录](versions/v1.0.4/ENVIRONMENT.json)
-- [v1.0.4 唯一本地节点占位模板](versions/v1.0.4/local-tiktok-proxy.conf.example)
-- [v1.0.4 固定完整云覆写](versions/v1.0.4/openclash-overwrite.conf)
+- [v1.0.5 GitHub Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.5)
+- [v1.0.5 正式需求与验收范围](versions/v1.0.5/REQUIREMENTS.md)
+- [v1.0.5 部署、设置与验收说明](versions/v1.0.5/SETUP.md)
+- [v1.0.5 环境记录](versions/v1.0.5/ENVIRONMENT.json)
+- [v1.0.5 Release 正文](versions/v1.0.5/RELEASE_NOTES.md)
+- [v1.0.5 唯一本地节点占位模板](versions/v1.0.5/local-tiktok-proxy.conf)
+- [v1.0.5 固定完整云覆写](versions/v1.0.5/openclash-overwrite.conf)
 
-正式 Release 提供标签固定覆写链接和唯一 `.example` 本地模块附件；字段填写映射和虚构示例见 Release 正文。真实 ISP 凭据只保存在路由器本地模块。用户侧更新仓库规则只需刷新云覆写模块并重启 OpenClash；启用顺序为云覆写在上、本地 TikTok-ISP 模块在下。
+v1.0.4 Release 的历史附件名为 `.conf.example`，使用前先将文件名改为 `.conf`。v1.0.5 Release 提供同内容、扩展名正确的 `.conf` 模板；官方指南列出 `.conf` 为支持的本地上传文件类型，但本次未在路由器文件选择器实测。真实 ISP 凭据只保存在路由器本地模块。用户侧更新仓库规则只需刷新云覆写模块并重启 OpenClash；启用顺序为云覆写在上、本地 TikTok-ISP 模块在下。
 
-固定版本完整覆写订阅链接：
+v1.0.5 固定版本完整覆写订阅链接：
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.4/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.5/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.5/openclash-overwrite.conf
 
 滚动云覆写链接（随 `main` 更新）：
 
