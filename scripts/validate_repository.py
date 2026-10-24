@@ -18,6 +18,9 @@ JP = "tiktok-router-loongproxy-jp-us"
 BASELINE_VERSION = "1.0.0"
 # The first stable release predates environment manifests and remains immutable.
 LEGACY_ENVIRONMENT_EXEMPTIONS = {(JP, "1.0.0")}
+# Historical modules keep their published .conf.example template paths. New
+# profile versions must use an extension accepted by OpenClash's local uploader.
+LEGACY_EXAMPLE_TEMPLATE_VERSIONS = {"1.0.0", "1.0.1", "1.0.4"}
 # User-approved cleanup baseline. Only retired files/snapshots listed in this
 # baseline may be removed; published files that remain active cannot be edited.
 RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
@@ -215,7 +218,7 @@ def expected_rules():
 
 def expected_stable_rules(profile_id, version):
     rules = expected_rules()
-    if profile_id == JP and version == "1.0.4":
+    if profile_id == JP and version in {"1.0.4", "1.0.5"}:
         # Claude/Anthropic endpoints stay on the static ISP, while GitHub uses US.
         rules[12:12] = [
             "DOMAIN-SUFFIX,anthropic.com,TikTok-ISP",
@@ -444,7 +447,10 @@ def validate_profile_artifacts(profile_id, profile, modules):
 
         local_template_path = entry.get("localModuleTemplatePath")
         if local_template_path:
-            require(local_template_path == directory + "/local-tiktok-proxy.conf.example",
+            expected_template = directory + "/local-tiktok-proxy.conf"
+            if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
+                expected_template += ".example"
+            require(local_template_path == expected_template,
                     f"{profile_id} v{version}: invalid local credential template path")
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
@@ -480,7 +486,9 @@ def validate_stable(profile_id, profile, modules, manual):
     expected_paths = {"modulePath": directory + "/openclash-overwrite.conf",
                       "requirementsPath": directory + "/REQUIREMENTS.md",
                       "setupPath": directory + "/SETUP.md",
-                      "localModuleTemplatePath": directory + "/local-tiktok-proxy.conf.example"}
+                      "localModuleTemplatePath": directory + "/local-tiktok-proxy.conf.example"
+                      if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS
+                      else directory + "/local-tiktok-proxy.conf"}
     for key, path in expected_paths.items():
         require(entry[key] == path, f"{profile_id}: invalid {key}")
         read(path)

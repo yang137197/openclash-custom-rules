@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.5",
+  "status": "verified",
+  "behaviorChanged": false,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the supplied version label",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (2C2T)"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "ikuuu",
+    "enabledModulesInOrder": [
+      "云覆写（v1.0.4）",
+      "本地 TikTok-ISP 节点模块"
+    ],
+    "settingsBaseline": "matched-setup",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "reused",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "仅修正本地模板扩展名和发布说明，不修改运行模块或规则。环境与运行配置字段复用已验收 v1.0.4 的快照，仅证明运行基线未变；本次未在路由器文件选择器实测，不能声称该项实机验收通过。用户明确授权正式发布。"
+  },
+  "reusedFromVersion": "1.0.4",
+  "setupDocument": "SETUP.md"
+}

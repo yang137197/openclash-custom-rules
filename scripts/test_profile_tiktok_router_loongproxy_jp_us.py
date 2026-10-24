@@ -101,7 +101,7 @@ class JapanFirstProfileTests(unittest.TestCase):
         self.assertLess(last_claude_rule, rules.index("RULE-SET,Manual-Direct,DIRECT"))
         self.assertEqual(candidate["manualRuleCount"], 129)
 
-    def test_latest_stable_keeps_claude_on_isp_and_github_on_us(self):
+    def test_v104_snapshot_keeps_claude_on_isp_and_github_on_us(self):
         catalog = json.loads(validator.read("profiles/catalog.json"))
         profile = catalog["profiles"][validator.JP]
         candidate = profile["versions"]["1.0.4"]
@@ -137,6 +137,38 @@ class JapanFirstProfileTests(unittest.TestCase):
         self.assertNotIn("DOMAIN-SUFFIX,githubusercontent.com,TikTok-ISP", rules)
         self.assertNotIn("DOMAIN-SUFFIX,githubassets.com,TikTok-ISP", rules)
         self.assertEqual(candidate["manualRuleCount"], 129)
+
+    def test_v105_stable_release_uses_openclash_uploadable_conf_template_without_route_changes(self):
+        catalog = json.loads(validator.read("profiles/catalog.json"))
+        profile = catalog["profiles"][validator.JP]
+        release = profile["versions"]["1.0.5"]
+        stable = profile["versions"]["1.0.4"]
+        self.assertEqual(profile["currentVersion"], "1.0.5")
+        self.assertEqual(release["status"], "stable")
+        self.assertEqual(release["requirements"], ["J13", "J14", "J15", "J16"])
+        self.assertTrue(release["localModuleTemplatePath"].endswith("/local-tiktok-proxy.conf"))
+        self.assertEqual(release["releaseTag"], "tiktok-router-loongproxy-jp-us-v1.0.5")
+        self.assertEqual(release["releaseUrl"], "https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.5")
+        self.assertEqual(release["versionedModuleUrl"], "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.5/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.5/openclash-overwrite.conf")
+        self.assertEqual(release["localTemplateSha256"], validator.sha(validator.read(release["localModuleTemplatePath"])))
+        self.assertEqual(
+            validator.read(release["localModuleTemplatePath"]),
+            validator.read(stable["localModuleTemplatePath"]),
+        )
+        template = load_yaml(validator.read(release["localModuleTemplatePath"]), module=True)
+        self.assertEqual(template["proxies+"][0]["name"], "TikTok-ISP-Local")
+        self.assertEqual(template["proxies+"][0]["dialer-proxy"], "日本-入口")
+        self.assertFalse(template["proxies+"][0]["udp"])
+        self.assertEqual(
+            validator.read(release["modulePath"]),
+            validator.read(stable["modulePath"]),
+        )
+        evidence = json.loads(validator.read(release["environmentPath"]))
+        self.assertEqual(evidence["status"], "verified")
+        self.assertFalse(evidence["behaviorChanged"])
+        self.assertEqual(evidence["reusedFromVersion"], "1.0.4")
+        self.assertEqual(evidence["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(evidence["evidence"]["userConfirmed"])
 
 
 if __name__ == "__main__":

@@ -22,11 +22,12 @@
 
 ## 当前事实与授权
 
-- 当前正式方案：`tiktok-router-loongproxy-jp-us v1.0.4`，继承 J1–J11 并实现 J13–J15，stable。用户于 2026-10-22 确认实机验收通过；对应调试日志记录的环境版本、配置标签、主要设置与模块顺序已写入该版本 `ENVIRONMENT.json`。不补造逐项延迟或性能指标。
+- 当前正式方案：`tiktok-router-loongproxy-jp-us v1.0.5`，继承 J1–J11 并实现 J13–J16，stable。用户于 2026-10-22 确认 v1.0.4 实机验收通过；v1.0.5 只修正本地模块附件扩展名，复用 v1.0.4 环境快照，不改变运行规则。OpenClash 本地文件选择器尚未在路由器实测，不作已测试声明。
 - 当前未验收候选：v1.0.1 仅新增 `update.kies.samsung.com` 精确域名 DIRECT；v1.0.2 加入 Claude Code 官方端点；v1.0.3 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。v1.0.4 继续保持 Claude 出口，并将 `github.com`、`githubusercontent.com` 与 `githubassets.com` 改走美国组。
 - **强制链路前提**：TikTok 必须由 Loongproxy 美国 SOCKS5 出口，并通过用户在 `日本-入口` 手选的 iKuuu 日本节点建立链式代理（`dialer-proxy: 日本-入口`）。不得换成美国首跳或其他机场节点，不得回退机场、DIRECT 或其他出口；没有匹配的 iKuuu 日本节点时失败关闭。
 - 用户授权清理已停用的供应商/手机代理方案，并在 2026-10-16 批准以本方案作为全新正式基线。当前文件树只维护上述日本首跳正式方案；按后续明确授权，旧版本标签和 Release 清理，Git 提交历史保留。
 - 用户于 2026-10-17 明确授权整理 v1.0.0 Release：只保留与标签模板一致的一个本地模块下载附件，字段填写说明直接放在 Release 正文；删除额外的注释模板和独立填写指南附件。标签源码及原始模板内容保持不变。
+- v1.0.4 的本地模板附件使用 `.conf.example`，不在 OpenClash 官方指南列出的本地上传文件类型 `.txt`、`.conf` 中；该 Release 不可改写。v1.0.5 已将本地模块模板改为 `.conf` 并正式发布。OpenClash 官方指南列出 `.conf` 为可选文件类型，但本次没有在路由器文件选择器上实测。
 - `日本-入口` 从已加载的顶层节点和 proxy-providers 中，按名称任意位置的 `jp`、`日本`、`Japan`、🇯🇵（忽略大小写）筛选。用户必须手动选择 iKuuu 日本节点；名称筛选本身不证明供应商身份或可达性。
 - 目标版本由用户报告为 OpenClash v0.48.002 / alpha-gbc76c13。正式验收结果来自用户确认。
 
@@ -37,9 +38,9 @@
 3. 保留 `rules/manual-direct.yaml` 的全部 129 条原始记录。`rules/manual-direct-isp.yaml` 保持逐条对应的 DOMAIN-SUFFIX 副本，包括已有重复项；不得静默删除、改名或扩大到父域名。
 4. 当前稳定方案的 Manual-Direct inline payload、固定版本模块、滚动模块与规则源必须同步；用户只刷新完整云覆写并重启，无需单独更新 Manual-Direct provider。
 5. 单个配置只启用一个完整方案及其配套本地节点模块。所有模块仅含 `[YAML]`；插件选项由用户在 LuCI 手工设置，禁止 `[General]`、UCI 或其他自动写入插件选项的机制。
-6. 真实代理地址、账号、密码不入 Git/GitHub。经授权生成的私有文件存仓库外；公共库只留占位模板。
+6. 真实代理地址、账号、密码不入 Git/GitHub。经授权生成的私有文件存仓库外；公共库只留占位模板。需导入 OpenClash 的本地模块模板使用 `.conf` 后缀；历史已发布 `.conf.example` 文件仅为保留快照，使用前需改名。
 7. 修改其他规则顺序、DNS、运行模式、QUIC、区域绕过、IPv6/TUN，或删改人工域名，需用户明确授权；不得把本次日本名称筛选授权扩大到这些设置。
-8. 当前 `v1.0.4` 为正式稳定版本且目录不可改写；后续行为变更需新版本合同、目录和 URL，实机验收前保持 candidate。不得移动或重写既有发布标签/Release。
+8. 当前 `v1.0.5` 为正式稳定版本且目录不可改写；后续行为变更需新版本合同、目录和 URL，实机验收前保持 candidate。不得移动或重写既有发布标签/Release。
 
 ## 每次变更
 
