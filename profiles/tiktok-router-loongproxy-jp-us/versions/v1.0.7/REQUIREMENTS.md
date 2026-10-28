@@ -1,25 +1,25 @@
-# tiktok-router-loongproxy-jp-us v1.0.7 — 候选需求合同
+# tiktok-router-loongproxy-jp-us v1.0.7 — 正式需求合同
 
-状态：**candidate，等待用户验收**。本候选继承 v1.0.0 的 J1–J11 基础合同及 v1.0.6 的 J13–J17 已验收行为，只调整规则源与滚动覆写的同步架构，不改变分流出口、规则优先级、DNS、代理链路或 OpenClash 插件设置。Loongproxy 仍必须通过用户手选的 iKuuu 日本节点作为第一跳，不得换用美国首跳或其他机场首跳；链路缺失时仍失败关闭。候选模块的静态规则语义须与 v1.0.6 相同。
+状态：**stable**。用户于 2026-10-28 确认 v1.0.7 验收通过。本版本继承 v1.0.0 的 J1–J11 基础合同及 v1.0.6 的 J13–J17 已验收行为，只调整手动规则源与滚动覆写的同步架构，不改变分流出口、规则优先级、DNS、代理链路或 OpenClash 插件设置。Loongproxy 仍必须通过用户手选的 iKuuu 日本节点作为第一跳，不得换用美国首跳或其他机场首跳；链路缺失时仍失败关闭。静态规则语义与 v1.0.6 保持一致。
 
 ## 继承要求
 
 继承当前稳定版 `v1.0.6` 的 J1–J11、J13–J17、规则顺序、iKuuu 日本首跳、失败关闭、本地凭据边界和 OpenClash 设置建议。需求原文与现有设置见 [v1.0.6 REQUIREMENTS.md](../v1.0.6/REQUIREMENTS.md) 和 [v1.0.6 SETUP.md](../v1.0.6/SETUP.md)。
 
-## 本候选新增要求
+## 本版本新增要求
 
-- J18：`rules/manual-direct.yaml` 是手动直连规则唯一可编辑源。`payload` 中的 `DOMAIN-SUFFIX,example.com` 匹配主域名及其全部子域名；`DOMAIN,host.example.com` 只匹配该精确主机名。手动维护者可在该文件中添加、修改或删除条目，保留重复项不阻止同步。提交到 GitHub `main` 后，GitHub Actions 从此源生成滚动完整覆写中的 `Manual-Direct!` inline payload，并同步 `profiles/catalog.json` 的滚动模块 SHA-256；不要求逐条手改覆写模块或维护 `manual-direct-isp.yaml`。
+- J18：`rules/manual-direct.yaml` 是手动直连规则唯一可编辑源。`payload` 中的 `DOMAIN-SUFFIX,example.com` 匹配主域名及其全部子域名；`DOMAIN,host.example.com` 只匹配该精确主机名。维护者可随时添加、修改或删除任意数量的有效条目，不设置固定规则清单、固定条数或源文件哈希。规则类型、域名格式、YAML/列表结构仍须通过校验；重复项保留且不阻止同步。GitHub Actions 从此源生成滚动完整覆写中的 `Manual-Direct!` inline payload，并同步 `profiles/catalog.json` 的滚动模块 SHA-256；不要求逐条手改覆写模块或维护 `manual-direct-isp.yaml`。
 - J19：手动源修改触发自动同步工作流；工作流必须先生成并验证滚动模块和哈希，成功后才提交生成文件。失败时不得将不同步的源文件状态视为已部署。该流程不创建版本或 Release，也不改写任何固定版本快照。
 - J20：日常规则变更完成同步后，路由器继续使用同一个 `main` 远程完整覆写地址。用户在 OpenClash 远程覆写模块点击“更新”，然后重启 OpenClash；无需单独更新 Manual-Direct provider 或机场节点订阅。被源文件删除的条目须在新覆写应用后从滚动规则中消失。
-- J21：本候选对当前 130 条记录的有效路由语义保持不变。历史 129 条在运行 provider 中均按 `DOMAIN-SUFFIX` 生效；其中源文件原标为 `DOMAIN` 的记录在本候选中统一规范为 `DOMAIN-SUFFIX`。`huzhou.host` 从独立规则移入同一 inline payload，仍在 Google 规则之后、CN 规则之前生效。源列表和候选模块必须通过回归检查证明这一等价关系。
+- J21：v1.0.7 固定发布快照创建时包含 130 条记录；该数字只描述此不可变快照，不是日常源文件的目标或上限。历史 129 条在运行 provider 中均按 `DOMAIN-SUFFIX` 生效；其中源文件原标为 `DOMAIN` 的记录在本版本统一规范为 `DOMAIN-SUFFIX`。`huzhou.host` 从独立规则移入同一 inline payload，仍在 Google 规则之后、CN 规则之前生效。当前可变源与滚动模块的 payload 须逐项、按顺序一致。
 
-## 验收条件
+## 验收结果
 
-1. 候选版 inline payload 与 `rules/manual-direct.yaml` 的 `payload` 逐项、按顺序一致。
-2. 添加、修改、删除源文件条目的生成器夹具分别确认滚动覆写同步；精确域名和后缀域名保持各自匹配类型，重复条目不丢失。
-3. 候选滚动模块保留 v1.0.6 的其他 YAML 配置与规则优先级，唯一的规则结构差异为 J21 所述的 Manual-Direct 数据归一化和收拢。
-4. GitHub Actions 在源文件提交后自动生成滚动模块及哈希；只有工作流成功后，用户才刷新远程覆写并重启 OpenClash。
-5. 路由器侧候选更新、重启和现有流量验收由用户执行；目前尚未验收，须如实记录结果后再决定是否发布正式版。
+1. 生成器校验规则类型/域名语法，且生成的 inline payload 与源文件 `payload` 逐项、按顺序一致。
+2. 单元测试覆盖源条目的新增、修改、删除、精确/后缀匹配类型与重复项保留；没有将可变源清单锁定为特定条数或域名集。
+3. v1.0.7 稳定快照保留 v1.0.6 的其他 YAML 配置与规则优先级；手动规则只做 J21 所述归一化和收拢。
+4. GitHub Actions 在 `main` 的源文件提交后校验并生成滚动模块及哈希；只有工作流成功后，路由器才刷新同一个远程覆写并重启 OpenClash。
+5. 用户于 2026-10-28 确认 v1.0.7 验收通过。环境与运行配置快照复用 v1.0.6；未提供新的 v1.0.7 调试日志。仓库静态检查、候选 CI 和用户验收分别记录。
 
 ## 边界
 

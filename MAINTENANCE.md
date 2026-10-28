@@ -24,7 +24,7 @@
 
 **不可改变的链路前提：**路由器本地 Loongproxy 美国 SOCKS5 必须通过用户手选的 iKuuu 日本节点建立链式代理。`TikTok-ISP-Local` 必须保留 `dialer-proxy: 日本-入口` 与 `udp: false`。日本入口自动筛选已加载节点中名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点（忽略大小写），但必须由用户选中实际 iKuuu 日本节点。日本节点缺失或不可用时失败关闭，严禁切换美国首跳、其他机场首跳、机场/DIRECT 回退。
 
-Google/Google Play 与其他境外流量走用户手选的美国组；中国大陆域名和 IP 直连；保留完整 129 条 Manual-Direct。日本、美国和 ISP 组均须排除本地 ISP 节点以避免递归，空组保持 REJECT。
+Google/Google Play 与其他境外流量走用户手选的美国组；中国大陆域名和 IP 直连；Manual-Direct 由可变源文件维护。日本、美国和 ISP 组均须排除本地 ISP 节点以避免递归，空组保持 REJECT。
 
 ## 配置与凭据
 
@@ -39,14 +39,14 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 - 流程 A/B 是仓库永久维护约定，不得因一般开发或文档整理删改、绕过；只有用户明确重新定义长期流程时才可调整。手动域名数据变更之外的运行行为更改均走候选验证和正式发布门禁。
 - 保持规则优先级：私网/局域网 → Claude Code 与 Claude/Anthropic 第一方域名走 TikTok-ISP、GitHub 指定域名走美国 → 通用 TikTok ISP → 同范围 TikTok REJECT → Google/Play 美国 → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
-- 流程 A 适用于手动直连域名的新增、修改和删除：只编辑 `rules/manual-direct.yaml` 的 `payload`，GitHub Actions 自动生成滚动覆写 inline payload 并更新 `profiles/catalog.json` 的滚动 SHA-256，再提交生成文件。源文件不维护固定哈希或条数校验；`manual-direct-isp.yaml` 是历史副本，不要求日常同步；不创建候选、版本记录、`CHANGELOG.md` 条目或正式 Release。已发布版本快照不改写。
+- 流程 A 适用于手动直连域名的新增、修改和删除：只编辑 `rules/manual-direct.yaml` 的 `payload`，保留 YAML、规则类型/域名格式和源到生成 payload 的一致性校验；不设固定规则清单、条数上限或源哈希，允许随时增删任意数量的有效规则。GitHub Actions 校验成功后自动生成滚动覆写 inline payload、更新 `profiles/catalog.json` 的滚动 SHA-256，再提交生成文件。`manual-direct-isp.yaml` 是历史副本，不要求日常同步；不创建候选、版本记录、`CHANGELOG.md` 条目或正式 Release。已发布版本快照不改写。
 - 流程 B 用于大版本更新或重构：建立递增候选并完成验证，经用户验收后发布正式版本；再将验收通过的模块同步到同一滚动模块路径并更新滚动哈希。已发布版本目录、标签和 Release 不可改写、移动或覆盖；新需求应建立独立方案并从自己的版本线开始。其他修改不得套用流程 A。纯打包或文档版本可复用未改变的最新稳定环境快照，但必须把未做的文件/应用验收明确列为未验证。
 - 唯一本地覆写模块为 `tiktok-router-loongproxy`；完整云覆写必须使用远程订阅模块。刷新远程覆写后重启 OpenClash 生效，不更新机场节点订阅。
-- 当前稳定版本为 `v1.0.6`；`v1.0.7` 候选调整手动规则生成/同步方式，尚待路由器及工作流验收，不视为正式发布。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
+- 当前稳定版本为 `v1.0.7`，用户于 2026-10-28 确认验收通过。它将手动规则生成和同步自动化，规则语法与一致性校验保留，规则数量和具体域名清单不固定。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
 
 ## 每次变更门禁
 
-仅手动域名新增、修改或删除不走候选版本门禁、不更新版本合同或 `CHANGELOG.md`；提交源文件后，先确认 `Sync manual direct rules` 工作流成功及生成提交已进入 `main`。路由器再使用同一远程地址更新并重启，确认命中结果。工作流失败时滚动覆写仍保留上一次生成版本。
+仅手动域名新增、修改或删除不走候选版本门禁、不更新版本合同或 `CHANGELOG.md`；源规则仍须通过语法和同步校验，但无固定条数/域名清单。提交源文件后，先确认 `Sync manual direct rules` 工作流成功及生成提交已进入 `main`。路由器再使用同一远程地址更新并重启，确认命中结果。工作流失败时滚动覆写仍保留上一次生成版本。
 
 大版本更新或重构必须遵循 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。开始工作前阅读 `AGENTS.md`、`README.md`、`profiles/catalog.json` 和受影响方案/版本的 `REQUIREMENTS.md`、`SETUP.md`、`ENVIRONMENT.json`（若存在）；标明方案 ID、需求编号与版本类型；完成对应文档、环境记录和 `CHANGELOG.md`；检查凭据及完整差异；运行：
 

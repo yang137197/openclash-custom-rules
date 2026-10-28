@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "profileId": "tiktok-router-loongproxy-jp-us",
   "version": "1.0.7",
-  "status": "pending",
+  "status": "verified",
   "behaviorChanged": false,
   "environment": {
     "openclashVersion": "0.48.002",
@@ -28,9 +28,9 @@
     "source": "reused",
     "capturedAt": null,
     "rawDebugLogCommitted": false,
-    "runtimeAcceptance": "not-run",
-    "userConfirmed": false,
-    "summary": "目标环境与配置元数据复用自 v1.0.6 已验收记录；这不代表 v1.0.7 候选模块或 GitHub Actions 已实机验收。候选只重构手动直连规则同步，尚待用户验收；本候选没有新的运行日志。"
+    "runtimeAcceptance": "passed",
+    "userConfirmed": true,
+    "summary": "用户于 2026-10-28 确认 v1.0.7 验收通过。环境和运行配置元数据复用 v1.0.6 已验收快照；v1.0.7 未提供新的调试日志。该版本不改变规则出口、优先级、DNS、代理链路或插件设置。"
   },
   "reusedFromVersion": "1.0.6",
   "setupDocument": "SETUP.md"

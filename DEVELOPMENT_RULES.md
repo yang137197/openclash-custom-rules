@@ -27,8 +27,8 @@
 ## 手动域名规则维护的永久流程
 
 - 本节 A/B 是仓库永久维护流程，不得因日常提交、候选或文档整理而删改或绕过；只有用户明确重新定义长期流程时才可调整。流程 A 是手动域名数据变更免候选/Release 的唯一例外；其他运行行为更改须经过候选验证和正式发布门禁。
-- 流程 A 覆盖手动直连域名的新增、修改和删除。唯一可编辑来源是 `rules/manual-direct.yaml` 的 `payload`：`DOMAIN-SUFFIX,example.com` 匹配主域名及其全部子域名，`DOMAIN,host.example.com` 只匹配精确主机名。提交到 GitHub `main` 后，GitHub Actions 调用 `scripts/sync_manual_direct.py` 生成 `Manual-Direct!` inline payload，更新滚动模块和 `profiles/catalog.json` 的 `latestModuleSha256`，通过验证后提交生成文件。不维护手动规则固定哈希或条数；不创建日常规则候选、版本记录、`CHANGELOG.md` 条目或 Release；固定版本快照及版本级哈希不变。
-- 手动规则列表中的重复项按源文件保留，不阻止生成。生成器只接受 `DOMAIN` 和 `DOMAIN-SUFFIX`；`manual-direct-isp.yaml` 是旧版本使用的历史副本，不是日常源，也不要求同步修改。代码、路由优先级、策略组、DNS、代理链路、插件设置及自动化机制不属于流程 A。
+- 流程 A 覆盖手动直连域名的新增、修改和删除。唯一可编辑来源是 `rules/manual-direct.yaml` 的 `payload`：`DOMAIN-SUFFIX,example.com` 匹配主域名及其全部子域名，`DOMAIN,host.example.com` 只匹配精确主机名。保留 YAML/字符串列表、规则类型和域名语法校验，以及源与生成 payload 逐项一致校验；不设固定域名清单、条数上限、源文件哈希或必须保留的动态规则，维护者可以随时增删任意数量的有效条目。
+- 提交到 GitHub `main` 后，GitHub Actions 调用 `scripts/sync_manual_direct.py` 校验并生成 `Manual-Direct!` inline payload，更新滚动模块和 `profiles/catalog.json` 的 `latestModuleSha256`，全部验证通过后提交生成文件。源规则列表中的重复项按源文件保留；`manual-direct-isp.yaml` 是旧版本使用的历史副本，不是日常源，也不要求同步修改。不创建日常规则候选、版本记录、`CHANGELOG.md` 条目或 Release；固定版本快照及版本级哈希不变。代码、路由优先级、策略组、DNS、代理链路和插件设置不属于流程 A。
 - 源规则提交后必须先确认 `Sync manual direct rules` 工作流成功，并确认机器人生成提交已到 `main`。若工作流失败，滚动覆写仍是上一份已生成规则，不能把源文件提交误认为路由器已更新。
 - 自动同步成功后，路由器继续使用同一个 `main` 滚动远程覆写地址，在 OpenClash 远程覆写模块点击“更新”，再重启 OpenClash。无需单独更新 Manual-Direct provider 或机场节点订阅。单个配置只保留本地 `tiktok-router-loongproxy` 模块，完整云覆写必须使用远程模块。
 - 流程 B 用于规则同步架构、大版本更新或重构：创建递增候选版，按本规则完成仓库验证和必要的实机验收；用户验收后发布正式版本，并把已验收模块同步到同一滚动模块路径及 `latestModuleSha256`。路由器仍在同一远程地址点击“更新”并重启 OpenClash。已发布版本快照、标签和 Release 永不改写。
@@ -75,7 +75,7 @@
 
 ## 每次变更的完成检查
 
-流程 A：只编辑 `rules/manual-direct.yaml`；确认 GitHub Actions 生成并提交滚动覆写和 `latestModuleSha256`，检查工作流结果及生成差异，不维护手动规则的固定哈希或固定条数，不更新版本合同、版本级哈希或 `CHANGELOG.md`。检查固定版本快照与凭据；自动同步成功后，路由器使用同一远程地址更新覆写并重启。
+流程 A：只编辑 `rules/manual-direct.yaml`；保留有效规则语法及生成一致性校验，不设固定规则数量、清单或源哈希；确认 GitHub Actions 校验、生成并提交滚动覆写和 `latestModuleSha256`，检查工作流结果及生成差异，不更新版本合同、版本级哈希或 `CHANGELOG.md`。检查固定版本快照与凭据；自动同步成功后，路由器使用同一远程地址更新覆写并重启。
 
 流程 B：说明方案 ID、受影响需求编号及候选/正式类型；更新候选/正式版本合同、设置和环境资料、`CHANGELOG.md`、catalog 和 README 索引；检查完整 diff、凭据、固定链接及不可变快照；运行：
 

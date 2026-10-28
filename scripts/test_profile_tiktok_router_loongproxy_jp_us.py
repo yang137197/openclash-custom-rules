@@ -145,7 +145,7 @@ class JapanFirstProfileTests(unittest.TestCase):
         profile = catalog["profiles"][validator.JP]
         release = profile["versions"]["1.0.5"]
         stable = profile["versions"]["1.0.4"]
-        self.assertEqual(profile["currentVersion"], "1.0.6")
+        self.assertEqual(profile["currentVersion"], "1.0.7")
         self.assertEqual(release["status"], "stable")
         self.assertEqual(release["requirements"], ["J13", "J14", "J15", "J16"])
         self.assertTrue(release["localModuleTemplatePath"].endswith("/local-tiktok-proxy.conf"))
@@ -176,7 +176,7 @@ class JapanFirstProfileTests(unittest.TestCase):
         catalog = json.loads(validator.read("profiles/catalog.json"))
         profile = catalog["profiles"][validator.JP]
         release = profile["versions"]["1.0.6"]
-        self.assertEqual(profile["currentVersion"], "1.0.6")
+        self.assertEqual(profile["currentVersion"], "1.0.7")
         self.assertEqual(release["status"], "stable")
         self.assertEqual(release["requirements"], ["J17"])
         self.assertEqual(release["manualRulesPath"], "rules/manual-direct-isp.yaml")
@@ -211,21 +211,21 @@ class JapanFirstProfileTests(unittest.TestCase):
     def test_v107_snapshot_uses_one_manual_source_without_runtime_rule_changes(self):
         catalog = json.loads(validator.read("profiles/catalog.json"))
         profile = catalog["profiles"][validator.JP]
-        candidate = profile["versions"]["1.0.7"]
-        self.assertIn(candidate["status"], {"candidate", "stable"})
-        self.assertEqual(candidate["requirements"], ["J18", "J19", "J20", "J21"])
-        self.assertEqual(candidate["manualRulesPath"], "rules/manual-direct.yaml")
+        release = profile["versions"]["1.0.7"]
+        self.assertEqual(release["status"], "stable")
+        self.assertEqual(release["requirements"], ["J18", "J19", "J20", "J21"])
+        self.assertEqual(release["manualRulesPath"], "rules/manual-direct.yaml")
 
         historical = load_yaml(validator.read("rules/manual-direct-isp.yaml"))["payload"]
-        expected_candidate_payload = historical + ["DOMAIN-SUFFIX,huzhou.host"]
+        expected_release_payload = historical + ["DOMAIN-SUFFIX,huzhou.host"]
 
         stable = profile["versions"]["1.0.6"]
         stable_module = load_yaml(validator.read(stable["modulePath"]), module=True)
-        candidate_module = load_yaml(validator.read(candidate["modulePath"]), module=True)
+        candidate_module = load_yaml(validator.read(release["modulePath"]), module=True)
         candidate_payload = candidate_module["rule-providers"]["Manual-Direct!"]["payload"]
         self.assertEqual(parse_payload("payload:\n" + "".join(f"  - {rule}\n" for rule in candidate_payload)),
                          candidate_payload)
-        self.assertEqual(candidate_payload, expected_candidate_payload)
+        self.assertEqual(candidate_payload, expected_release_payload)
         for key in set(stable_module) - {"rules!", "rule-providers"}:
             self.assertEqual(candidate_module[key], stable_module[key])
         self.assertEqual(
@@ -237,21 +237,20 @@ class JapanFirstProfileTests(unittest.TestCase):
             [rule for rule in stable_module["rules!"]
              if rule != "DOMAIN-SUFFIX,huzhou.host,DIRECT"],
         )
-        self.assertEqual(candidate["moduleSha256"],
-                         validator.sha(validator.read(candidate["modulePath"])))
+        self.assertEqual(release["moduleSha256"],
+                         validator.sha(validator.read(release["modulePath"])))
 
         rolling = load_yaml(validator.read(profile["latestModulePath"]), module=True)
-        source = parse_payload(validator.read(candidate["manualRulesPath"]))
+        source = parse_payload(validator.read(release["manualRulesPath"]))
         self.assertEqual(rolling["rule-providers"]["Manual-Direct!"]["payload"], source)
         self.assertNotIn("DOMAIN-SUFFIX,huzhou.host,DIRECT", rolling["rules!"])
 
-        environment = json.loads(validator.read(candidate["environmentPath"]))
-        self.assertEqual(environment["status"],
-                         "pending" if candidate["status"] == "candidate" else "verified")
+        environment = json.loads(validator.read(release["environmentPath"]))
+        self.assertEqual(environment["status"], "verified")
         self.assertFalse(environment["behaviorChanged"])
         self.assertEqual(environment["reusedFromVersion"], "1.0.6")
-        if candidate["status"] == "candidate":
-            self.assertEqual(environment["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertEqual(environment["evidence"]["runtimeAcceptance"], "passed")
+        self.assertTrue(environment["evidence"]["userConfirmed"])
 
     def test_manual_direct_generator_add_modify_delete_exactly_tracks_source(self):
         module_template = (
@@ -299,6 +298,18 @@ class JapanFirstProfileTests(unittest.TestCase):
             generated["rule-providers"]["Manual-Direct!"]["payload"],
             ["DOMAIN-SUFFIX,example.com", "DOMAIN,api.example.com", "DOMAIN-SUFFIX,example.com"],
         )
+
+    def test_manual_direct_generator_validates_rule_syntax_without_a_fixed_count(self):
+        with self.assertRaises(ValueError):
+            parse_payload("payload:\n  - DOMAIN-WILDCARD,*.example.com\n")
+        with self.assertRaises(ValueError):
+            parse_payload("payload:\n  - DOMAIN-SUFFIX,not a domain\n")
+
+        source = "payload:\n" + "".join(
+            f"  - DOMAIN-SUFFIX,site-{index}.example.com\n" for index in range(140)
+        )
+        payload = parse_payload(source)
+        self.assertEqual(len(payload), 140)
 
 
 if __name__ == "__main__":

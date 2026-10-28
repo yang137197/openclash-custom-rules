@@ -2,9 +2,9 @@
 
 ## tiktok-router-loongproxy-jp-us v1.0.7 — 2026-10-28
 
-- 状态：candidate，等待用户验收。将 `rules/manual-direct.yaml` 设为唯一可编辑手动直连规则源；生成滚动远程覆写中的 inline payload，并由 GitHub Actions 在 `main` 提交后同步覆写文件和滚动 SHA-256。
-- 支持在唯一源文件中新增、修改和删除域名规则。OpenClash 仍使用同一个滚动远程覆写地址，更新后重启生效；日常规则数据变化不创建候选版本或 Release。
-- 本候选规范化旧源中 46 条 `DOMAIN` 记录为 `DOMAIN-SUFFIX`，与已验收 v1.0.6 inline provider 的后缀匹配语义一致；将 Huzhou 源条目并入该 provider，不改变其他策略、DNS、出口、规则优先级或插件设置。单元测试、仓库校验和静态等价检查已通过；路由器候选验收及 GitHub Actions 在 `main` 的生成提交尚未验证。
+- 状态：stable。用户于 2026-10-28 确认 v1.0.7 验收通过。将 `rules/manual-direct.yaml` 设为唯一可编辑手动直连规则源；保留规则语法/域名格式及同步一致性校验，但不固定清单、条数或源哈希，维护者可随时增删有效规则。
+- GitHub Actions 在 `main` 校验源文件并生成滚动远程覆写的 inline payload 和 SHA-256；同步完成后 OpenClash 继续使用同一个远程地址，点击更新并重启生效。日常规则数据变化不创建候选版本或 Release。
+- 将旧源中 46 条 `DOMAIN` 记录规范为 `DOMAIN-SUFFIX`，与 v1.0.6 inline provider 的后缀匹配语义一致；将 Huzhou 源条目并入该 provider，不改变其他策略、DNS、出口、规则优先级或插件设置。用户确认 v1.0.7 验收通过；环境元数据复用 v1.0.6，未提供 v1.0.7 新调试日志。
 
 ## tiktok-router-loongproxy-jp-us v1.0.6 — 2026-10-28
 

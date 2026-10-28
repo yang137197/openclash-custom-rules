@@ -1,10 +1,10 @@
-# tiktok-router-loongproxy-jp-us v1.0.7 — 候选部署与设置
+# tiktok-router-loongproxy-jp-us v1.0.7 — 正式部署与设置
 
-**状态：candidate，等待验收。** 本候选只调整手动域名源与滚动覆写模块的同步方式，继承 v1.0.6 的分流规则和设置建议，不改变代理链路。Loongproxy 必须经 iKuuu 日本节点作为链式第一跳，这是本方案的强制前提。
+**状态：stable；用户于 2026-10-28 确认 v1.0.7 验收通过。** 本版本调整手动域名源与滚动覆写模块的同步方式，继承 v1.0.6 的分流规则和设置建议，不改变代理链路。Loongproxy 必须经 iKuuu 日本节点作为链式第一跳，这是本方案的强制前提。
 
-候选远程完整覆写（仅用于本候选验收）：
+v1.0.7 标签固定远程完整覆写：
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/manual-direct-source-generator-v1-0-7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
 ## 本地模板文件类型
 
@@ -54,11 +54,11 @@ proxies+:
 
 不要把填入真实凭据的本地文件上传到 GitHub、聊天或公开日志。OpenClash 的模块编辑入口、保存和重启行为见官方指南 `16-overwrite-module-format.md` §16.1、§16.2。
 
-当前稳定版本为 v1.0.6。标签固定覆写地址为：
+当前稳定版本为 v1.0.7。标签固定覆写地址为：
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.6/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/openclash-overwrite.conf
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
-v1.0.4 Release 的历史模板附件名为 `.conf.example`，导入前需先改名为 `.conf`；v1.0.6 唯一本地节点模板使用 `.conf`。文件选择器本次仍未在路由器实测。字段对应和虚构示例见 [v1.0.6 Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.6)。
+v1.0.4 Release 的历史模板附件名为 `.conf.example`，导入前需先改名为 `.conf`；v1.0.7 唯一本地节点模板使用 `.conf`。文件选择器本次仍未在路由器实测。字段对应和虚构示例见 [v1.0.7 Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.7)。
 
 本地模块格式依据 OpenClash 官方指南 [`16-overwrite-module-format.md` §16.1.1、§16.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)。
 
@@ -102,11 +102,11 @@ DNS 顺序为 TikTok/Google Fake-IP → 私网/Manual-Direct real-ip → CN real
 
 - `DOMAIN-SUFFIX,example.com` 匹配 `example.com` 及其全部子域名。
 - `DOMAIN,host.example.com` 只匹配 `host.example.com` 这个精确主机名。
-- 需要增删改时，只编辑该源文件并提交到 GitHub `main`。不要手动改滚动覆写模块，也不要把 `manual-direct-isp.yaml` 当作日常维护入口；它是旧版本使用的历史副本。
+- 可随时增删改任意数量的有效规则，不固定清单或条数。YAML/列表结构、`DOMAIN`/`DOMAIN-SUFFIX` 类型和域名格式仍须通过仓库校验；重复条目保留。需要维护时，只编辑该源文件并提交到 GitHub `main`。不要手动改滚动覆写模块，也不要把 `manual-direct-isp.yaml` 当作日常维护入口；它是旧版本使用的历史副本。
 - GitHub Actions 根据源文件生成滚动覆写模块的 `Manual-Direct!` inline payload，并更新其 SHA-256。先确认 `Sync manual direct rules` 工作流成功且生成提交已出现在 `main`，再操作路由器。若工作流失败，生成文件没有完成同步，不要刷新远程覆写。
 - 工作流成功后，路由器仍使用原来的 `main` 滚动远程地址；在 OpenClash 远程覆写模块点击“更新”，然后重启 OpenClash。添加、修改和删除均在这次覆写生效后应用；无需单独更新 Manual-Direct provider 或机场节点订阅。
 
-当前候选分支只提供 v1.0.7 模块用于候选验收。候选验收通过并正式发布后，上述 `main` 自动同步流程才作为日常规则维护入口。
+v1.0.7 已正式发布；上述 `main` 自动同步流程是日常规则维护入口。改动规则优先级、策略组、DNS、代理链路或同步机制时，则须走更高版本候选验证和正式发布流程。
 
 ## v1.0.6 Huzhou 直连验收
 
