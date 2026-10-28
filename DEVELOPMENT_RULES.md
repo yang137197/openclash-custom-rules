@@ -24,14 +24,14 @@
 - 根 `README.md` 是方案总览目录；每个方案 README 和 Release 都必须告诉用户适用需求、当前状态、对应版本、固定覆写链接、部署设置说明及验证状态。单个 OpenClash 配置只启用一个完整方案及其配套本地模块。
 - 已发布版本目录、标签和 Release 不可改写、移动或复用。大版本更新或重构在原方案内新建更高候选版本，完成验收后发布正式版本；需求目标不同则新建方案。新方案不能复活已清理的 IPRoyal、SocksTun 等已弃用方案，除非用户明确要求。
 
-## 手动新增域名规则的永久流程
+## 手动域名规则维护的永久流程
 
-- 本节 A/B 是仓库永久维护流程，不得因日常提交、候选或文档整理而删改或绕过；只有用户明确重新定义长期流程时才可调整。流程 A 是唯一免候选/Release 的运行规则变更例外；其他运行行为更改须经过候选验证和正式发布门禁。
-- 仅手动新增域名直连规则走流程 A：在现有 `rules/manual-direct.yaml` 的 `payload` 末尾追加 `DOMAIN-SUFFIX,example.com`（匹配主域名及全部子域名）或 `DOMAIN,host.example.com`（仅精确主机名）；同步将对应的 `...,DIRECT` 规则插入滚动模块 `profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf`，位置在 Google 规则之后、`RULE-SET,Manual-Direct,DIRECT` 之前，并更新 `profiles/catalog.json` 的 `latestModuleSha256`。提交到 GitHub `main` 后，不创建候选版本、不改 `CHANGELOG.md`、固定快照或版本级哈希、不创建 Release。
-- `manual-direct.yaml` 是手动规则来源，不维护固定哈希或固定条数；流程 A 的新增域名追加到其 `payload`。`manual-direct-isp.yaml` 是当前正式方案的历史后缀化副本，流程 A 不要求手动维护它。滚动模块与 source 同步；已发布版本快照不改写。
-- GitHub `main` 更新后，路由器继续使用同一个滚动远程覆写地址，在远程覆写模块点击“更新”，再重启 OpenClash；无需更新机场节点订阅。单个配置只保留本地 `tiktok-router-loongproxy` 模块，完整云覆写必须使用远程模块。
-- 流程 A 仅适用于新增域名，不涵盖删除规则、改规则顺序、策略组、DNS、代理链路、插件设置或其他行为变更。
-- 流程 B 用于大版本更新或重构：创建递增候选版，按本规则完成验证；用户验收后发布正式版本，并把已验收模块同步到同一滚动模块路径及 `latestModuleSha256`。路由器仍在同一远程地址点击“更新”并重启 OpenClash。已发布版本快照、标签和 Release 永不改写。
+- 本节 A/B 是仓库永久维护流程，不得因日常提交、候选或文档整理而删改或绕过；只有用户明确重新定义长期流程时才可调整。流程 A 是手动域名数据变更免候选/Release 的唯一例外；其他运行行为更改须经过候选验证和正式发布门禁。
+- 流程 A 覆盖手动直连域名的新增、修改和删除。唯一可编辑来源是 `rules/manual-direct.yaml` 的 `payload`：`DOMAIN-SUFFIX,example.com` 匹配主域名及其全部子域名，`DOMAIN,host.example.com` 只匹配精确主机名。保留 YAML/字符串列表、规则类型和域名语法校验，以及源与生成 payload 逐项一致校验；不设固定域名清单、条数上限、源文件哈希或必须保留的动态规则，维护者可以随时增删任意数量的有效条目。
+- 提交到 GitHub `main` 后，GitHub Actions 调用 `scripts/sync_manual_direct.py` 校验并生成 `Manual-Direct!` inline payload，更新滚动模块和 `profiles/catalog.json` 的 `latestModuleSha256`，全部验证通过后提交生成文件。源规则列表中的重复项按源文件保留；`manual-direct-isp.yaml` 是旧版本使用的历史副本，不是日常源，也不要求同步修改。不创建日常规则候选、版本记录、`CHANGELOG.md` 条目或 Release；固定版本快照及版本级哈希不变。代码、路由优先级、策略组、DNS、代理链路和插件设置不属于流程 A。
+- 源规则提交后必须先确认 `Sync manual direct rules` 工作流成功，并确认机器人生成提交已到 `main`。若工作流失败，滚动覆写仍是上一份已生成规则，不能把源文件提交误认为路由器已更新。
+- 自动同步成功后，路由器继续使用同一个 `main` 滚动远程覆写地址，在 OpenClash 远程覆写模块点击“更新”，再重启 OpenClash。无需单独更新 Manual-Direct provider 或机场节点订阅。单个配置只保留本地 `tiktok-router-loongproxy` 模块，完整云覆写必须使用远程模块。
+- 流程 B 用于规则同步架构、大版本更新或重构：创建递增候选版，按本规则完成仓库验证和必要的实机验收；用户验收后发布正式版本，并把已验收模块同步到同一滚动模块路径及 `latestModuleSha256`。路由器仍在同一远程地址点击“更新”并重启 OpenClash。已发布版本快照、标签和 Release 永不改写。
 
 ## 候选开发信息门禁
 
@@ -75,7 +75,7 @@
 
 ## 每次变更的完成检查
 
-流程 A：检查 `manual-direct.yaml` 的手动规则与滚动模块同步；不维护手动规则的固定哈希或固定条数，不更新版本合同、版本级哈希或 `CHANGELOG.md`。检查完整 diff 与凭据、固定版本快照；提交到 `main` 后，GitHub Actions 按仓库工作流执行自动检查。
+流程 A：只编辑 `rules/manual-direct.yaml`；保留有效规则语法及生成一致性校验，不设固定规则数量、清单或源哈希；确认 GitHub Actions 校验、生成并提交滚动覆写和 `latestModuleSha256`，检查工作流结果及生成差异，不更新版本合同、版本级哈希或 `CHANGELOG.md`。检查固定版本快照与凭据；自动同步成功后，路由器使用同一远程地址更新覆写并重启。
 
 流程 B：说明方案 ID、受影响需求编号及候选/正式类型；更新候选/正式版本合同、设置和环境资料、`CHANGELOG.md`、catalog 和 README 索引；检查完整 diff、凭据、固定链接及不可变快照；运行：
 

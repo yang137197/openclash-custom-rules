@@ -12,6 +12,10 @@ from functools import cmp_to_key
 from pathlib import Path
 
 from strict_yaml import load_yaml
+from sync_manual_direct import (
+    parse_payload as parse_manual_direct_payload,
+    validate_payload as validate_manual_direct_payload,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 JP = "tiktok-router-loongproxy-jp-us"
@@ -217,7 +221,7 @@ def expected_rules():
 
 def expected_stable_rules(profile_id, version):
     rules = expected_rules()
-    if profile_id == JP and version in {"1.0.4", "1.0.5", "1.0.6"}:
+    if profile_id == JP and version in {"1.0.4", "1.0.5", "1.0.6", "1.0.7"}:
         # Claude/Anthropic endpoints stay on the static ISP, while GitHub uses US.
         rules[12:12] = [
             "DOMAIN-SUFFIX,anthropic.com,TikTok-ISP",
@@ -510,7 +514,7 @@ def validate_profile_artifacts(profile_id, profile, modules):
                 f"{profile_id}: rolling module hash mismatch")
 
 
-def validate_stable(profile_id, profile, modules, manual, manual_additions):
+def validate_stable(profile_id, profile, modules, manual):
     version = profile["currentVersion"]
     entry = profile["versions"][version]
     directory = f"profiles/{profile_id}/versions/v{version}"
@@ -529,8 +533,23 @@ def validate_stable(profile_id, profile, modules, manual, manual_additions):
     fixed_text = read(entry["modulePath"])
     require(sha(fixed_text) == entry["moduleSha256"], f"{profile_id}: fixed module hash")
     require(profile["latestModuleSha256"] == sha(read(rolling)), f"{profile_id}: rolling module hash")
-    require(entry["manualRulesPath"] == profile["manualRulesPath"] == "rules/manual-direct-isp.yaml", "manual source")
-    require(entry["manualRuleCount"] == 129 and entry["manualRulesSha256"] == sha(read(entry["manualRulesPath"])), "manual count/hash")
+    require(profile.get("manualRulesPath") in {"rules/manual-direct-isp.yaml", "rules/manual-direct.yaml"},
+            "profile manual source path")
+    parsed = modules[entry["modulePath"]]
+    if entry["manualRulesPath"] == "rules/manual-direct-isp.yaml":
+        require(entry.get("manualRuleCount") == 129 and
+                entry.get("manualRulesSha256") == sha(read(entry["manualRulesPath"])),
+                "historical manual count/hash")
+        manual_payload = manual
+    else:
+        require(entry["manualRulesPath"] == profile.get("manualRulesPath") == "rules/manual-direct.yaml",
+                "generated-source stable manual path")
+        manual_provider = parsed.get("rule-providers", {}).get("Manual-Direct!")
+        require(isinstance(manual_provider, dict) and
+                manual_provider.get("type") == "inline" and
+                manual_provider.get("behavior") == "classical",
+                "generated-source stable inline provider")
+        manual_payload = validate_manual_direct_payload(manual_provider.get("payload"))
     require(entry["localProxyName"] == "TikTok-ISP-Local" and entry["tiktokGroup"] == "TikTok-ISP", "local group contract")
     hop = "日本-入口"
     require(entry["firstHopGroup"] == hop and entry["firstHopProvider"] == "iKuuu" and
@@ -546,42 +565,18 @@ def validate_stable(profile_id, profile, modules, manual, manual_additions):
             "oc-cn-domain": {"type": "http", "behavior": "domain", "format": "mrs", "proxy": "美国",
                              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs",
                              "path": "./rule_provider/guide-cn.mrs", "interval": 86400},
-            "Manual-Direct!": {"type": "inline", "behavior": "classical", "payload": manual},
+            "Manual-Direct!": {"type": "inline", "behavior": "classical", "payload": manual_payload},
         },
     }
-    parsed = modules[entry["modulePath"]]
     require(set(parsed) == set(expected), f"{profile_id}: unexpected cloud keys")
     for key, value in expected.items():
         require(parsed[key] == value, f"{profile_id}: protected {key} changed")
-    direct_baseline = expected["rules!"] + [f"{rule},DIRECT" for rule in manual]
-    # The current source may contain domains already frozen into the latest
-    # stable module. Keep those in that immutable module; only later additions
-    # belong in the rolling module delta.
-    validate_rolling_direct_additions(manual_additions, expected_rules())
-    fixed_direct = set()
-    for rule in expected["rules!"]:
-        parts = rule.split(",")
-        if len(parts) == 3 and parts[0] in {"DOMAIN", "DOMAIN-SUFFIX"} and parts[2] == "DIRECT":
-            fixed_direct.add((parts[0], parts[1].casefold()))
-    remaining_source_rules = []
-    for rule in manual_additions:
-        parts = rule.split(",")
-        if (parts[0], parts[1].casefold()) not in fixed_direct:
-            remaining_source_rules.append(rule)
-    additions = validate_rolling_direct_additions(remaining_source_rules, direct_baseline)
-    rules = list(expected["rules!"])
-    manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
-    google_index = rules.index("GEOSITE,google,美国")
-    require(manual_index > google_index,
-            f"{profile_id}: direct additions insertion point changed")
-    if version == "1.0.6":
-        require("DOMAIN-SUFFIX,huzhou.host" in manual_additions and
-                "DOMAIN-SUFFIX,huzhou.host,DIRECT" in rules,
-                f"{profile_id}: stable v1.0.6 Huzhou source/rule mismatch")
-    expected_rolling = dict(parsed)
-    expected_rolling["rules!"] = rules[:manual_index] + additions + rules[manual_index:]
-    require(modules[rolling] == expected_rolling,
-            f"{profile_id}: rolling module may only add sourced domain DIRECT rules before Manual-Direct")
+    # v1.0.6's immutable snapshot remains validated above. Once the catalog
+    # selects the generated-source architecture, the rolling module is instead
+    # checked against the editable source by validate_manual_direct_sync().
+    if profile.get("manualRulesPath") == "rules/manual-direct-isp.yaml":
+        require(modules[rolling] == parsed,
+                f"{profile_id}: legacy rolling module must match the stable snapshot")
     template = {"proxies+": [{"name": "TikTok-ISP-Local", "type": "socks5", "server": "FILL_ME_PROXY_HOST",
                               "port": "FILL_ME_PROXY_PORT", "username": "FILL_ME_USERNAME",
                               "password": "FILL_ME_PASSWORD", "udp": False, "dialer-proxy": hop}]}
@@ -609,7 +604,31 @@ def validate_stable(profile_id, profile, modules, manual, manual_additions):
                      "禁用 QUIC", "IPv6 设置", "DNS 顺序为"]
     require(all(marker in setup for marker in setup_markers),
             f"{profile_id}: protected OpenClash settings recommendations are missing")
-    print(f"OK: {profile_id} v{version} stable; mandatory iKuuu hop, routing, 129 inline entries and placeholders")
+    print(f"OK: {profile_id} v{version} stable; mandatory iKuuu hop, routing, {len(manual_payload)} inline rules and placeholders")
+
+
+def validate_manual_direct_sync(profile, modules):
+    source_path = profile.get("manualRulesPath")
+    if source_path != "rules/manual-direct.yaml":
+        return
+    payload = parse_manual_direct_payload(read(source_path))
+    rolling_path = profile["latestModulePath"]
+    rolling = modules[rolling_path]
+    provider = rolling.get("rule-providers", {}).get("Manual-Direct!")
+    require(provider == {"type": "inline", "behavior": "classical", "payload": payload},
+            "rolling Manual-Direct inline payload must exactly match rules/manual-direct.yaml")
+    rules = rolling.get("rules!", [])
+    require(rules.count("RULE-SET,Manual-Direct,DIRECT") == 1,
+            "rolling module must call the generated Manual-Direct provider exactly once")
+    google_index = rules.index("GEOSITE,google,美国")
+    manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
+    china_index = rules.index("RULE-SET,oc-cn-domain,DIRECT")
+    require(google_index < manual_index < china_index,
+            "generated Manual-Direct provider must stay after Google and before China rules")
+    direct_domains = [rule for rule in rules if rule.split(",", 1)[0] in {"DOMAIN", "DOMAIN-SUFFIX"}
+                      and rule.endswith(",DIRECT")]
+    require(not direct_domains,
+            "manual domain DIRECT rules must come only from rules/manual-direct.yaml")
 
 
 def check_version_progression(base_ref, catalog):
@@ -678,10 +697,8 @@ def main():
             "请你先读取仓库，我们继续开发" in read("README.md"),
             "tool-agnostic repository handoff prompt must be documented")
     validate_no_raw_debug_logs()
-    original = load_yaml(read("rules/manual-direct.yaml"))["payload"]
     manual = load_yaml(read("rules/manual-direct-isp.yaml"))["payload"]
-    require(isinstance(original, list), "manual direct rules payload must be a list")
-    manual_additions = original[129:] if len(original) > 129 else []
+    parse_manual_direct_payload(read("rules/manual-direct.yaml"))
     require(all(rule.startswith("DOMAIN-SUFFIX,") for rule in manual), "manual domains must include subdomains")
     modules = {}
     for path in ROOT.glob("profiles/**/*.conf*"):
@@ -700,8 +717,9 @@ def main():
     for profile_id, profile in catalog["profiles"].items():
         validate_version_catalog(profile_id, profile, read("CHANGELOG.md"))
         validate_profile_artifacts(profile_id, profile, modules)
+        validate_manual_direct_sync(profile, modules)
         if profile_id == JP and profile["status"] == "stable":
-            validate_stable(profile_id, profile, modules, manual, manual_additions)
+            validate_stable(profile_id, profile, modules, manual)
     for path in ("README.md", "AGENTS.md", "MAINTENANCE.md", "CHANGELOG.md"):
         content = read(path)
         for profile_id in catalog["profiles"]:

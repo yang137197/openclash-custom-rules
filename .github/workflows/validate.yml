@@ -21,6 +21,8 @@ jobs:
           python-version: '3.12'
       - name: Install YAML validation dependency
         run: python3 -m pip install -r scripts/requirements-validation.txt
+      - name: Regenerate rolling Manual-Direct payload from source
+        run: python3 scripts/sync_manual_direct.py --write
       - name: Test YAML regression guards
         run: python3 -m unittest discover -s scripts -p 'test_*.py'
       - name: Validate version and stable rules
@@ -30,4 +32,6 @@ jobs:
       - name: Check diff whitespace
         env:
           BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: git diff --check "$BASE_REF"...HEAD
+        run: |
+          git diff --check "$BASE_REF"...HEAD
+          git diff --check

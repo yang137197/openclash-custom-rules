@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.7",
+  "status": "verified",
+  "behaviorChanged": false,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX; QEMU Virtual CPU version 2.5+; 2C2T)"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "ikuuu",
+    "enabledModulesInOrder": [
+      "远程完整云覆写模块（v1.0.6）",
+      "本地 tiktok-router-loongproxy（TikTok-ISP-Local）"
+    ],
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用 QUIC：停用；v1.0.5 SETUP.md 建议启用。此次保留路由器实测值；v1.0.6 仅新增域名规则，不修改该设置，测试连接为 TCP。"
+    ]
+  },
+  "evidence": {
+    "source": "reused",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "passed",
+    "userConfirmed": true,
+    "summary": "用户于 2026-10-28 确认 v1.0.7 验收通过。环境和运行配置元数据复用 v1.0.6 已验收快照；v1.0.7 未提供新的调试日志。该版本不改变规则出口、优先级、DNS、代理链路或插件设置。"
+  },
+  "reusedFromVersion": "1.0.6",
+  "setupDocument": "SETUP.md"
+}
