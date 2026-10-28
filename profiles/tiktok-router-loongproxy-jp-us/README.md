@@ -14,7 +14,7 @@ Loongproxy 美国 SOCKS5 必须经用户手选的 iKuuu 日本节点作为链式
 - [v1.0.6 唯一本地节点占位模板](versions/v1.0.6/local-tiktok-proxy.conf)
 - [v1.0.6 固定完整云覆写](versions/v1.0.6/openclash-overwrite.conf)
 
-真实 ISP 凭据只保存在唯一的本地 `tiktok-router-loongproxy` 模块；完整云覆写必须使用远程订阅模块。仅手动新增域名时，在根目录 `rules/manual-direct.yaml` 的 `payload` 末尾维护规则并同步滚动模块；路由器继续使用同一远程地址，点击更新并重启，无需正式 Release。大版本更新或重构走候选验收后发布正式版，再同步滚动模块。
+真实 ISP 凭据只保存在唯一的本地 `tiktok-router-loongproxy` 模块；完整云覆写必须使用远程订阅模块。v1.0.7 候选验收并发布后，手动直连规则唯一源为根目录 `rules/manual-direct.yaml`；新增、修改或删除后，GitHub Actions 自动同步滚动模块与哈希。工作流成功后，路由器继续使用同一远程地址，点击更新并重启即可生效，无需单独更新规则 provider 或发布日常规则版本。大版本更新或重构走候选验收后发布正式版。
 
 v1.0.6 固定版本完整覆写订阅链接：
 
@@ -28,6 +28,14 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 ## 未验收候选（candidate）
 
+- **v1.0.7**：将 `rules/manual-direct.yaml` 设为唯一可编辑手动规则源；GitHub Actions 自动同步滚动覆写及 SHA-256。候选用于验收生成模块和同步工作流，当前尚未合并或发布。
+
+  - [候选需求合同](versions/v1.0.7/REQUIREMENTS.md)
+  - [候选部署、设置与验收说明](versions/v1.0.7/SETUP.md)
+  - [候选环境记录](versions/v1.0.7/ENVIRONMENT.json)
+  - 候选远程完整覆写：
+
+    https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/manual-direct-source-generator-v1-0-7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 - **v1.0.1**：仅增加 `update.kies.samsung.com` 精确域名直连，未验收且不属于当前正式版。
 - **v1.0.2**：Claude Code 官方端点分流的早期候选。
 - **v1.0.3**：Claude 网页 Anthropic/Claude 第一方域名分流候选。

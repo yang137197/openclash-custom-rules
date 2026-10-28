@@ -1,0 +1,56 @@
+name: Sync manual direct rules
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - rules/manual-direct.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-manual-direct-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install YAML validation dependency
+        run: python3 -m pip install -r scripts/requirements-validation.txt
+      - name: Generate rolling module and catalog hash
+        run: python3 scripts/sync_manual_direct.py --write
+      - name: Test YAML regression guards
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - name: Validate repository and immutable snapshots
+        env:
+          BASE_REF: ${{ github.event.before }}
+        run: |
+          if [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
+            python3 scripts/validate_repository.py
+          else
+            python3 scripts/validate_repository.py --base-ref "$BASE_REF"
+          fi
+      - name: Check generated diff
+        run: git diff --check
+      - name: Commit generated rolling files
+        run: |
+          if git diff --quiet -- profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf profiles/catalog.json; then
+            echo "Rolling module is already synchronized."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf profiles/catalog.json
+          git commit -m "chore: sync manual direct rules"
+          git push origin HEAD:main

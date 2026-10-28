@@ -4,8 +4,9 @@
 # 用途：
 #   把“必须直连、不允许走美国代理”的域名写在这里。
 #
-# 主配置通过以下规则调用本文件：
-#   RULE-SET,Manual-Direct,DIRECT
+# OpenClash 远程完整覆写从本文件生成 Manual-Direct inline payload。
+# 提交到 GitHub main 后，GitHub Actions 自动同步滚动覆写模块及 SHA-256。
+# 等同步工作流成功后，在 OpenClash 远程覆写模块点击“更新”，再重启 OpenClash。
 #
 # 常用写法：
 #
@@ -22,30 +23,25 @@
 # 2) DOMAIN
 #    只匹配一个完整域名，不包含其他子域名。
 #    示例：
-#      - DOMAIN,api.example.com
-#
-# 3) DOMAIN-KEYWORD
-#    域名中只要包含关键字就匹配。
-#    容易误匹配，不建议日常使用。
-#    示例：
-#      - DOMAIN-KEYWORD,example
+#      - DOMAIN-SUFFIX,api.example.com
 #
 # 维护规则：
 # - 每个站点尽量写主域名并使用 DOMAIN-SUFFIX，减少漏匹配。
 # - 只有需要“精确到单个子域名”时才使用 DOMAIN。
 # - 不要写 http://、https://、路径、端口或参数。
-# - 不要把中国大陆常规网站大量重复加入这里；大陆域名已由 GEOSITE,cn 自动直连。
-# - 本文件只用于“例外直连”，越精简越容易维护。
-# - 修改并提交 GitHub 后，OpenClash 会按 rule-provider 更新周期重新拉取；也可手动更新覆写/规则并重启。
+# - payload 只接受 DOMAIN 和 DOMAIN-SUFFIX；可按需要新增、修改或删除条目。
+# - 保留重复项不会阻止同步；生成内容保持源文件中的条目顺序。
+# - 日常维护只改本文件，不要手动编辑滚动覆写模块或历史副本 manual-direct-isp.yaml。
+# - 自动同步失败时不要在路由器刷新；先查看 GitHub Actions 的失败原因。
 # ============================================================
 
 payload:
   # ==========================================================
   # 自建服务域名：强制 DIRECT
   # ==========================================================
-  - DOMAIN,pve.yangnas.cn
-  - DOMAIN,auth.yangnas.cn
-  - DOMAIN,nexus.yangnas.cn
+  - DOMAIN-SUFFIX,pve.yangnas.cn
+  - DOMAIN-SUFFIX,auth.yangnas.cn
+  - DOMAIN-SUFFIX,nexus.yangnas.cn
 
   # 微信小程序业务域名；主域名及全部子域名直连。
   - DOMAIN-SUFFIX,gdwzy.top
@@ -88,50 +84,50 @@ payload:
   - DOMAIN-SUFFIX,download.microsoft.com
   - DOMAIN-SUFFIX,packages.microsoft.com
   - DOMAIN-SUFFIX,definitionupdates.microsoft.com
-  - DOMAIN,ctldl.windowsupdate.com
-  - DOMAIN,adl.windows.com
+  - DOMAIN-SUFFIX,ctldl.windowsupdate.com
+  - DOMAIN-SUFFIX,adl.windows.com
 
   # ----------------------------------------------------------
   # Microsoft Store / 激活 / 授权 / Windows 设备服务
   # ----------------------------------------------------------
   # Store 前端、目录、图片/CDN 与 SDK。保持这些请求和下载/授权链路使用同一国内出口。
-  - DOMAIN,storeedge.microsoft.com
-  - DOMAIN,apps.microsoft.com
-  - DOMAIN,store-images.microsoft.com
-  - DOMAIN,images-eds-ssl.xboxlive.com
-  - DOMAIN,assets.onestore.ms
-  - DOMAIN,wcpstatic.microsoft.com
-  - DOMAIN,c1.microsoft.com
-  - DOMAIN,go.microsoft.com
-  - DOMAIN,storesdk.dsx.mp.microsoft.com
-  - DOMAIN,manage.devcenter.microsoft.com
-  - DOMAIN,activation.sls.microsoft.com
-  - DOMAIN,activation-v2.sls.microsoft.com
-  - DOMAIN,crl.microsoft.com
-  - DOMAIN,mscrl.microsoft.com
-  - DOMAIN,cs.dds.microsoft.com
-  - DOMAIN,dmd.metaservices.microsoft.com
+  - DOMAIN-SUFFIX,storeedge.microsoft.com
+  - DOMAIN-SUFFIX,apps.microsoft.com
+  - DOMAIN-SUFFIX,store-images.microsoft.com
+  - DOMAIN-SUFFIX,images-eds-ssl.xboxlive.com
+  - DOMAIN-SUFFIX,assets.onestore.ms
+  - DOMAIN-SUFFIX,wcpstatic.microsoft.com
+  - DOMAIN-SUFFIX,c1.microsoft.com
+  - DOMAIN-SUFFIX,go.microsoft.com
+  - DOMAIN-SUFFIX,storesdk.dsx.mp.microsoft.com
+  - DOMAIN-SUFFIX,manage.devcenter.microsoft.com
+  - DOMAIN-SUFFIX,activation.sls.microsoft.com
+  - DOMAIN-SUFFIX,activation-v2.sls.microsoft.com
+  - DOMAIN-SUFFIX,crl.microsoft.com
+  - DOMAIN-SUFFIX,mscrl.microsoft.com
+  - DOMAIN-SUFFIX,cs.dds.microsoft.com
+  - DOMAIN-SUFFIX,dmd.metaservices.microsoft.com
   - DOMAIN-SUFFIX,storequality.microsoft.com
   - DOMAIN-SUFFIX,s-microsoft.com
-  - DOMAIN,img-prod-cms-rt-microsoft-com.akamaized.net
+  - DOMAIN-SUFFIX,img-prod-cms-rt-microsoft-com.akamaized.net
 
   # ----------------------------------------------------------
   # Microsoft Account / Entra 身份认证
   # ----------------------------------------------------------
   # 保持认证链路 DIRECT，尽量让账户登录来源保持中国大陆公网出口。
-  - DOMAIN,account.live.com
+  - DOMAIN-SUFFIX,account.live.com
   - DOMAIN-SUFFIX,login.live.com
-  - DOMAIN,oauth.live.com
-  - DOMAIN,login.microsoftonline.com
-  - DOMAIN,login.microsoft.com
-  - DOMAIN,login.windows.net
-  - DOMAIN,graph.windows.net
+  - DOMAIN-SUFFIX,oauth.live.com
+  - DOMAIN-SUFFIX,login.microsoftonline.com
+  - DOMAIN-SUFFIX,login.microsoft.com
+  - DOMAIN-SUFFIX,login.windows.net
+  - DOMAIN-SUFFIX,graph.windows.net
   - DOMAIN-SUFFIX,msauth.net
   - DOMAIN-SUFFIX,msauthimages.net
   - DOMAIN-SUFFIX,msftauth.net
   - DOMAIN-SUFFIX,msftauthimages.net
   - DOMAIN-SUFFIX,microsoftaik.azure.net
-  - DOMAIN,token.cp.microsoft.com
+  - DOMAIN-SUFFIX,token.cp.microsoft.com
 
   # ----------------------------------------------------------
   # Windows 网络检测 / 配置 / 诊断 / 推送
@@ -143,16 +139,16 @@ payload:
   - DOMAIN-SUFFIX,notify.windows.com
   - DOMAIN-SUFFIX,wns.windows.com
   - DOMAIN-SUFFIX,dm.microsoft.com
-  - DOMAIN,time.windows.com
+  - DOMAIN-SUFFIX,time.windows.com
   - DOMAIN-SUFFIX,aria.microsoft.com
 
   # ----------------------------------------------------------
   # Microsoft Defender / SmartScreen / Windows 安全
   # ----------------------------------------------------------
-  - DOMAIN,wdcp.microsoft.com
-  - DOMAIN,wdcpalt.microsoft.com
-  - DOMAIN,checkappexec.microsoft.com
-  - DOMAIN,fpt.dfp.microsoft.com
+  - DOMAIN-SUFFIX,wdcp.microsoft.com
+  - DOMAIN-SUFFIX,wdcpalt.microsoft.com
+  - DOMAIN-SUFFIX,checkappexec.microsoft.com
+  - DOMAIN-SUFFIX,fpt.dfp.microsoft.com
   - DOMAIN-SUFFIX,smartscreen-prod.microsoft.com
   - DOMAIN-SUFFIX,smartscreen.microsoft.com
   - DOMAIN-SUFFIX,endpoint.security.microsoft.com
@@ -161,23 +157,23 @@ payload:
   # Windows 字体 / 定位 / 地图等系统内容
   # ----------------------------------------------------------
   - DOMAIN-SUFFIX,fs.microsoft.com
-  - DOMAIN,inference.location.live.net
+  - DOMAIN-SUFFIX,inference.location.live.net
   - DOMAIN-SUFFIX,maps.windows.com
-  - DOMAIN,ecn.dev.virtualearth.net
-  - DOMAIN,ecn-us.dev.virtualearth.net
+  - DOMAIN-SUFFIX,ecn.dev.virtualearth.net
+  - DOMAIN-SUFFIX,ecn-us.dev.virtualearth.net
 
   # ----------------------------------------------------------
   # Edge / Microsoft 365 客户端更新和微软 CDN
   # ----------------------------------------------------------
-  - DOMAIN,edge.microsoft.com
+  - DOMAIN-SUFFIX,edge.microsoft.com
   - DOMAIN-SUFFIX,api.cdp.microsoft.com
   - DOMAIN-SUFFIX,officecdn.microsoft.com
   - DOMAIN-SUFFIX,cdn.office.net
   - DOMAIN-SUFFIX,static.microsoft
   - DOMAIN-SUFFIX,manage.microsoft.com
-  - DOMAIN,officeclient.microsoft.com
-  - DOMAIN,odc.officeapps.live.com
-  - DOMAIN,shellprod.msocdn.com
+  - DOMAIN-SUFFIX,officeclient.microsoft.com
+  - DOMAIN-SUFFIX,odc.officeapps.live.com
+  - DOMAIN-SUFFIX,shellprod.msocdn.com
 
   # ==========================================================
   # Microsoft 365 operated by 21Vianet：中国区专用端点
@@ -191,7 +187,7 @@ payload:
   - DOMAIN-SUFFIX,partner.microsoftonline.cn
   - DOMAIN-SUFFIX,office365.cn
   - DOMAIN-SUFFIX,officewebapps.cn
-  - DOMAIN,loki.office365.cn
+  - DOMAIN-SUFFIX,loki.office365.cn
   - DOMAIN-SUFFIX,onmschina.cn
   - DOMAIN-SUFFIX,partner.microsoftonline-p.cn
   - DOMAIN-SUFFIX,partner.microsoftonline-m-i.net.cn
@@ -207,7 +203,7 @@ payload:
   - DOMAIN-SUFFIX,sovcloud-static.cn
   - DOMAIN-SUFFIX,sovcloud-usercontent.cn
   - DOMAIN-SUFFIX,sovcloud-mx.cn
-  - DOMAIN,portal.partner.microsoftonline.cdnsvc.com
+  - DOMAIN-SUFFIX,portal.partner.microsoftonline.cdnsvc.com
 
   # ==========================================================
   # Azure / Entra / Graph：中国区（世纪互联）
@@ -237,9 +233,9 @@ payload:
   # ==========================================================
   # 电商域名
   # ==========================================================
-  - DOMAIN,one.alimama.com
-  - DOMAIN,alimama.com
-  - DOMAIN,one.alimama.com
+  - DOMAIN-SUFFIX,one.alimama.com
+  - DOMAIN-SUFFIX,alimama.com
+  - DOMAIN-SUFFIX,one.alimama.com
 
   # 用户指定：覆盖 mmstat.com 主域名及其所有子域名。
   - DOMAIN-SUFFIX,mmstat.com

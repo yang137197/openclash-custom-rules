@@ -37,16 +37,16 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 ## 规则与版本
 
-- 流程 A/B 是仓库永久维护约定，不得因一般开发或文档整理删改、绕过；只有用户明确重新定义长期流程时才可调整。手动新增域名之外的运行行为更改均走候选验证和正式发布门禁。
+- 流程 A/B 是仓库永久维护约定，不得因一般开发或文档整理删改、绕过；只有用户明确重新定义长期流程时才可调整。手动域名数据变更之外的运行行为更改均走候选验证和正式发布门禁。
 - 保持规则优先级：私网/局域网 → Claude Code 与 Claude/Anthropic 第一方域名走 TikTok-ISP、GitHub 指定域名走美国 → 通用 TikTok ISP → 同范围 TikTok REJECT → Google/Play 美国 → Manual-Direct → 中国大陆域名/IP → 美国 MATCH。
-- 流程 A 仅手动新增域名时，在 `rules/manual-direct.yaml` 的 `payload` 末尾追加规则并同步滚动覆写模块。手动规则源不维护固定哈希或条数校验；不要求同步维护 `manual-direct-isp.yaml`，不创建候选、版本记录、`CHANGELOG.md` 条目或正式 Release。已发布版本快照不改写。
+- 流程 A 适用于手动直连域名的新增、修改和删除：只编辑 `rules/manual-direct.yaml` 的 `payload`，GitHub Actions 自动生成滚动覆写 inline payload 并更新 `profiles/catalog.json` 的滚动 SHA-256，再提交生成文件。源文件不维护固定哈希或条数校验；`manual-direct-isp.yaml` 是历史副本，不要求日常同步；不创建候选、版本记录、`CHANGELOG.md` 条目或正式 Release。已发布版本快照不改写。
 - 流程 B 用于大版本更新或重构：建立递增候选并完成验证，经用户验收后发布正式版本；再将验收通过的模块同步到同一滚动模块路径并更新滚动哈希。已发布版本目录、标签和 Release 不可改写、移动或覆盖；新需求应建立独立方案并从自己的版本线开始。其他修改不得套用流程 A。纯打包或文档版本可复用未改变的最新稳定环境快照，但必须把未做的文件/应用验收明确列为未验证。
 - 唯一本地覆写模块为 `tiktok-router-loongproxy`；完整云覆写必须使用远程订阅模块。刷新远程覆写后重启 OpenClash 生效，不更新机场节点订阅。
-- 当前稳定版本为 `v1.0.6`；同一方案的未验收候选版本按递增版本线保留，不视为正式发布。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
+- 当前稳定版本为 `v1.0.6`；`v1.0.7` 候选调整手动规则生成/同步方式，尚待路由器及工作流验收，不视为正式发布。更早停用版本及 beta 的当前目录、标签和 Release 已清理。保留 Git 提交历史，不重写历史。
 
 ## 每次变更门禁
 
-仅手动新增域名时不走候选版本门禁、不更新版本合同或 `CHANGELOG.md`；提交前同步 `manual-direct.yaml` 与滚动覆写模块。GitHub `main` 更新后，路由器使用同一远程地址更新并重启，再确认命中结果。
+仅手动域名新增、修改或删除不走候选版本门禁、不更新版本合同或 `CHANGELOG.md`；提交源文件后，先确认 `Sync manual direct rules` 工作流成功及生成提交已进入 `main`。路由器再使用同一远程地址更新并重启，确认命中结果。工作流失败时滚动覆写仍保留上一次生成版本。
 
 大版本更新或重构必须遵循 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。开始工作前阅读 `AGENTS.md`、`README.md`、`profiles/catalog.json` 和受影响方案/版本的 `REQUIREMENTS.md`、`SETUP.md`、`ENVIRONMENT.json`（若存在）；标明方案 ID、需求编号与版本类型；完成对应文档、环境记录和 `CHANGELOG.md`；检查凭据及完整差异；运行：
 

@@ -22,7 +22,7 @@
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
 ```
 
-仅手动新增域名直连规则时，在 [`rules/manual-direct.yaml`](rules/manual-direct.yaml) 的 `payload` 末尾追加规则，同步到上述 `main` 滚动覆写模块并更新 catalog 中的滚动哈希后提交；无需候选版本或正式 Release。路由器继续使用同一远程地址，点击覆写模块“更新”后重启 OpenClash。唯一的本地覆写模块是 `tiktok-router-loongproxy`，完整云覆写使用远程模块。大版本更新或重构须走候选验证；用户验收后发布正式版本，并同步更新同一滚动模块及其哈希。
+v1.0.7 候选验收并发布后，手动直连域名的唯一维护入口为 [`rules/manual-direct.yaml`](rules/manual-direct.yaml)。在 `payload` 中新增、修改或删除规则并提交到 GitHub `main`；GitHub Actions 将自动生成滚动远程覆写中的 inline 规则并更新 catalog 哈希。先等待同步工作流成功及生成提交，再在路由器使用同一远程地址点击“更新”并重启 OpenClash。日常规则数据调整不创建 Release。唯一的本地覆写模块是 `tiktok-router-loongproxy`，完整云覆写使用远程模块。修改规则优先级、策略组、DNS、代理链路或其他运行逻辑属于大版本更新/重构，须走候选验证；用户验收后发布正式版本。
 
 固定使用 v1.0.6 时，使用 Release 标签固定地址；该地址不会随 `main` 更新：
 
@@ -30,6 +30,6 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 
 ## 版本索引
 
-v1.0.6 是当前正式版，新增 `huzhou.host` 主域名及全部子域名直连。v1.0.1 的 Samsung 直连、v1.0.2 的 Claude Code、v1.0.3 的 Claude 网页分流仍是不包含在当前正式版中的候选。v1.0.4、v1.0.5 与 v1.0.6 已发布目录、标签和 Release 保持不变。
+v1.0.6 是当前正式版，新增 `huzhou.host` 主域名及全部子域名直连。v1.0.7 是待验收候选，重构手动规则自动同步；当前稳定版 v1.0.6 和已发布目录、标签及 Release 均保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。
 
 开发规则、候选信息门禁、日志隐私与跨工具接续要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。更换 AI 开发工具或开启新对话时，在已打开仓库的工具中说“请你先读取仓库，我们继续开发”，再按规则恢复当前状态。
