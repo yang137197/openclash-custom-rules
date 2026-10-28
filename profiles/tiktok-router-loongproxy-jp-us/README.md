@@ -14,7 +14,7 @@ Loongproxy 美国 SOCKS5 必须经用户手选的 iKuuu 日本节点作为链式
 - [v1.0.5 唯一本地节点占位模板](versions/v1.0.5/local-tiktok-proxy.conf)
 - [v1.0.5 固定完整云覆写](versions/v1.0.5/openclash-overwrite.conf)
 
-v1.0.4 Release 的历史附件名为 `.conf.example`，使用前先将文件名改为 `.conf`。v1.0.5 Release 提供同内容、扩展名正确的 `.conf` 模板；官方指南列出 `.conf` 为支持的本地上传文件类型，但本次未在路由器文件选择器实测。真实 ISP 凭据只保存在路由器本地模块。用户侧更新仓库规则只需刷新云覆写模块并重启 OpenClash；启用顺序为云覆写在上、本地 TikTok-ISP 模块在下。
+v1.0.4 Release 的历史附件名为 `.conf.example`，使用前先将文件名改为 `.conf`。v1.0.5 Release 提供同内容、扩展名正确的 `.conf` 模板；官方指南列出 `.conf` 为支持的本地上传文件类型，但本次未在路由器文件选择器实测。真实 ISP 凭据只保存在唯一的本地 `tiktok-router-loongproxy` 模块；完整云覆写使用远程订阅模块。仅手动新增域名时，在根目录 `rules/manual-direct.yaml` 的 `payload` 末尾维护规则并同步滚动模块；路由器继续使用同一远程地址，点击更新并重启，无需正式 Release。大版本更新或重构走候选验收后发布正式版，再同步滚动模块。
 
 v1.0.5 固定版本完整覆写订阅链接：
 
@@ -28,8 +28,12 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 ## 未验收候选（candidate）
 
+- **v1.0.6**：新增 `huzhou.host` 主域名及全部子域名 DIRECT；候选尚待路由器验收。
+  - [候选部署与验收说明](versions/v1.0.6/SETUP.md)
+  - 远程覆写候选链接：
+
+    https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/huzhou-host-direct-v1-0-6/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/openclash-overwrite.conf
 - **v1.0.1**：仅增加 `update.kies.samsung.com` 精确域名直连，未验收且不属于当前正式版。
 - **v1.0.2**：Claude Code 官方端点分流的早期候选。
 - **v1.0.3**：Claude 网页 Anthropic/Claude 第一方域名分流候选。
-
 正式版本号按本方案递增；已发布目录、标签和 Release 不得改写。仓库级流程见 [`DEVELOPMENT_RULES.md`](../../DEVELOPMENT_RULES.md)。

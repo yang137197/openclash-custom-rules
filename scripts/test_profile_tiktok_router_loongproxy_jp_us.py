@@ -16,8 +16,10 @@ class JapanFirstProfileTests(unittest.TestCase):
         for path in (validator.ROOT / "profiles" / validator.JP).rglob("*.conf*"):
             relative = path.relative_to(validator.ROOT).as_posix()
             modules[relative] = load_yaml(validator.read(relative), module=True)
+        original = load_yaml(validator.read("rules/manual-direct.yaml"))["payload"]
+        manual_additions = original[129:] if len(original) > 129 else []
         with contextlib.redirect_stdout(io.StringIO()):
-            validator.validate_stable(validator.JP, profile, modules, manual)
+            validator.validate_stable(validator.JP, profile, modules, manual, manual_additions)
 
     def test_candidate_routes_only_exact_samsung_update_host_direct(self):
         catalog = json.loads(validator.read("profiles/catalog.json"))
@@ -169,6 +171,37 @@ class JapanFirstProfileTests(unittest.TestCase):
         self.assertEqual(evidence["reusedFromVersion"], "1.0.4")
         self.assertEqual(evidence["evidence"]["runtimeAcceptance"], "not-run")
         self.assertFalse(evidence["evidence"]["userConfirmed"])
+
+    def test_v106_candidate_routes_huzhou_apex_and_subdomains_direct(self):
+        catalog = json.loads(validator.read("profiles/catalog.json"))
+        profile = catalog["profiles"][validator.JP]
+        candidate = profile["versions"]["1.0.6"]
+        self.assertEqual(profile["currentVersion"], "1.0.5")
+        self.assertEqual(candidate["status"], "candidate")
+        self.assertEqual(candidate["requirements"], ["J17"])
+        self.assertEqual(candidate["manualRulesPath"], "rules/manual-direct.yaml")
+        self.assertEqual(candidate["candidateModuleUrl"],
+                         "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/huzhou-host-direct-v1-0-6/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/openclash-overwrite.conf")
+
+        source = load_yaml(validator.read(candidate["manualRulesPath"]))["payload"]
+        source_rule = "DOMAIN-SUFFIX,huzhou.host"
+        expected = source_rule + ",DIRECT"
+        self.assertEqual(source.count(source_rule), 1)
+        self.assertEqual(candidate["manualRuleCount"], len(source))
+        self.assertEqual(candidate["manualRulesSha256"], validator.sha(validator.read(candidate["manualRulesPath"])))
+
+        module = load_yaml(validator.read(candidate["modulePath"]), module=True)
+        rules = module["rules!"]
+        self.assertEqual(rules.count(expected), 1)
+        self.assertLess(rules.index("GEOSITE,google,美国"), rules.index(expected))
+        self.assertLess(rules.index(expected), rules.index("RULE-SET,Manual-Direct,DIRECT"))
+        self.assertEqual(candidate["moduleSha256"], validator.sha(validator.read(candidate["modulePath"])))
+
+        environment = json.loads(validator.read(candidate["environmentPath"]))
+        self.assertEqual(environment["status"], "pending")
+        self.assertTrue(environment["behaviorChanged"])
+        self.assertEqual(environment["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(environment["evidence"]["userConfirmed"])
 
 
 if __name__ == "__main__":

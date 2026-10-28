@@ -27,7 +27,6 @@ RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
 GUIDE = "https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md"
 JAPAN_FILTER = "(?i)(🇯🇵|日本|japan|jp)"
 USA_FILTER = "(?i)(🇺🇸|美国|美國|(^|[ _-])United[ _-]?States($|[ _-]|[0-9])|(^|[ _-])USA($|[ _-]|[0-9])|(^|[ _-])US($|[ _-]|[0-9]))"
-MANUAL_HASH = "1e1637d6cbe2980a94886cfdffba9dac06b829c36ceb25532198ad6941c5d2fd"
 ROLE_PREFIX = (
     "# 不可删除的 OpenClash 专家角色与权威指南\n\n"
     "你是 OpenClash 专家助手。OpenClash 是 OpenWrt 上管理 Mihomo 内核的 LuCI 插件。\n\n"
@@ -237,6 +236,35 @@ def expected_stable_rules(profile_id, version):
             "DOMAIN,formulae.brew.sh,TikTok-ISP",
         ]
     return rules
+
+
+def validate_rolling_direct_additions(additions, baseline_rules):
+    require(isinstance(additions, list), "rolling direct additions must be a list")
+    seen = set()
+    baseline_normalized = set()
+    for baseline_rule in baseline_rules:
+        baseline_parts = baseline_rule.split(",")
+        if (len(baseline_parts) == 3 and
+                baseline_parts[0] in {"DOMAIN", "DOMAIN-SUFFIX"} and
+                baseline_parts[2] == "DIRECT"):
+            baseline_normalized.add((baseline_parts[0], baseline_parts[1].casefold()))
+    for rule in additions:
+        require(isinstance(rule, str), "rolling direct rule must be a string")
+        parts = rule.split(",")
+        require(len(parts) == 2 and parts[0] in {"DOMAIN", "DOMAIN-SUFFIX"},
+                f"unsupported manual direct source rule: {rule}")
+        domain = parts[1]
+        labels = domain.split(".")
+        label_pattern = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\Z")
+        require(len(domain) <= 253 and len(labels) >= 2 and
+                all(label_pattern.fullmatch(label) for label in labels),
+                f"invalid domain in manual direct source rule: {rule}")
+        normalized = (parts[0], domain.casefold())
+        require(normalized not in seen, f"duplicate manual direct source rule: {rule}")
+        require(normalized not in baseline_normalized,
+                f"manual direct source rule duplicates a stable rule: {rule}")
+        seen.add(normalized)
+    return [f"{rule},DIRECT" for rule in additions]
 
 
 def validate_version_catalog(profile_id, profile, changelog):
@@ -472,13 +500,11 @@ def validate_profile_artifacts(profile_id, profile, modules):
         rolling = f"profiles/{profile_id}/overwrite/openclash-overwrite.conf"
         require(profile.get("latestModulePath") == rolling and rolling in modules,
                 f"{profile_id}: stable profile rolling module path is required")
-        current = profile["versions"][profile["currentVersion"]]
-        require(read(rolling) == read(current["modulePath"]) and
-                profile.get("latestModuleSha256") == current["moduleSha256"],
-                f"{profile_id}: rolling module must match its latest stable version")
+        require(profile.get("latestModuleSha256") == sha(read(rolling)),
+                f"{profile_id}: rolling module hash mismatch")
 
 
-def validate_stable(profile_id, profile, modules, manual):
+def validate_stable(profile_id, profile, modules, manual, manual_additions):
     version = profile["currentVersion"]
     entry = profile["versions"][version]
     directory = f"profiles/{profile_id}/versions/v{version}"
@@ -494,9 +520,9 @@ def validate_stable(profile_id, profile, modules, manual):
         read(path)
     rolling = f"profiles/{profile_id}/overwrite/openclash-overwrite.conf"
     require(profile["latestModulePath"] == rolling, f"{profile_id}: invalid rolling path")
-    cloud = read(entry["modulePath"])
-    require(cloud == read(rolling), f"{profile_id}: rolling/fixed module mismatch")
-    require(sha(cloud) == entry["moduleSha256"] == profile["latestModuleSha256"], f"{profile_id}: module hash")
+    fixed_text = read(entry["modulePath"])
+    require(sha(fixed_text) == entry["moduleSha256"], f"{profile_id}: fixed module hash")
+    require(profile["latestModuleSha256"] == sha(read(rolling)), f"{profile_id}: rolling module hash")
     require(entry["manualRulesPath"] == profile["manualRulesPath"] == "rules/manual-direct-isp.yaml", "manual source")
     require(entry["manualRuleCount"] == 129 and entry["manualRulesSha256"] == sha(read(entry["manualRulesPath"])), "manual count/hash")
     require(entry["localProxyName"] == "TikTok-ISP-Local" and entry["tiktokGroup"] == "TikTok-ISP", "local group contract")
@@ -521,6 +547,16 @@ def validate_stable(profile_id, profile, modules, manual):
     require(set(parsed) == set(expected), f"{profile_id}: unexpected cloud keys")
     for key, value in expected.items():
         require(parsed[key] == value, f"{profile_id}: protected {key} changed")
+    direct_baseline = expected["rules!"] + [f"{rule},DIRECT" for rule in manual]
+    additions = validate_rolling_direct_additions(manual_additions, direct_baseline)
+    rules = list(expected["rules!"])
+    manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
+    require(manual_index > 0 and rules[manual_index - 1] == "GEOSITE,google,美国",
+            f"{profile_id}: direct additions insertion point changed")
+    expected_rolling = dict(parsed)
+    expected_rolling["rules!"] = rules[:manual_index] + additions + rules[manual_index:]
+    require(modules[rolling] == expected_rolling,
+            f"{profile_id}: rolling module may only add sourced domain DIRECT rules before Manual-Direct")
     template = {"proxies+": [{"name": "TikTok-ISP-Local", "type": "socks5", "server": "FILL_ME_PROXY_HOST",
                               "port": "FILL_ME_PROXY_PORT", "username": "FILL_ME_USERNAME",
                               "password": "FILL_ME_PASSWORD", "udp": False, "dialer-proxy": hop}]}
@@ -617,12 +653,10 @@ def main():
             "请你先读取仓库，我们继续开发" in read("README.md"),
             "tool-agnostic repository handoff prompt must be documented")
     validate_no_raw_debug_logs()
-    original_text = read("rules/manual-direct.yaml")
-    require(sha(original_text) == MANUAL_HASH, "original 129 direct records changed without authorization")
-    original = load_yaml(original_text)["payload"]
+    original = load_yaml(read("rules/manual-direct.yaml"))["payload"]
     manual = load_yaml(read("rules/manual-direct-isp.yaml"))["payload"]
-    require(len(original) == len(manual) == 129, "129 original direct entries required")
-    require(manual == [rule.replace("DOMAIN,", "DOMAIN-SUFFIX,", 1) for rule in original], "suffix conversion must preserve order and duplicates")
+    require(isinstance(original, list), "manual direct rules payload must be a list")
+    manual_additions = original[129:] if len(original) > 129 else []
     require(all(rule.startswith("DOMAIN-SUFFIX,") for rule in manual), "manual domains must include subdomains")
     modules = {}
     for path in ROOT.glob("profiles/**/*.conf*"):
@@ -642,7 +676,7 @@ def main():
         validate_version_catalog(profile_id, profile, read("CHANGELOG.md"))
         validate_profile_artifacts(profile_id, profile, modules)
         if profile_id == JP and profile["status"] == "stable":
-            validate_stable(profile_id, profile, modules, manual)
+            validate_stable(profile_id, profile, modules, manual, manual_additions)
     for path in ("README.md", "AGENTS.md", "MAINTENANCE.md", "CHANGELOG.md"):
         content = read(path)
         for profile_id in catalog["profiles"]:

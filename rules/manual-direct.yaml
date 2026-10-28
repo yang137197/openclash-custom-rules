@@ -243,9 +243,15 @@ payload:
 
   # 用户指定：覆盖 mmstat.com 主域名及其所有子域名。
   - DOMAIN-SUFFIX,mmstat.com
+
+  # Huzhou 服务：主域名及全部子域名直连。
+  - DOMAIN-SUFFIX,huzhou.host
   
   # ----------------------------------------------------------
-  # 新增规则示例（仅示例，默认注释，不会生效）
+  # 永久流程 A：新增域名时，在 payload 中追加未注释规则。
+  # 提交后还要将规则同步到 main 滚动覆写模块。
+  # DOMAIN-SUFFIX 匹配主域名和所有子域名；DOMAIN 只匹配精确主机名。
+  # 示例（注释状态不会生效）：
   # ----------------------------------------------------------
   # - DOMAIN-SUFFIX,example.com
   # - DOMAIN,api.example.com
