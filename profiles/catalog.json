@@ -6,15 +6,16 @@
     "tiktok-router-loongproxy-jp-us": {
       "title": "iKuuu 日本首跳 + 本地 Loongproxy 美国 SOCKS5 TikTok 正式方案",
       "status": "stable",
-      "currentVersion": "1.0.5",
+      "currentVersion": "1.0.6",
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
       "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us.py",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "22f932afbc328e1d0d2188519378032e4db0b9cbbb9ce4ed7a8433f585741e6a",
+      "latestModuleSha256": "ca436c4cf768b90d9c6b71a2b451ff0cb457174d03b297bc31326a73af55f7c0",
       "immutableVersionDirectories": [
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4",
-        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.5"
+        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.5",
+        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6"
       ],
       "versions": {
         "1.0.0": {
@@ -160,6 +161,34 @@
           "firstHopGroup": "日本-入口",
           "firstHopProvider": "iKuuu",
           "foreignGroup": "美国"
+        },
+        "1.0.6": {
+          "kind": "router-loongproxy-jp-us",
+          "status": "stable",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/ENVIRONMENT.json",
+          "moduleSha256": "79744763d8c28ff591de7c55c612724290c275faf0018d26b9e89ce539d36d42",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/local-tiktok-proxy.conf",
+          "additionalDirectRulesPath": "rules/manual-direct.yaml",
+          "localTemplateSha256": "d7639bd7ac733c2312103bcb8e73764b2b354b3ccb7bcb578f7ee5d3706da522",
+          "requirements": [
+            "J17"
+          ],
+          "manualRulesPath": "rules/manual-direct-isp.yaml",
+          "manualRuleCount": 129,
+          "manualRulesSha256": "f3c60bd9e93ae2d3579beb64155a189469186c96e04d238b0c7c3a12a4207b3c",
+          "localProxyName": "TikTok-ISP-Local",
+          "tiktokGroup": "TikTok-ISP",
+          "firstHopGroup": "日本-入口",
+          "firstHopProvider": "iKuuu",
+          "foreignGroup": "美国",
+          "releaseTag": "tiktok-router-loongproxy-jp-us-v1.0.6",
+          "releaseUrl": "https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.6",
+          "versionedModuleUrl": "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.6/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/openclash-overwrite.conf",
+          "releaseNotesPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/RELEASE_NOTES.md"
         }
       },
       "manualRulesPath": "rules/manual-direct-isp.yaml"

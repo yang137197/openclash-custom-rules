@@ -22,7 +22,16 @@
 - 每个方案独立维护 SemVer。新版本必须高于**同一方案**已记录的最高版本；不同方案互不比较，因此 A v1.0.0 与 B v1.0.0 可以同时存在。不得在同一方案内回退、复用或覆盖已记录版本号。
 - Release 标签使用 `{profileId}-v{version}`。每个方案版本的完整模块固定存放在 `profiles/{profileId}/versions/v{version}/openclash-overwrite.conf`，Release 提供标签固定的 `raw.githubusercontent.com` 直链。固定 URL 必须在 Release 正文中完整显示并单独占一行，确保可直接点击或复制；不得只放隐藏式 Markdown 链接文字，也不得用滚动 `main` 地址代替。滚动入口按方案分别存放在 `profiles/{profileId}/overwrite/openclash-overwrite.conf`，不能把它当作历史版本链接，也不能跨方案共用。
 - 根 `README.md` 是方案总览目录；每个方案 README 和 Release 都必须告诉用户适用需求、当前状态、对应版本、固定覆写链接、部署设置说明及验证状态。单个 OpenClash 配置只启用一个完整方案及其配套本地模块。
-- 已发布版本目录、标签和 Release 不可改写、移动或复用。行为更新在原方案内新建更高版本；需求目标不同则新建方案。新方案不能复活已清理的 IPRoyal、SocksTun 等已弃用方案，除非用户明确要求。
+- 已发布版本目录、标签和 Release 不可改写、移动或复用。大版本更新或重构在原方案内新建更高候选版本，完成验收后发布正式版本；需求目标不同则新建方案。新方案不能复活已清理的 IPRoyal、SocksTun 等已弃用方案，除非用户明确要求。
+
+## 手动新增域名规则的永久流程
+
+- 本节 A/B 是仓库永久维护流程，不得因日常提交、候选或文档整理而删改或绕过；只有用户明确重新定义长期流程时才可调整。流程 A 是唯一免候选/Release 的运行规则变更例外；其他运行行为更改须经过候选验证和正式发布门禁。
+- 仅手动新增域名直连规则走流程 A：在现有 `rules/manual-direct.yaml` 的 `payload` 末尾追加 `DOMAIN-SUFFIX,example.com`（匹配主域名及全部子域名）或 `DOMAIN,host.example.com`（仅精确主机名）；同步将对应的 `...,DIRECT` 规则插入滚动模块 `profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf`，位置在 Google 规则之后、`RULE-SET,Manual-Direct,DIRECT` 之前，并更新 `profiles/catalog.json` 的 `latestModuleSha256`。提交到 GitHub `main` 后，不创建候选版本、不改 `CHANGELOG.md`、固定快照或版本级哈希、不创建 Release。
+- `manual-direct.yaml` 是手动规则来源，不维护固定哈希或固定条数；流程 A 的新增域名追加到其 `payload`。`manual-direct-isp.yaml` 是当前正式方案的历史后缀化副本，流程 A 不要求手动维护它。滚动模块与 source 同步；已发布版本快照不改写。
+- GitHub `main` 更新后，路由器继续使用同一个滚动远程覆写地址，在远程覆写模块点击“更新”，再重启 OpenClash；无需更新机场节点订阅。单个配置只保留本地 `tiktok-router-loongproxy` 模块，完整云覆写必须使用远程模块。
+- 流程 A 仅适用于新增域名，不涵盖删除规则、改规则顺序、策略组、DNS、代理链路、插件设置或其他行为变更。
+- 流程 B 用于大版本更新或重构：创建递增候选版，按本规则完成验证；用户验收后发布正式版本，并把已验收模块同步到同一滚动模块路径及 `latestModuleSha256`。路由器仍在同一远程地址点击“更新”并重启 OpenClash。已发布版本快照、标签和 Release 永不改写。
 
 ## 候选开发信息门禁
 
@@ -54,7 +63,7 @@
 - 方案需要路由器本地节点或凭据模块时，每个正式 Release 只提供**一个**与该版本占位模板一致、扩展名为 `.conf` 的可导入模块附件，并在正文列出下载链接及 SHA-256。OpenClash 官方模块指南列出的本地上传文件类型为 `.txt`、`.conf`；禁止将 `.example` 或 `.conf.example` 当作最终下载附件扩展名。不得另附注释版模板或独立填写指南；Release 正文直接说明每个占位字段对应的服务商信息、填写格式、必须保留的节点/协议/链路字段，并给一个明确标为虚构的填写示例。说明真实凭据只填写到路由器本地，不得提交或公开填好的文件。GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是标签源码快照，不能代替该模板附件。历史已发布附件保持不可变；若旧文件使用 `.example` 扩展名，在后续说明中给出改名操作，并通过更高版本修复。无需本地模块的方案须明确注明“不适用”。
 - 每个方案的 `SETUP.md` 必须保留 OpenClash 设置建议，并给出 LuCI 路径、建议值、该项是否为方案必需、适用条件和已验证环境。新安装或恢复默认设置的用户应能仅按该文档逐项配置；不得用含个人订阅凭据的整份配置替代设置说明。
 - 每个方案还必须有覆盖自身规则合同的静态回归检查，文件名固定为 `scripts/test_profile_{profileId中的连字符替换为下划线}.py`，路径写入 `profiles/catalog.json`。增加新 profile 时同步新增专属测试，不能只依赖当前日本首跳方案的断言。
-- 生成正式 Release、Git 标签、推送或要求路由器切换均按 `AGENTS.md` 的授权边界执行；用户确认的授权只覆盖明确的方案和版本。
+- 大版本更新或重构经候选验收并由用户确认通过后，按该方案发布正式版本；此授权只覆盖验收通过的方案和版本，不覆盖验收前发布、改写历史版本或未经确认要求路由器切换。
 
 ## 跨工具接续
 
@@ -66,7 +75,9 @@
 
 ## 每次变更的完成检查
 
-说明方案 ID、受影响需求编号及候选/正式类型；更新该版本合同、设置和环境资料、`CHANGELOG.md`、catalog 和 README 索引；检查完整 diff、凭据、固定链接及不可变快照；运行：
+流程 A：检查 `manual-direct.yaml` 的手动规则与滚动模块同步；不维护手动规则的固定哈希或固定条数，不更新版本合同、版本级哈希或 `CHANGELOG.md`。检查完整 diff 与凭据、固定版本快照；提交到 `main` 后，GitHub Actions 按仓库工作流执行自动检查。
+
+流程 B：说明方案 ID、受影响需求编号及候选/正式类型；更新候选/正式版本合同、设置和环境资料、`CHANGELOG.md`、catalog 和 README 索引；检查完整 diff、凭据、固定链接及不可变快照；运行：
 
 ```text
 python -m unittest discover -s scripts -p "test_*.py"

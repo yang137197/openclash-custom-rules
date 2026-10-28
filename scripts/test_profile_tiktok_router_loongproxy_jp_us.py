@@ -16,8 +16,10 @@ class JapanFirstProfileTests(unittest.TestCase):
         for path in (validator.ROOT / "profiles" / validator.JP).rglob("*.conf*"):
             relative = path.relative_to(validator.ROOT).as_posix()
             modules[relative] = load_yaml(validator.read(relative), module=True)
+        original = load_yaml(validator.read("rules/manual-direct.yaml"))["payload"]
+        manual_additions = original[129:] if len(original) > 129 else []
         with contextlib.redirect_stdout(io.StringIO()):
-            validator.validate_stable(validator.JP, profile, modules, manual)
+            validator.validate_stable(validator.JP, profile, modules, manual, manual_additions)
 
     def test_candidate_routes_only_exact_samsung_update_host_direct(self):
         catalog = json.loads(validator.read("profiles/catalog.json"))
@@ -143,7 +145,7 @@ class JapanFirstProfileTests(unittest.TestCase):
         profile = catalog["profiles"][validator.JP]
         release = profile["versions"]["1.0.5"]
         stable = profile["versions"]["1.0.4"]
-        self.assertEqual(profile["currentVersion"], "1.0.5")
+        self.assertEqual(profile["currentVersion"], "1.0.6")
         self.assertEqual(release["status"], "stable")
         self.assertEqual(release["requirements"], ["J13", "J14", "J15", "J16"])
         self.assertTrue(release["localModuleTemplatePath"].endswith("/local-tiktok-proxy.conf"))
@@ -169,6 +171,45 @@ class JapanFirstProfileTests(unittest.TestCase):
         self.assertEqual(evidence["reusedFromVersion"], "1.0.4")
         self.assertEqual(evidence["evidence"]["runtimeAcceptance"], "not-run")
         self.assertFalse(evidence["evidence"]["userConfirmed"])
+
+    def test_v106_stable_release_routes_huzhou_apex_and_subdomains_direct(self):
+        catalog = json.loads(validator.read("profiles/catalog.json"))
+        profile = catalog["profiles"][validator.JP]
+        release = profile["versions"]["1.0.6"]
+        self.assertEqual(profile["currentVersion"], "1.0.6")
+        self.assertEqual(release["status"], "stable")
+        self.assertEqual(release["requirements"], ["J17"])
+        self.assertEqual(release["manualRulesPath"], "rules/manual-direct-isp.yaml")
+        self.assertEqual(release["additionalDirectRulesPath"], "rules/manual-direct.yaml")
+        self.assertEqual(release["releaseTag"], "tiktok-router-loongproxy-jp-us-v1.0.6")
+        self.assertEqual(release["versionedModuleUrl"],
+                         "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.6/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/openclash-overwrite.conf")
+
+        source = load_yaml(validator.read(release["additionalDirectRulesPath"]))["payload"]
+        source_rule = "DOMAIN-SUFFIX,huzhou.host"
+        expected = source_rule + ",DIRECT"
+        self.assertEqual(source.count(source_rule), 1)
+        self.assertEqual(release["manualRuleCount"], 129)
+        self.assertEqual(release["manualRulesSha256"], validator.sha(validator.read(release["manualRulesPath"])))
+
+        module = load_yaml(validator.read(release["modulePath"]), module=True)
+        rules = module["rules!"]
+        self.assertEqual(rules.count(expected), 1)
+        self.assertLess(rules.index("GEOSITE,google,美国"), rules.index(expected))
+        self.assertLess(rules.index(expected), rules.index("RULE-SET,Manual-Direct,DIRECT"))
+        self.assertEqual(release["moduleSha256"], validator.sha(validator.read(release["modulePath"])))
+
+        rolling = load_yaml(validator.read(profile["latestModulePath"]), module=True)
+        self.assertEqual(rolling["rules!"].count(expected), 1)
+        self.assertEqual(profile["latestModuleSha256"], validator.sha(validator.read(profile["latestModulePath"])))
+
+        environment = json.loads(validator.read(release["environmentPath"]))
+        self.assertEqual(environment["status"], "verified")
+        self.assertTrue(environment["behaviorChanged"])
+        self.assertEqual(environment["evidence"]["source"], "debug-log")
+        self.assertEqual(environment["evidence"]["capturedAt"], "2026-10-28")
+        self.assertEqual(environment["evidence"]["runtimeAcceptance"], "passed")
+        self.assertTrue(environment["evidence"]["userConfirmed"])
 
 
 if __name__ == "__main__":
