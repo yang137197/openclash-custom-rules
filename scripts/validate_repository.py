@@ -217,7 +217,7 @@ def expected_rules():
 
 def expected_stable_rules(profile_id, version):
     rules = expected_rules()
-    if profile_id == JP and version in {"1.0.4", "1.0.5"}:
+    if profile_id == JP and version in {"1.0.4", "1.0.5", "1.0.6"}:
         # Claude/Anthropic endpoints stay on the static ISP, while GitHub uses US.
         rules[12:12] = [
             "DOMAIN-SUFFIX,anthropic.com,TikTok-ISP",
@@ -235,6 +235,9 @@ def expected_stable_rules(profile_id, version):
             "DOMAIN,browser-intake-us5-datadoghq.com,TikTok-ISP",
             "DOMAIN,formulae.brew.sh,TikTok-ISP",
         ]
+    if profile_id == JP and version == "1.0.6":
+        google_index = rules.index("GEOSITE,google,美国")
+        rules.insert(google_index + 1, "DOMAIN-SUFFIX,huzhou.host,DIRECT")
     return rules
 
 
@@ -482,6 +485,9 @@ def validate_profile_artifacts(profile_id, profile, modules):
                     f"{profile_id} v{version}: invalid local credential template path")
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
+        additional_direct_rules_path = entry.get("additionalDirectRulesPath")
+        if additional_direct_rules_path:
+            read(additional_direct_rules_path)
 
         if entry["status"] == "stable":
             tag = f"{profile_id}-v{version}"
@@ -548,11 +554,30 @@ def validate_stable(profile_id, profile, modules, manual, manual_additions):
     for key, value in expected.items():
         require(parsed[key] == value, f"{profile_id}: protected {key} changed")
     direct_baseline = expected["rules!"] + [f"{rule},DIRECT" for rule in manual]
-    additions = validate_rolling_direct_additions(manual_additions, direct_baseline)
+    # The current source may contain domains already frozen into the latest
+    # stable module. Keep those in that immutable module; only later additions
+    # belong in the rolling module delta.
+    validate_rolling_direct_additions(manual_additions, expected_rules())
+    fixed_direct = set()
+    for rule in expected["rules!"]:
+        parts = rule.split(",")
+        if len(parts) == 3 and parts[0] in {"DOMAIN", "DOMAIN-SUFFIX"} and parts[2] == "DIRECT":
+            fixed_direct.add((parts[0], parts[1].casefold()))
+    remaining_source_rules = []
+    for rule in manual_additions:
+        parts = rule.split(",")
+        if (parts[0], parts[1].casefold()) not in fixed_direct:
+            remaining_source_rules.append(rule)
+    additions = validate_rolling_direct_additions(remaining_source_rules, direct_baseline)
     rules = list(expected["rules!"])
     manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
-    require(manual_index > 0 and rules[manual_index - 1] == "GEOSITE,google,美国",
+    google_index = rules.index("GEOSITE,google,美国")
+    require(manual_index > google_index,
             f"{profile_id}: direct additions insertion point changed")
+    if version == "1.0.6":
+        require("DOMAIN-SUFFIX,huzhou.host" in manual_additions and
+                "DOMAIN-SUFFIX,huzhou.host,DIRECT" in rules,
+                f"{profile_id}: stable v1.0.6 Huzhou source/rule mismatch")
     expected_rolling = dict(parsed)
     expected_rolling["rules!"] = rules[:manual_index] + additions + rules[manual_index:]
     require(modules[rolling] == expected_rolling,

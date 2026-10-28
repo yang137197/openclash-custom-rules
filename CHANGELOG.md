@@ -2,9 +2,9 @@
 
 ## tiktok-router-loongproxy-jp-us v1.0.6 — 2026-10-28
 
-- 状态：candidate，按用户本轮明确要求以候选方式发布，等待路由器实机验收。新增 `DOMAIN-SUFFIX,huzhou.host,DIRECT`，覆盖主域名及全部子域名；规则来源登记在 `rules/manual-direct.yaml`。这不改变永久流程 A 对后续手动域名新增的默认方式。
-- 候选完整覆写和候选分支中的滚动覆写包含该规则；`main` 稳定滚动链接与 v1.0.5 已发布快照保持不变，待验收后再晋升。
-- 环境仅复用 v1.0.5 记录的设备/设置基线；候选尚未加载，无本候选运行验收或调试日志。
+- 状态：stable。用户确认候选实机验收通过并授权正式发布。新增 `DOMAIN-SUFFIX,huzhou.host,DIRECT`，覆盖主域名及全部子域名；规则来源登记在 `rules/manual-direct.yaml`。这不改变永久流程 A 对后续手动域名新增的默认方式。
+- 2026-10-28 OpenClash 调试日志确认目标环境、有效配置中的 Huzhou 后缀规则及主域名访问命中 DIRECT；用户确认主域名和子域名验收通过。日志未记录子域名连接。实际“禁用 QUIC”为停用，与 SETUP 建议不同；本版本不改此设置。
+- 发布后将验收模块同步到同一 `main` 滚动覆写入口并更新哈希；v1.0.5 及更早已发布版本快照、标签和 Release 不变。原始调试日志不入仓。
 
 ## tiktok-router-loongproxy-jp-us v1.0.5 — 2026-10-24
 

@@ -2,34 +2,36 @@
   "schemaVersion": 1,
   "profileId": "tiktok-router-loongproxy-jp-us",
   "version": "1.0.6",
-  "status": "pending",
+  "status": "verified",
   "behaviorChanged": true,
   "environment": {
     "openclashVersion": "0.48.002",
-    "openclashBuild": "not separately identified in the supplied version label",
+    "openclashBuild": "not separately identified in the debug log",
     "mihomoVersion": "alpha",
     "mihomoBuild": "gbc76c13",
     "openwrtVersion": "24.10.2 r7492-3fda82b52",
     "deviceArchitecture": "x86_64",
-    "deviceModel": "QEMU Standard PC (2C2T)"
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX; QEMU Virtual CPU version 2.5+; 2C2T)"
   },
   "runtimeConfiguration": {
     "activeConfigLabel": "ikuuu",
     "enabledModulesInOrder": [
-      "云覆写（v1.0.4）",
-      "本地 TikTok-ISP 节点模块"
+      "远程完整云覆写模块（v1.0.6）",
+      "本地 tiktok-router-loongproxy（TikTok-ISP-Local）"
     ],
-    "settingsBaseline": "matched-setup",
-    "settingsDeviations": []
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用 QUIC：停用；v1.0.5 SETUP.md 建议启用。此次保留路由器实测值；v1.0.6 仅新增域名规则，不修改该设置，测试连接为 TCP。"
+    ]
   },
   "evidence": {
-    "source": "reused",
-    "capturedAt": null,
+    "source": "debug-log",
+    "capturedAt": "2026-10-28",
     "rawDebugLogCommitted": false,
-    "runtimeAcceptance": "not-run",
-    "userConfirmed": false,
-    "summary": "仅复用 v1.0.5 已记录的目标设备与设置基线；未在该设备加载 v1.0.6 候选模块，没有本候选对应的调试日志或实机验收结果，不表示本候选已兼容或验收通过。"
+    "runtimeAcceptance": "passed",
+    "userConfirmed": true,
+    "summary": "2026-10-28 OpenClash 调试日志确认插件、Mihomo、OpenWrt 版本与 ikuuu 配置；有效配置含 DOMAIN-SUFFIX,huzhou.host,DIRECT，10:27:31 访问 huzhou.host:4443 命中该后缀规则并走 DIRECT。用户确认候选验收通过；日志未记录子域名连接，子域名验收依据为用户确认。日志中的覆写模块明细区为空，故模块按候选部署角色和顺序记录，非日志中显示的 UI 名称。禁用 QUIC 的实测值与设置建议不同，且本版本不调整该项。原始日志未入仓。"
   },
-  "reusedFromVersion": "1.0.5",
+  "reusedFromVersion": null,
   "setupDocument": "SETUP.md"
 }
