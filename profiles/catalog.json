@@ -10,7 +10,7 @@
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
       "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us.py",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "8b299d94fffb4a0049ce2db488ca44400c3bd106dae7c1c17421eb42a5747e57",
+      "latestModuleSha256": "d3e63fe3c713f8a6b5d7563cb59cf7ce2e134697472ad228868671a271eabeeb",
       "immutableVersionDirectories": [
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4",
