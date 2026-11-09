@@ -220,6 +220,20 @@
           "versionedModuleUrl": "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf",
           "releaseNotesPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/RELEASE_NOTES.md",
           "localTemplateSha256": "d7639bd7ac733c2312103bcb8e73764b2b354b3ccb7bcb578f7ee5d3706da522"
+        },
+        "1.0.8": {
+          "kind": "router-loongproxy-jp-us",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/ENVIRONMENT.json",
+          "moduleSha256": "0a4f3f1895280ca73c9bb24b394607710f75a449c3449e6b44056fe8d2ecb947",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/local-tiktok-proxy.conf",
+          "requirements": [
+            "J22"
+          ]
         }
       },
       "manualRulesPath": "rules/manual-direct.yaml",

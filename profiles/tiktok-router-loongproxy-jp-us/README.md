@@ -1,5 +1,7 @@
 # tiktok-router-loongproxy-jp-us
 
+**v1.0.8 candidate**：为 NEXUS 的 GitHub 版本发现增加 `api.github.com` 精确真实 IP 例外，保留 GitHub 美国组。候选尚未实机验证；参见[候选需求](versions/v1.0.8/REQUIREMENTS.md)和[候选设置](versions/v1.0.8/SETUP.md)。该候选基于 v1.0.7 固定快照，正式发布前必须合并当前动态手动规则源。
+
 **v1.0.7 stable**：用户于 2026-10-28 确认验收通过。手动直连规则集中维护于 `rules/manual-direct.yaml`，保留规则语法与同步一致性校验，不固定域名清单或条数；GitHub Actions 自动更新滚动模块，使同一远程覆写地址可持续使用。
 
 Loongproxy 美国 SOCKS5 必须经用户手选的 iKuuu 日本节点作为链式第一跳。TikTok 与 Claude/Anthropic 相关请求使用 `TikTok-ISP-Local` 静态 ISP 出口；链路缺失时失败关闭，不回退普通机场或 DIRECT。Manual-Direct 规则在唯一源中持续维护；其余分流包括 Google/Play 美国、中国大陆直连及其他境外美国分流。

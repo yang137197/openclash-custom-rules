@@ -9,6 +9,24 @@ from sync_manual_direct import parse_payload, replace_provider
 
 
 class JapanFirstProfileTests(unittest.TestCase):
+    def test_v108_candidate_only_adds_exact_github_api_dns_exception(self):
+        catalog = json.loads(validator.read("profiles/catalog.json"))
+        profile = catalog["profiles"][validator.JP]
+        candidate = profile["versions"]["1.0.8"]
+        self.assertEqual(candidate["status"], "candidate")
+        stable = profile["versions"]["1.0.7"]
+        prior = load_yaml(validator.read(stable["modulePath"]), module=True)
+        proposed = load_yaml(validator.read(candidate["modulePath"]), module=True)
+        filters = proposed["dns"]["fake-ip-filter!"]
+        self.assertEqual(filters.count("DOMAIN,api.github.com,real-ip"), 1)
+        self.assertEqual(filters.pop(0), "DOMAIN,api.github.com,real-ip")
+        self.assertEqual(proposed, prior)
+        rules = proposed["rules!"]
+        self.assertLess(rules.index("DOMAIN-SUFFIX,github.com,美国"),
+                        rules.index("RULE-SET,Manual-Direct,DIRECT"))
+        self.assertEqual(validator.read(candidate["localModuleTemplatePath"]),
+                         validator.read(stable["localModuleTemplatePath"]))
+
     def test_published_profile_contract(self):
         catalog = json.loads(validator.read("profiles/catalog.json"))
         profile = catalog["profiles"][validator.JP]

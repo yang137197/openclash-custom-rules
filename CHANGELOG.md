@@ -1,5 +1,10 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us v1.0.8 — 2026-11-09
+
+- 状态：candidate，等待本人实机验收。仅在 v1.0.7 固定快照的 DNS 过滤规则中为 `api.github.com` 增加精确 `real-ip` 例外，保留 GitHub 美国组及其他既有分流、链路和安全边界。
+- 本人回传的 NEXUS 容器 DNS 命中 Fake-IP，OpenClash 调试日志显示运行配置使用规则模式；候选尚未部署。正式发布前须重新合并当前可变 Manual-Direct 源，不能覆盖其后续变更。
+
 ## tiktok-router-loongproxy-jp-us v1.0.7 — 2026-10-28
 
 - 状态：stable。用户于 2026-10-28 确认 v1.0.7 验收通过。将 `rules/manual-direct.yaml` 设为唯一可编辑手动直连规则源；保留规则语法/域名格式及同步一致性校验，但不固定清单、条数或源哈希，维护者可随时增删有效规则。
