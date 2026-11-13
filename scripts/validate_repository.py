@@ -55,6 +55,44 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def validate_current_document_versions(catalog, documents):
+    """Check explicit current-version claims, leaving historical references alone."""
+    profile_id = catalog["currentProfile"]
+    profile = catalog["profiles"][profile_id]
+    version = profile["currentVersion"]
+    status = profile["status"]
+    ver = r"([0-9A-Za-z.+-]+)"
+
+    def claim(path, label, pattern, expected):
+        matches = re.findall(pattern, documents[path], flags=re.MULTILINE)
+        require(matches == [expected], f"{path}: {label} must match catalog ({expected})")
+
+    claim("README.md", "current scheme", r"当前正式方案为 \*\*([^\s]+) v" + ver + r" / ([^*]+)\*\*",
+          (profile_id, version, status))
+    claim("README.md", "current version index", r"^v" + ver + r" 是当前正式版", version)
+    rows = re.findall(r"^\| \[" + re.escape(profile_id) + r"\][^\n]*$", documents["README.md"], re.MULTILINE)
+    require(len(rows) == 1 and re.findall(r"\|\s*v" + ver + r"\s*\|", rows[0]) == [version],
+            f"README.md: current profile table version must match catalog ({version})")
+    claim("AGENTS.md", "current scheme", r"当前正式方案：`([^\s]+) v" + ver + r"`", (profile_id, version))
+    claim("AGENTS.md", "current stable version", r"当前 `v" + ver + r"` 为正式稳定版本", version)
+    claim("MAINTENANCE.md", "current baseline", r"当前唯一支持方案是 `([^\s]+) v" + ver + r"`",
+          (profile_id, version))
+    claim("MAINTENANCE.md", "current release", r"当前正式版 v" + ver, version)
+    claim("MAINTENANCE.md", "current stable version", r"当前稳定版本为 `v" + ver + r"`", version)
+
+    path = profile["profileReadmePath"]
+    claim(path, "current version and status", r"^\*\*v" + ver + r" ([^*]+)\*\*", (version, status))
+    sections = re.findall(r"^## 当前正式版\s*\n(.*?)(?=^## |\Z)", documents[path], re.MULTILINE | re.DOTALL)
+    require(len(sections) == 1, f"{path}: expected one current release section")
+    links = re.findall(r"^- \[([^\]]+)\]\(([^)]+)\)", sections[0], re.MULTILINE)
+    require(links and all(label.startswith(f"v{version} ") and (f"/v{version}/" in target or
+            target.endswith(f"/{profile_id}-v{version}")) for label, target in links),
+            f"{path}: current release links must match catalog ({version})")
+    fixed = re.findall(r"^v" + ver + r" 固定完整云覆写：\s*\n\s*(\S+)", sections[0], re.MULTILINE)
+    require(fixed == [(version, profile["versions"][version]["versionedModuleUrl"])],
+            f"{path}: current fixed overwrite URL must match catalog ({version})")
+
+
 def semver_parts(version):
     match = SEMVER_PATTERN.fullmatch(version)
     require(match is not None, f"invalid SemVer version: {version}")
@@ -686,6 +724,9 @@ def main():
             "catalog must index one or more profiles and identify a default profile")
     require(catalog["profiles"][catalog["currentProfile"]]["status"] == "stable",
             "catalog default profile must be stable")
+    current_readme = catalog["profiles"][catalog["currentProfile"]]["profileReadmePath"]
+    validate_current_document_versions(catalog, {path: read(path) for path in
+        ("README.md", "AGENTS.md", "MAINTENANCE.md", current_readme)})
     require(not (ROOT / "overwrite/openclash-overwrite.conf").exists(), "retired compatibility entry remains")
     require(read("AGENTS.md").startswith(ROLE_PREFIX), "immutable expert role/guide changed")
     for path in ("AGENTS.md", "MAINTENANCE.md"):

@@ -22,6 +22,8 @@
 - 每个方案独立维护 SemVer。新版本必须高于**同一方案**已记录的最高版本；不同方案互不比较，因此 A v1.0.0 与 B v1.0.0 可以同时存在。不得在同一方案内回退、复用或覆盖已记录版本号。
 - Release 标签使用 `{profileId}-v{version}`。每个方案版本的完整模块固定存放在 `profiles/{profileId}/versions/v{version}/openclash-overwrite.conf`，Release 提供标签固定的 `raw.githubusercontent.com` 直链。固定 URL 必须在 Release 正文中完整显示并单独占一行，确保可直接点击或复制；不得只放隐藏式 Markdown 链接文字，也不得用滚动 `main` 地址代替。滚动入口按方案分别存放在 `profiles/{profileId}/overwrite/openclash-overwrite.conf`，不能把它当作历史版本链接，也不能跨方案共用。
 - 根 `README.md` 是方案总览目录；每个方案 README 和 Release 都必须告诉用户适用需求、当前状态、对应版本、固定覆写链接、部署设置说明及验证状态。单个 OpenClash 配置只启用一个完整方案及其配套本地模块。
+- 当前默认方案及稳定版本以 `profiles/catalog.json` 的 `currentProfile`、`currentVersion` 和 `status` 为准。正式发布时，在同一发布变更中同步核对 `AGENTS.md`、根 `README.md`、`MAINTENANCE.md` 和当前方案 README 的当前版本标注及链接；候选阶段仍显示已发布稳定版本。历史版本描述及已发布快照保留原样，不做全局版本替换。
+- 仓库校验必须逐项比较上述文档的当前版本标注与 catalog，并检查根 README 方案表、方案 README 当前版本链接的版本；旧版本出现在历史说明中不视为错误。校验失败须修正后再发布。日常手动域名增删不更改版本号或触发版本发布流程。
 - 已发布版本目录、标签和 Release 不可改写、移动或复用。大版本更新或重构在原方案内新建更高候选版本，完成验收后发布正式版本；需求目标不同则新建方案。新方案不能复活已清理的 IPRoyal、SocksTun 等已弃用方案，除非用户明确要求。
 
 ## 手动域名规则维护的永久流程
