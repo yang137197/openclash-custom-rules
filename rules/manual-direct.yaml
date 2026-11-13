@@ -234,6 +234,11 @@ payload:
   - DOMAIN-SUFFIX,hyjidi.com
   - DOMAIN-SUFFIX,xiaodecheji.com
   - DOMAIN-SUFFIX,okcaros.com
+  - DOMAIN-SUFFIX,ping0.cc
+  - DOMAIN-SUFFIX,ippure.com
+  - DOMAIN-SUFFIX,ipkk.com
+  - DOMAIN-SUFFIX,whoer.net/zh
+
   # ==========================================================
   # 电商域名
   # ==========================================================
@@ -241,11 +246,15 @@ payload:
   - DOMAIN-SUFFIX,alimama.com
   - DOMAIN-SUFFIX,one.alimama.com
 
+  # ==========================================================
   # 用户指定：覆盖 mmstat.com 主域名及其所有子域名。
   - DOMAIN-SUFFIX,mmstat.com
-
+  
+  # ==========================================================
   # Huzhou 服务：主域名及全部子域名直连。
   - DOMAIN-SUFFIX,huzhou.host
+  
+ # ==========================================================  
  # 三星galaxy 服务：主域名及全部子域名直连。
   - DOMAIN-SUFFIX,galaxyappstore.com
   - DOMAIN-SUFFIX,Samsung.com
