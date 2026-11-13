@@ -18,9 +18,9 @@
 
 ## 当前正式基线
 
-当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.6`（继承 J1–J11、J13–J16，新增 J17，stable），索引位于 `profiles/catalog.json`。J17 将 `huzhou.host` 主域名及全部子域名直连。用户于 2026-10-28 确认实机验收通过；候选对应调试日志记录目标环境，并显示主域名命中 DIRECT。日志未记录子域名连接，子域名验收依据为用户确认。验收环境中“禁用 QUIC”为停用，与 SETUP 建议不同；本版本未修改此设置。
+当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.7`（继承 J1–J11、J13–J17 并实现 J18–J21，stable），索引位于 `profiles/catalog.json`。J17 将 `huzhou.host` 主域名及全部子域名直连。用户于 2026-10-28 确认 v1.0.7 验收通过；其环境快照复用 v1.0.6，没有新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其对应证据：日志显示主域名命中 DIRECT，但未记录子域名连接。v1.0.6 验收环境中“禁用 QUIC”为停用，与 SETUP 建议不同；该版本未修改此设置。
 
-当前未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。正式版 `v1.0.5` 仅修正本地模板扩展名；当前正式版 v1.0.6 另新增 Huzhou 主域名及子域名直连。
+历史未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。正式版 `v1.0.5` 仅修正本地模板扩展名；v1.0.6 新增 Huzhou 主域名及子域名直连；当前正式版 v1.0.7 自动化手动直连规则生成和滚动覆写同步，保留规则语法与同步校验，域名清单和条数可按需变更。
 
 **不可改变的链路前提：**路由器本地 Loongproxy 美国 SOCKS5 必须通过用户手选的 iKuuu 日本节点建立链式代理。`TikTok-ISP-Local` 必须保留 `dialer-proxy: 日本-入口` 与 `udp: false`。日本入口自动筛选已加载节点中名称含 `jp`、`日本`、`Japan` 或 🇯🇵 的节点（忽略大小写），但必须由用户选中实际 iKuuu 日本节点。日本节点缺失或不可用时失败关闭，严禁切换美国首跳、其他机场首跳、机场/DIRECT 回退。
 
