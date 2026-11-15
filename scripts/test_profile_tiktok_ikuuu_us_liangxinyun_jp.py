@@ -62,3 +62,46 @@ class DualSubscriptionProfileTests(unittest.TestCase):
         provider = self.local["proxy-providers!"]["Liangxinyun-JP"]
         self.assertEqual(provider["proxy"], "DIRECT")
         self.assertEqual(provider["filter"], "^FILL_ME_VERIFIED_JAPAN_NODE_NAME$")
+
+    def test_v101_keeps_baseline_rules_and_uses_tiktok_isp_group(self):
+        candidate = CANDIDATE.parent / "v1.0.1"
+        module = load_yaml((candidate / "openclash-overwrite.conf").read_text(encoding="utf-8"), module=True)
+        expected = self.module.copy()
+        groups = expected.pop("proxy-groups!")
+        expected["rules!"] = [
+            "GEOSITE,tiktok,TikTok-ISP" if rule == f"GEOSITE,tiktok,{TIKTOK}" else rule
+            for rule in expected["rules!"]
+        ]
+        dns = expected["dns"].copy()
+        policy = dns["nameserver-policy!"].copy()
+        policy["geosite:tiktok"] = [url.replace(f"#{TIKTOK}", "#TikTok-ISP") for url in policy["geosite:tiktok"]]
+        dns["nameserver-policy!"] = policy
+        expected["dns"] = dns
+
+        new_groups = module.pop("proxy-groups!")
+        self.assertEqual(module, expected)
+        self.assertEqual(new_groups[2:], groups)
+        first, isp = new_groups[:2]
+        self.assertEqual(first["name"], "TikTok-首跳")
+        self.assertEqual(first["type"], "fallback")
+        self.assertEqual(first["proxies"], ["iKuuu-US-Z01", "iKuuu-US-Z02"])
+        self.assertEqual(first["interval"], 60)
+        self.assertEqual(isp["name"], "TikTok-ISP")
+        self.assertEqual(isp["type"], "select")
+        self.assertEqual(isp["proxies"], [TIKTOK])
+        self.assertEqual(isp["interval"], 300)
+        for group in (first, isp):
+            self.assertEqual(group["url"], "https://www.gstatic.com/generate_204")
+            self.assertFalse(group["lazy"])
+            self.assertEqual(group["expected-status"], 204)
+            self.assertEqual(group["empty-fallback"], "REJECT")
+
+    def test_v101_local_template_links_only_the_two_us_nodes_and_isp(self):
+        candidate = CANDIDATE.parent / "v1.0.1"
+        local = load_yaml((candidate / "local-tiktok-proxy.conf").read_text(encoding="utf-8"), module=True)
+        self.assertEqual(set(local), set(self.local))
+        self.assertEqual(local["proxy-providers!"], self.local["proxy-providers!"])
+        z01, z02, isp = local["proxies!"]
+        self.assertEqual(z01["name"], "iKuuu-US-Z01")
+        self.assertEqual(z02["name"], "iKuuu-US-Z02")
+        self.assertEqual(isp, {**self.local["proxies!"][1], "dialer-proxy": "TikTok-首跳"})

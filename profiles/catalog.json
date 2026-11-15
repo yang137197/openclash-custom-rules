@@ -229,7 +229,7 @@
     "tiktok-ikuuu-us-liangxinyun-jp": {
       "title": "TikTok iKuuu 美国首跳 + 良心云日本",
       "status": "candidate",
-      "currentVersion": "1.0.0",
+      "currentVersion": "1.0.1",
       "profileReadmePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md",
       "validationTestPath": "scripts/test_profile_tiktok_ikuuu_us_liangxinyun_jp.py",
       "immutableVersionDirectories": [],
@@ -251,6 +251,26 @@
             "U3",
             "U4",
             "U5"
+          ]
+        },
+        "1.0.1": {
+          "kind": "tiktok-ikuuu-us-liangxinyun-jp",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1",
+          "modulePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1/SETUP.md",
+          "environmentPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1/ENVIRONMENT.json",
+          "moduleSha256": "d89c0f7dce4e54021459c40f9a8cb1806a17da1e326cb53c336c84ac1abb74d5",
+          "localModuleTemplatePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1/local-tiktok-proxy.conf",
+          "localTemplateSha256": "b9931d1db1f44fcc7e7d992c4edbebd2a9808f048496e294daf725b183c6e2f4",
+          "requirements": [
+            "U1",
+            "U2",
+            "U3",
+            "U4",
+            "U5",
+            "U6"
           ]
         }
       }

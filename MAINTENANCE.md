@@ -26,7 +26,7 @@
 
 Google/Google Play 与其他境外流量走用户手选的美国组；中国大陆域名和 IP 直连；Manual-Direct 由可变源文件维护。日本、美国和 ISP 组均须排除本地 ISP 节点以避免递归，空组保持 REJECT。
 
-独立候选 `tiktok-ikuuu-us-liangxinyun-jp` v1.0.0 及待验收状态见[方案索引](profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md)。
+独立候选 `tiktok-ikuuu-us-liangxinyun-jp` v1.0.1 及待验收状态见[方案索引](profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md)。
 
 ## 配置与凭据
 

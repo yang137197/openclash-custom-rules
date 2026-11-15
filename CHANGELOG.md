@@ -1,5 +1,9 @@
 # 版本记录
 
+## tiktok-ikuuu-us-liangxinyun-jp v1.0.1 — 2026-11-15
+
+- candidate。加入可测速的 TikTok 首跳组和 ISP 组，按健康状态在 Z01、Z02 间自动切换。直连和良心云日本规则沿用 v1.0.0。待实机验收。
+
 ## tiktok-ikuuu-us-liangxinyun-jp v1.0.0 — 2026-11-15
 
 - candidate。TikTok 固定 iKuuu 美国首跳及原 Loongproxy 落地，其余代理流量统一良心云日本。保留 57ff422 的直连、规则顺序及本地 DNS。真实双订阅待实机验收。

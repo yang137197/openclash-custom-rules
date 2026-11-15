@@ -37,7 +37,7 @@
 - `日本-入口` 从已加载的顶层节点和 proxy-providers 中，按名称任意位置的 `jp`、`日本`、`Japan`、🇯🇵（忽略大小写）筛选。用户必须手动选择 iKuuu 日本节点；名称筛选本身不证明供应商身份或可达性。
 - 目标版本由用户报告为 OpenClash v0.48.002 / alpha-gbc76c13。正式验收结果来自用户确认。
 
-独立候选 `tiktok-ikuuu-us-liangxinyun-jp` v1.0.0 使用用户指定的 iKuuu 美国首跳，见[候选需求](profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/REQUIREMENTS.md)。以下行为边界继续适用于原正式方案。
+独立候选 `tiktok-ikuuu-us-liangxinyun-jp` v1.0.1 使用用户指定的 iKuuu 美国双首跳，见[候选需求](profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.1/REQUIREMENTS.md)。以下行为边界继续适用于原正式方案。
 
 ## 行为边界
 

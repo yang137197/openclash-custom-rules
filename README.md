@@ -8,7 +8,7 @@
 | --- | --- | --- | --- | --- | --- |
 | [tiktok-router-loongproxy-jp-us](profiles/tiktok-router-loongproxy-jp-us/README.md) | TikTok 与 Claude/Anthropic 经 Loongproxy 静态 ISP；GitHub、Google 和其他境外流量走美国组；中国大陆直连，含 Huzhou 后缀直连 | v1.0.7 | [Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.7) | [v1.0.7 YAML](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf) | [设置与验收](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/SETUP.md) |
 
-候选方案 [`tiktok-ikuuu-us-liangxinyun-jp` v1.0.0](profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md)（candidate）供双订阅验收。
+候选方案 [`tiktok-ikuuu-us-liangxinyun-jp` v1.0.1](profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md)（candidate）供双订阅验收。
 
 ### 当前方案要点
 
