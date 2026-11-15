@@ -8,6 +8,8 @@
 | --- | --- | --- | --- | --- | --- |
 | [tiktok-router-loongproxy-jp-us](profiles/tiktok-router-loongproxy-jp-us/README.md) | TikTok 与 Claude/Anthropic 经 Loongproxy 静态 ISP；GitHub、Google 和其他境外流量走美国组；中国大陆直连，含 Huzhou 后缀直连 | v1.0.7 | [Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.7) | [v1.0.7 YAML](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf) | [设置与验收](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/SETUP.md) |
 
+候选方案 [`tiktok-ikuuu-us-liangxinyun-jp` v1.0.0](profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md)（candidate）供双订阅验收。
+
 ### 当前方案要点
 
 - 私网/局域网优先直连；Claude/Anthropic 专项域名走 `TikTok-ISP`，GitHub 专项域名走美国组；二者位于通用 TikTok 规则之前。TikTok 保持紧邻拒绝规则；Google/Google Play 走美国组；`huzhou.host` 主域名及全部子域名走 DIRECT；Manual-Direct 规则按仓库流程动态维护；中国大陆域名/IP 直连；其余境外流量走美国组。

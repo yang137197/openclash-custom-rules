@@ -225,6 +225,35 @@
       "manualRulesPath": "rules/manual-direct.yaml",
       "manualRulesGeneratorPath": "scripts/sync_manual_direct.py",
       "manualRulesSyncWorkflowPath": ".github/workflows/sync-manual-direct.yml"
+    },
+    "tiktok-ikuuu-us-liangxinyun-jp": {
+      "title": "TikTok iKuuu 美国首跳 + 良心云日本",
+      "status": "candidate",
+      "currentVersion": "1.0.0",
+      "profileReadmePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/README.md",
+      "validationTestPath": "scripts/test_profile_tiktok_ikuuu_us_liangxinyun_jp.py",
+      "immutableVersionDirectories": [],
+      "versions": {
+        "1.0.0": {
+          "kind": "tiktok-ikuuu-us-liangxinyun-jp",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0",
+          "modulePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/SETUP.md",
+          "environmentPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/ENVIRONMENT.json",
+          "moduleSha256": "6d1f15172ca805471812863d3bf9776772d80ba00fd42cf3ecc6715dca710315",
+          "localModuleTemplatePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/local-tiktok-proxy.conf",
+          "localTemplateSha256": "9e05c6774adecd0a62ff6f5dca5d28ab26c4bb9459fc3d8646af118a2cbf51c7",
+          "requirements": [
+            "U1",
+            "U2",
+            "U3",
+            "U4",
+            "U5"
+          ]
+        }
+      }
     }
   }
 }

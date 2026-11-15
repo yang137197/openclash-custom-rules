@@ -1,5 +1,9 @@
 # 版本记录
 
+## tiktok-ikuuu-us-liangxinyun-jp v1.0.0 — 2026-11-15
+
+- candidate。TikTok 固定 iKuuu 美国首跳及原 Loongproxy 落地，其余代理流量统一良心云日本。保留 f59e24c 的直连、规则顺序及本地 DNS。真实双订阅待实机验收。
+
 ## tiktok-router-loongproxy-jp-us v1.0.7 — 2026-10-28
 
 - 状态：stable。用户于 2026-10-28 确认 v1.0.7 验收通过。将 `rules/manual-direct.yaml` 设为唯一可编辑手动直连规则源；保留规则语法/域名格式及同步一致性校验，但不固定清单、条数或源哈希，维护者可随时增删有效规则。

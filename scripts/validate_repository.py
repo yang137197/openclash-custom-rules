@@ -24,7 +24,7 @@ BASELINE_VERSION = "1.0.0"
 LEGACY_ENVIRONMENT_EXEMPTIONS = {(JP, "1.0.0")}
 # Historical modules keep their published .conf.example template paths. New
 # profile versions must use an extension accepted by OpenClash's local uploader.
-LEGACY_EXAMPLE_TEMPLATE_VERSIONS = {"1.0.0", "1.0.1", "1.0.4"}
+LEGACY_EXAMPLE_TEMPLATE_VERSIONS = {(JP, "1.0.0"), (JP, "1.0.1"), (JP, "1.0.4")}
 # User-approved cleanup baseline. Only retired files/snapshots listed in this
 # baseline may be removed; published files that remain active cannot be edited.
 RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
@@ -521,7 +521,7 @@ def validate_profile_artifacts(profile_id, profile, modules):
         local_template_path = entry.get("localModuleTemplatePath")
         if local_template_path:
             expected_template = directory + "/local-tiktok-proxy.conf"
-            if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
+            if (profile_id, version) in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
                 expected_template += ".example"
             require(local_template_path == expected_template,
                     f"{profile_id} v{version}: invalid local credential template path")
@@ -561,7 +561,7 @@ def validate_stable(profile_id, profile, modules, manual):
                       "requirementsPath": directory + "/REQUIREMENTS.md",
                       "setupPath": directory + "/SETUP.md",
                       "localModuleTemplatePath": directory + "/local-tiktok-proxy.conf.example"
-                      if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS
+                      if (profile_id, version) in LEGACY_EXAMPLE_TEMPLATE_VERSIONS
                       else directory + "/local-tiktok-proxy.conf"}
     for key, path in expected_paths.items():
         require(entry[key] == path, f"{profile_id}: invalid {key}")
