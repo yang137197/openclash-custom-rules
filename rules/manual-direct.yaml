@@ -237,7 +237,7 @@ payload:
   - DOMAIN-SUFFIX,ping0.cc
   - DOMAIN-SUFFIX,ippure.com
   - DOMAIN-SUFFIX,ipkk.com
-  - DOMAIN-SUFFIX,whoer.net/zh
+  - DOMAIN-SUFFIX,whoer.net
 
   # ==========================================================
   # 电商域名
