@@ -242,7 +242,7 @@
           "requirementsPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/REQUIREMENTS.md",
           "setupPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/SETUP.md",
           "environmentPath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/ENVIRONMENT.json",
-          "moduleSha256": "6d1f15172ca805471812863d3bf9776772d80ba00fd42cf3ecc6715dca710315",
+          "moduleSha256": "a1cb7ca656112243c0470b418ca884fd856f7e7a95c50f4b49a69593a0f38e81",
           "localModuleTemplatePath": "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0/local-tiktok-proxy.conf",
           "localTemplateSha256": "9e05c6774adecd0a62ff6f5dca5d28ab26c4bb9459fc3d8646af118a2cbf51c7",
           "requirements": [

@@ -5,7 +5,7 @@ from strict_yaml import load_yaml
 from validate_repository import ROOT
 
 
-BASELINE = "f59e24c2f0400528ffac393aff4f0270b861c360"
+BASELINE = "57ff42265dd3dffe44e86b7f78206b3d768f3d81"
 BASE_MODULE = "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf"
 CANDIDATE = ROOT / "profiles/tiktok-ikuuu-us-liangxinyun-jp/versions/v1.0.0"
 JAPAN = "良心云-日本"

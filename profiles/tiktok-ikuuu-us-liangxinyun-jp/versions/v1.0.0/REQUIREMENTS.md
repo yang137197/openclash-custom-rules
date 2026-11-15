@@ -1,6 +1,6 @@
 # tiktok-ikuuu-us-liangxinyun-jp v1.0.0
 
-状态为 candidate。直连和优先级基于 GitHub main 的 `f59e24c` 滚动配置。目标路由器、真实节点及订阅待验收。
+状态为 candidate。直连和优先级基于 GitHub main 的 `57ff422` 滚动配置。目标路由器、真实节点及订阅待验收。
 
 - U1：TikTok 及其专用 DoH 通过原 Loongproxy 美国静态 SOCKS5 节点出站，`dialer-proxy` 固定到用户指定的现有 iKuuu 美国节点。原 `udp: false` 和紧邻的 TikTok 拒绝规则保留。首跳或落地不可用时，TikTok 失败关闭。
 - U2：保留私网、手工直连、大陆域名和大陆 IP 的匹配条件、顺序及美国／TikTok 原有规则与直连之间的相对优先级。保留手工直连快照、直连 DNS、Fake-IP 判定和大陆旁路设置。

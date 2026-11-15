@@ -2,7 +2,7 @@
 
 **v1.0.0 candidate**。目标设备和真实双订阅待测。云覆写与唯一配套本地模块都使用 `[YAML]`。按[官方覆写模块指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)操作。
 
-直连以 `f59e24c` 已生成的滚动覆写为准。此提交的手工直连源含无效条目 `whoer.net/zh`，同步工作流失败，同次提交新增的规则尚未进入滚动覆写。候选沿用该有效快照。
+直连以 GitHub main 已同步的 `57ff422` 滚动覆写为准。该快照包含 `whoer.net` 后缀直连及同批已同步的 `ping0.cc`、`ippure.com`、`ipkk.com`。
 
 ## 本地模块
 
