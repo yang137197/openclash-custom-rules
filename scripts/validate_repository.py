@@ -75,7 +75,7 @@ def validate_current_document_versions(catalog, documents):
             f"README.md: current profile table version must match catalog ({version})")
     claim("AGENTS.md", "current scheme", r"当前正式方案：`([^\s]+) v" + ver + r"`", (profile_id, version))
     claim("AGENTS.md", "current stable version", r"当前 `v" + ver + r"` 为正式稳定版本", version)
-    claim("MAINTENANCE.md", "current baseline", r"当前唯一支持方案是 `([^\s]+) v" + ver + r"`",
+    claim("MAINTENANCE.md", "current baseline", r"当前默认方案是 `([^\s]+) v" + ver + r"`",
           (profile_id, version))
     claim("MAINTENANCE.md", "current release", r"当前正式版 v" + ver, version)
     claim("MAINTENANCE.md", "current stable version", r"当前稳定版本为 `v" + ver + r"`", version)
@@ -521,7 +521,7 @@ def validate_profile_artifacts(profile_id, profile, modules):
         local_template_path = entry.get("localModuleTemplatePath")
         if local_template_path:
             expected_template = directory + "/local-tiktok-proxy.conf"
-            if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
+            if profile_id == JP and version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
                 expected_template += ".example"
             require(local_template_path == expected_template,
                     f"{profile_id} v{version}: invalid local credential template path")
@@ -652,13 +652,16 @@ def validate_manual_direct_sync(profile, modules):
     payload = parse_manual_direct_payload(read(source_path))
     rolling_path = profile["latestModulePath"]
     rolling = modules[rolling_path]
-    provider = rolling.get("rule-providers", {}).get("Manual-Direct!")
-    require(provider == {"type": "inline", "behavior": "classical", "payload": payload},
+    providers = rolling.get("rule-providers", {})
+    matches = [providers[key] for key in ("Manual-Direct!", "Manual-Direct") if key in providers]
+    require(matches == [{"type": "inline", "behavior": "classical", "payload": payload}],
             "rolling Manual-Direct inline payload must exactly match rules/manual-direct.yaml")
     rules = rolling.get("rules!", [])
     require(rules.count("RULE-SET,Manual-Direct,DIRECT") == 1,
             "rolling module must call the generated Manual-Direct provider exactly once")
-    google_index = rules.index("GEOSITE,google,美国")
+    google_indexes = [index for index, rule in enumerate(rules) if rule.startswith("GEOSITE,google,")]
+    require(len(google_indexes) == 1, "rolling module must have exactly one general Google rule")
+    google_index = google_indexes[0]
     manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
     china_index = rules.index("RULE-SET,oc-cn-domain,DIRECT")
     require(google_index < manual_index < china_index,

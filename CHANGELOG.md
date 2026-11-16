@@ -1,5 +1,41 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0 — 2026-11-16
+
+- 状态为 stable。用户于 2026-11-16 确认实机验收通过。按验收范围将 `TikTok首跳` 收窄为手选 iKuuu 日本 Z01–Z04，保留无可用手选时的 REJECT、Loongproxy 美国落地、良心云默认代理和现有直连规则。
+- 根据对应实机日志记录运行环境与验收，并建立独立滚动覆写。手动直连源同步到两个已登记的正式方案。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.4.0 — 2026-11-16
+
+- 状态为 candidate。将良心云日本和新加坡的 BGP 流媒体专线各 01–04 加入现有 TikTok 手选首跳组。对照继续使用同一个 Loongproxy 美国出口，保留所选节点缺失时的拒绝行为。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.3.0 — 2026-11-16
+
+- 状态为 candidate。将 iKuuu 日本 Z01–Z04 加入现有 TikTok 首跳手选组，与美国 Z01、Z02 使用同一 Loongproxy 出口进行实机对照。未手选或所选节点缺失时使用 REJECT。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.2.1 — 2026-11-16
+
+- 状态为 candidate。修复指定的 iKuuu Z01/Z02 因节点名带有旗帜前缀而未出现在 `TikTok首跳` 组的情况。继续仅允许指定的两个节点手选，未选择或选择失效时拒绝。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.2.0 — 2026-11-16
+
+- 状态为 candidate。TikTok 首跳改为手选指定 iKuuu 美国 Z01/Z02，初次启用及所选节点缺失时使用 REJECT。Loongproxy 美国静态节点继续提供最终出口。
+- 将首跳组和出口组分别命名为 `TikTok首跳` 和 `TikTok测速`，同步本地链式拨号、路由规则及 TikTok 专用 DNS 引用。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.1.1 — 2026-11-16
+
+- 状态为 candidate。代理提供商 `liangxinyun` 和手动直连规则集 `Manual-Direct` 改用普通键。父级映射缺失时，OpenClash 合并后也能获得与规则引用一致的名称。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.1.0 — 2026-11-16
+
+- 状态为 candidate，等待路由器验收。仅 TikTok 使用 iKuuu 日本首跳与 Loongproxy 美国静态出口。Claude 网页和 Claude Code 并入良心云默认代理，撤除独立分流条目。
+- Google、GitHub 与最终代理出口使用良心云。现有直连条目及其相对优先级继续沿用。良心云组仅纳入该订阅并保留拒绝回退。
+
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.0.0 — 2026-11-16
+
+- 状态为 candidate，等待路由器验收。仅增加 YouTube 域名与 Telegram 域名、IP 的良心云分流，保持现行 TikTok、Google Play 和直连出口。
+- 良心云使用独立代理提供商和手选组。现有日本与美国组按良心云前缀排除其节点。良心云连接失败时保留该专用出口边界。
+
 ## tiktok-router-loongproxy-jp-us v1.0.7 — 2026-10-28
 
 - 状态：stable。用户于 2026-10-28 确认 v1.0.7 验收通过。将 `rules/manual-direct.yaml` 设为唯一可编辑手动直连规则源；保留规则语法/域名格式及同步一致性校验，但不固定清单、条数或源哈希，维护者可随时增删有效规则。

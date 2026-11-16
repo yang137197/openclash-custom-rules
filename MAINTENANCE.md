@@ -18,7 +18,7 @@
 
 ## 当前正式基线
 
-当前唯一支持方案是 `tiktok-router-loongproxy-jp-us v1.0.7`（继承 J1–J11、J13–J17 并实现 J18–J21，stable），索引位于 `profiles/catalog.json`。J17 将 `huzhou.host` 主域名及全部子域名直连。用户于 2026-10-28 确认 v1.0.7 验收通过；其环境快照复用 v1.0.6，没有新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其对应证据：日志显示主域名命中 DIRECT，但未记录子域名连接。v1.0.6 验收环境中“禁用 QUIC”为停用，与 SETUP 建议不同；该版本未修改此设置。
+当前默认方案是 `tiktok-router-loongproxy-jp-us v1.0.7`（继承 J1–J11、J13–J17 并实现 J18–J21，stable），索引位于 `profiles/catalog.json`。J17 将 `huzhou.host` 主域名及全部子域名直连。用户于 2026-10-28 确认 v1.0.7 验收通过；其环境快照复用 v1.0.6，没有新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其对应证据：日志显示主域名命中 DIRECT，但未记录子域名连接。v1.0.6 验收环境中“禁用 QUIC”为停用，与 SETUP 建议不同；该版本未修改此设置。
 
 历史未验收候选包括：`v1.0.1` 增加 `update.kies.samsung.com` 精确域名直连；`v1.0.2` 增加 Claude Code 官方端点分流；`v1.0.3` 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。正式版 `v1.0.5` 仅修正本地模板扩展名；v1.0.6 新增 Huzhou 主域名及子域名直连；当前正式版 v1.0.7 自动化手动直连规则生成和滚动覆写同步，保留规则语法与同步校验，域名清单和条数可按需变更。
 
@@ -28,7 +28,11 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 ## 配置与凭据
 
-- 单个配置仅启用一个完整云覆写及其配套本地节点模块。云模块管理规则；本地模块只追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
+流程 A 为登记同一手动直连源的两个正式方案分别生成滚动覆写及哈希。路由器按所用方案刷新相应远程模块。
+
+良心云正式方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0` 使用一份本地配套模板，包含既有 Loongproxy 节点和良心云代理提供商。TikTok 首跳限定 iKuuu 日本 Z01–Z04 手选，Claude 随默认代理使用良心云。正式需求和设置见[方案索引](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)。
+
+- 单个配置仅启用一个完整云覆写及其配套本地模块。云模块管理规则。v1.0.7 正式方案的本地模块追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
 - 更新规则只刷新正式云覆写模块并重启 OpenClash；机场节点订阅、GEO 数据各自更新。
 - 修改 Loongproxy 密码时，只在路由器本地 `TikTok-ISP-Local` 模块改 `password`；按本地服务商提供的信息同步修改 `username`、`server`、`port`（如有变化）。保留节点名、`type: socks5`、`udp: false`、`dialer-proxy: 日本-入口`。详细 UI 路径见版本 `SETUP.md`。
 - 真实 ISP 主机、账号和密码只存路由器本地模块，不进入仓库、云覆写、PR 或日志。公共仓库只保存占位模板；供 OpenClash 导入的模板使用 `.conf` 后缀。

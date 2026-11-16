@@ -28,7 +28,7 @@ class CurrentDocumentVersionTests(unittest.TestCase):
             ("README.md", f"v{v} 是当前正式版", "v0.0.0 是当前正式版"),
             ("AGENTS.md", f"当前正式方案：`{p} v{v}`", f"当前正式方案：`{p} v0.0.0`"),
             ("AGENTS.md", f"当前 `v{v}` 为正式稳定版本", "当前 `v0.0.0` 为正式稳定版本"),
-            ("MAINTENANCE.md", f"当前唯一支持方案是 `{p} v{v}`", f"当前唯一支持方案是 `{p} v0.0.0`"),
+            ("MAINTENANCE.md", f"当前默认方案是 `{p} v{v}`", f"当前默认方案是 `{p} v0.0.0`"),
             ("MAINTENANCE.md", f"当前正式版 v{v}", "当前正式版 v0.0.0"),
             ("MAINTENANCE.md", f"当前稳定版本为 `v{v}`", "当前稳定版本为 `v0.0.0`"),
             (self.profile_readme, f"**v{v} stable**", "**v0.0.0 stable**"),

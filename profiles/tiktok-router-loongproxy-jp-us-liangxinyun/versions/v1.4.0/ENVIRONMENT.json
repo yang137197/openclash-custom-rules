@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.4.0",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX; QEMU Virtual CPU version 2.5+; 2C2T)"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "iKuuu",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用 QUIC：实机停用，SETUP.md 中的正式基线建议为开启。本次对照沿用实机值。"
+    ]
+  },
+  "evidence": {
+    "source": "debug-log",
+    "capturedAt": "2026-11-16",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "failed",
+    "userConfirmed": false,
+    "summary": "15:19 调试日志确认运行 v1.4.0、良心云普通代理及直连有成功连接。采样窗口未记录 TikTok 流量，模块顺序未能确认。用户随后报告 iKuuu 日本首跳可正常访问 TikTok，良心云日本和新加坡首跳均无法访问。具体测试节点编号、失败阶段及播放细节未提供。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}
