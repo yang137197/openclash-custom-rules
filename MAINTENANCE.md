@@ -28,7 +28,7 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 ## 配置与凭据
 
-良心云候选 `tiktok-router-loongproxy-jp-us-liangxinyun v1.2.1` 使用一份本地配套模板，包含既有 Loongproxy 节点和良心云代理提供商。候选的 TikTok 首跳必须手选指定 iKuuu 美国节点，支持订阅实际的旗帜前缀。Claude 随默认代理使用良心云。候选合同和设置见[方案索引](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)。
+良心云候选 `tiktok-router-loongproxy-jp-us-liangxinyun v1.3.0` 使用一份本地配套模板，包含既有 Loongproxy 节点和良心云代理提供商。TikTok 首跳允许手选指定 iKuuu 美国或日本节点做对照。Claude 随默认代理使用良心云。候选合同和设置见[方案索引](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)。
 
 - 单个配置仅启用一个完整云覆写及其配套本地模块。云模块管理规则。v1.0.7 正式方案的本地模块追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
 - 更新规则只刷新正式云覆写模块并重启 OpenClash；机场节点订阅、GEO 数据各自更新。

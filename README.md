@@ -30,7 +30,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 
 ## 版本索引
 
-- [tiktok-router-loongproxy-jp-us-liangxinyun v1.2.1](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)（candidate）：TikTok 首跳必须手选指定的 iKuuu 美国节点，支持订阅实际的旗帜前缀。其余代理流量使用良心云。
+- [tiktok-router-loongproxy-jp-us-liangxinyun v1.3.0](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)（candidate）：在同一 `TikTok首跳` 手选指定的 iKuuu 美国或日本节点做对照。其余代理流量使用良心云。
 
 v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手动直连规则的生成与滚动覆写同步自动化，保留规则有效性校验，并允许规则清单随时增删而不固定条数。v1.0.6 及更早已发布目录、标签和 Release 保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。
 

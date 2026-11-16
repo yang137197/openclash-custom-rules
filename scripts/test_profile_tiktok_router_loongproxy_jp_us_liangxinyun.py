@@ -216,3 +216,31 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(new, expected)
         self.assertEqual(read(versions["1.2.1"]["localModuleTemplatePath"]),
                          read(versions["1.2.0"]["localModuleTemplatePath"]))
+
+    def test_comparison_group_accepts_only_the_specified_us_and_japan_nodes(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        old = load_yaml(read(versions["1.2.1"]["modulePath"]), module=True)
+        new = load_yaml(read(versions["1.3.0"]["modulePath"]), module=True)
+        old_group, *remaining = old["proxy-groups!"]
+        new_group = new["proxy-groups!"][0]
+        accepted = (
+            "REJECT",
+            "🇺🇲 美国Z01 | IEPL | x1.5", "🇺🇲 美国Z02 | IEPL | x1.5",
+            *(f"🇯🇵 日本Z0{index} | IEPL" for index in range(1, 5)),
+        )
+        for name in accepted:
+            self.assertIsNotNone(re.fullmatch(new_group["filter"], name), name)
+            bare_name = name.removeprefix("🇺🇲 ").removeprefix("🇯🇵 ")
+            self.assertIsNotNone(re.fullmatch(new_group["filter"], bare_name), bare_name)
+        for name in (
+            "🇭🇰 香港Z02 | IEPL", "🇯🇵 日本Z05 | IEPL", "🇺🇲 美国Z03 | IEPL | x1.5",
+            "LXY: 🇯🇵 日本Z01 | IEPL", "🇺🇲 日本Z01 | IEPL", "DIRECT",
+        ):
+            self.assertIsNone(re.fullmatch(new_group["filter"], name), name)
+        self.assertEqual(new, {
+            **old, "proxy-groups!": [{**old_group, "filter": new_group["filter"]}, *remaining],
+        })
+        local = read(versions["1.3.0"]["localModuleTemplatePath"])
+        self.assertEqual(load_yaml(local, module=True),
+                         load_yaml(read(versions["1.2.1"]["localModuleTemplatePath"]), module=True))
+        self.assertEqual(sha(local), versions["1.3.0"]["localTemplateSha256"])
