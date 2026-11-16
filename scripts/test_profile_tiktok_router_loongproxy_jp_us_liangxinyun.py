@@ -27,6 +27,10 @@ class LiangxinyunProfileTests(unittest.TestCase):
         cls.local_hash = sha(local)
         cls.catalog = catalog
         cls.entry = entry
+        next_entry = catalog["profiles"][PROFILE]["versions"]["1.1.0"]
+        cls.default_module = load_yaml(read(next_entry["modulePath"]), module=True)
+        cls.default_local = read(next_entry["localModuleTemplatePath"])
+        cls.default_local_hash = next_entry["localTemplateSha256"]
 
     def test_preserves_stable_rules_dns_and_direct_snapshot(self):
         self.assertEqual(self.catalog["currentProfile"], JP)
@@ -99,3 +103,29 @@ class LiangxinyunProfileTests(unittest.TestCase):
             }},
         })
         self.assertEqual(self.local_hash, self.entry["localTemplateSha256"])
+
+    def test_default_proxy_preserves_direct_precedence_and_has_no_claude_exceptions(self):
+        expected = []
+        for rule in self.baseline["rules!"]:
+            if rule.endswith(",TikTok-ISP") and rule != "GEOSITE,tiktok,TikTok-ISP":
+                continue
+            expected.append(rule.removesuffix(",美国") + ",良心云" if rule.endswith(",美国") else rule)
+        self.assertEqual(self.default_module["rules!"], [*expected, "MATCH,REJECT"])
+        self.assertEqual(self.default_module["rule-providers"], {
+            **self.baseline["rule-providers"],
+            "oc-cn-domain": {**self.baseline["rule-providers"]["oc-cn-domain"], "proxy": "良心云"},
+        })
+
+    def test_default_proxy_dns_uses_liangxinyun_except_for_tiktok(self):
+        dns = self.baseline["dns"]
+        policies = {
+            category: [server.replace("#美国", "#良心云") for server in servers]
+            for category, servers in dns["nameserver-policy!"].items()
+        }
+        self.assertEqual(self.default_module["dns"], {**dns, "nameserver-policy!": policies})
+
+    def test_default_proxy_isolates_ikuuu_to_tiktok_and_preserves_local_module(self):
+        japan, tiktok, _, liangxinyun = self.module["proxy-groups!"]
+        self.assertEqual(self.default_module["proxy-groups!"], [japan, tiktok, liangxinyun])
+        self.assertEqual(sha(self.default_local), self.local_hash)
+        self.assertEqual(self.default_local_hash, self.local_hash)

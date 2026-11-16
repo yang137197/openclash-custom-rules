@@ -1,5 +1,10 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.1.0 — 2026-11-16
+
+- 状态为 candidate，等待路由器验收。仅 TikTok 使用 iKuuu 日本首跳与 Loongproxy 美国静态出口。Claude 网页和 Claude Code 并入良心云默认代理，撤除独立分流条目。
+- Google、GitHub 与最终代理出口使用良心云。现有直连条目及其相对优先级继续沿用。良心云组仅纳入该订阅并保留拒绝回退。
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.0.0 — 2026-11-16
 
 - 状态为 candidate，等待路由器验收。仅增加 YouTube 域名与 Telegram 域名、IP 的良心云分流，保持现行 TikTok、Google Play 和直连出口。
