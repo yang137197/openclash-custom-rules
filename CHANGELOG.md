@@ -1,5 +1,10 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.2.0 — 2026-11-16
+
+- 状态为 candidate。TikTok 首跳改为手选指定 iKuuu 美国 Z01/Z02，初次启用及所选节点缺失时使用 REJECT。Loongproxy 美国静态节点继续提供最终出口。
+- 将首跳组和出口组分别命名为 `TikTok首跳` 和 `TikTok测速`，同步本地链式拨号、路由规则及 TikTok 专用 DNS 引用。
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.1.1 — 2026-11-16
 
 - 状态为 candidate。代理提供商 `liangxinyun` 和手动直连规则集 `Manual-Direct` 改用普通键。父级映射缺失时，OpenClash 合并后也能获得与规则引用一致的名称。

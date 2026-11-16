@@ -147,3 +147,50 @@ class LiangxinyunProfileTests(unittest.TestCase):
             "Manual-Direct": original["Manual-Direct!"],
         })
         self.assertEqual({**cloud, "rule-providers": original}, self.default_module)
+
+    def test_us_first_hop_only_admits_the_two_manual_choices(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.2.0"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        first_hop, speed, liangxinyun = module["proxy-groups!"]
+        self.assertEqual(first_hop["name"], "TikTok首跳")
+        self.assertEqual(first_hop["type"], "select")
+        self.assertEqual(first_hop["proxies"], ["REJECT"])
+        self.assertEqual(first_hop["default-selected"], "REJECT")
+        self.assertEqual(first_hop["empty-fallback"], "REJECT")
+        self.assertTrue(first_hop["include-all"])
+        self.assertEqual(first_hop["exclude-filter"], "^LXY: ")
+        for name in (
+            "REJECT", "美国Z01 | IEPL | x1.5", "美国Z02 | IEPL | x1.5  ",
+        ):
+            self.assertIsNotNone(re.fullmatch(first_hop["filter"], name), name)
+        for name in (
+            "日本Z01 | IEPL | x1.5", "美国Z03 | IEPL | x1.5", "美国Z01 | IEPL | x11.5",
+            "LXY: 美国Z02 | IEPL | x1.5", "TikTok-ISP-Local", "DIRECT",
+        ):
+            self.assertIsNone(re.fullmatch(first_hop["filter"], name), name)
+        self.assertEqual(speed, {**self.default_module["proxy-groups!"][1], "name": "TikTok测速"})
+        self.assertEqual(liangxinyun, self.default_module["proxy-groups!"][2])
+
+    def test_renamed_tiktok_groups_preserve_direct_rules_and_landing_node(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        old = load_yaml(read(versions["1.1.1"]["modulePath"]), module=True)
+        new = load_yaml(read(versions["1.2.0"]["modulePath"]), module=True)
+        self.assertEqual(new["rule-providers"], old["rule-providers"])
+        self.assertEqual(new["rules!"], [
+            "GEOSITE,tiktok,TikTok测速" if rule == "GEOSITE,tiktok,TikTok-ISP" else rule
+            for rule in old["rules!"]
+        ])
+        dns = old["dns"]
+        policies = {
+            name: [server.replace("#TikTok-ISP", "#TikTok测速") for server in servers]
+            for name, servers in dns["nameserver-policy!"].items()
+        }
+        self.assertEqual(new["dns"], {**dns, "nameserver-policy!": policies})
+        self.assertEqual(new["profile"], old["profile"])
+        old_local = load_yaml(read(versions["1.1.1"]["localModuleTemplatePath"]), module=True)
+        new_path = read(versions["1.2.0"]["localModuleTemplatePath"])
+        new_local = load_yaml(new_path, module=True)
+        self.assertEqual(new_local, {
+            **old_local, "proxies+": [{**old_local["proxies+"][0], "dialer-proxy": "TikTok首跳"}],
+        })
+        self.assertEqual(sha(new_path), versions["1.2.0"]["localTemplateSha256"])
