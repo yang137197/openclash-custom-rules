@@ -521,7 +521,7 @@ def validate_profile_artifacts(profile_id, profile, modules):
         local_template_path = entry.get("localModuleTemplatePath")
         if local_template_path:
             expected_template = directory + "/local-tiktok-proxy.conf"
-            if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
+            if profile_id == JP and version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
                 expected_template += ".example"
             require(local_template_path == expected_template,
                     f"{profile_id} v{version}: invalid local credential template path")

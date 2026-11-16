@@ -30,6 +30,8 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 
 ## 版本索引
 
+- [tiktok-router-loongproxy-jp-us-liangxinyun v1.0.0](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)（candidate）：YouTube 和 Telegram 使用独立良心云节点，等待路由器验收。
+
 v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手动直连规则的生成与滚动覆写同步自动化，保留规则有效性校验，并允许规则清单随时增删而不固定条数。v1.0.6 及更早已发布目录、标签和 Release 保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。
 
 开发规则、候选信息门禁、日志隐私与跨工具接续要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。更换 AI 开发工具或开启新对话时，在已打开仓库的工具中说“请你先读取仓库，我们继续开发”，再按规则恢复当前状态。

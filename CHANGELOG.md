@@ -1,5 +1,10 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.0.0 — 2026-11-16
+
+- 状态为 candidate，等待路由器验收。仅增加 YouTube 域名与 Telegram 域名、IP 的良心云分流，保持现行 TikTok、Google Play 和直连出口。
+- 良心云使用独立代理提供商和手选组。现有日本与美国组按良心云前缀排除其节点。良心云连接失败时保留该专用出口边界。
+
 ## tiktok-router-loongproxy-jp-us v1.0.7 — 2026-10-28
 
 - 状态：stable。用户于 2026-10-28 确认 v1.0.7 验收通过。将 `rules/manual-direct.yaml` 设为唯一可编辑手动直连规则源；保留规则语法/域名格式及同步一致性校验，但不固定清单、条数或源哈希，维护者可随时增删有效规则。

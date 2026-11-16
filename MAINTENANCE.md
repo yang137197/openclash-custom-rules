@@ -28,7 +28,9 @@ Google/Google Play 与其他境外流量走用户手选的美国组；中国大�
 
 ## 配置与凭据
 
-- 单个配置仅启用一个完整云覆写及其配套本地节点模块。云模块管理规则；本地模块只追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
+良心云候选 `tiktok-router-loongproxy-jp-us-liangxinyun v1.0.0` 使用一份本地配套模板，包含既有 Loongproxy 节点和良心云代理提供商。候选合同和设置见[方案索引](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)。
+
+- 单个配置仅启用一个完整云覆写及其配套本地模块。云模块管理规则。v1.0.7 正式方案的本地模块追加精确名为 `TikTok-ISP-Local` 的 SOCKS5 节点。
 - 更新规则只刷新正式云覆写模块并重启 OpenClash；机场节点订阅、GEO 数据各自更新。
 - 修改 Loongproxy 密码时，只在路由器本地 `TikTok-ISP-Local` 模块改 `password`；按本地服务商提供的信息同步修改 `username`、`server`、`port`（如有变化）。保留节点名、`type: socks5`、`udp: false`、`dialer-proxy: 日本-入口`。详细 UI 路径见版本 `SETUP.md`。
 - 真实 ISP 主机、账号和密码只存路由器本地模块，不进入仓库、云覆写、PR 或日志。公共仓库只保存占位模板；供 OpenClash 导入的模板使用 `.conf` 后缀。

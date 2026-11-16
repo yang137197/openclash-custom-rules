@@ -225,6 +225,33 @@
       "manualRulesPath": "rules/manual-direct.yaml",
       "manualRulesGeneratorPath": "scripts/sync_manual_direct.py",
       "manualRulesSyncWorkflowPath": ".github/workflows/sync-manual-direct.yml"
+    },
+    "tiktok-router-loongproxy-jp-us-liangxinyun": {
+      "status": "candidate",
+      "currentVersion": "1.0.0",
+      "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md",
+      "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us_liangxinyun.py",
+      "immutableVersionDirectories": [],
+      "versions": {
+        "1.0.0": {
+          "kind": "router-loongproxy-jp-us-liangxinyun",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.0.0",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.0.0/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.0.0/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.0.0/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.0.0/ENVIRONMENT.json",
+          "moduleSha256": "a143723daa80f1e57a8ca52ffba875f23482ad7c83e0685e99376f0afd449b60",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.0.0/local-tiktok-proxy.conf",
+          "localTemplateSha256": "8e649fedd4292580510d73911b89e539010bd1044e3e1695f7b8bf57952e8788",
+          "requirements": [
+            "L1",
+            "L2",
+            "L3",
+            "L4"
+          ]
+        }
+      }
     }
   }
 }

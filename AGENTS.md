@@ -28,6 +28,8 @@
 
 ## 当前事实与授权
 
+- 候选方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.0.0` 新增 YouTube 和 Telegram 良心云分流。沿用 iKuuu 日本首跳 → Loongproxy 美国出口，保持直连规则及其命中优先级，待路由器验收。
+
 - 当前正式方案：`tiktok-router-loongproxy-jp-us v1.0.7`，继承 J1–J11、J13–J17 并实现 J18–J21，stable。用户于 2026-10-28 确认 v1.0.7 验收通过。该版本保持源规则语法、格式和同步一致性校验，同时允许 `rules/manual-direct.yaml` 的有效规则按需任意增删，不设固定条数或当前域名清单；滚动覆写由 GitHub Actions 生成。环境快照复用 v1.0.6，没有提供新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其自身验收证据。
 - 历史未验收候选：v1.0.1 仅新增 `update.kies.samsung.com` 精确域名 DIRECT；v1.0.2 加入 Claude Code 官方端点；v1.0.3 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。v1.0.4 继续保持 Claude 出口，并将 `github.com`、`githubusercontent.com` 与 `githubassets.com` 改走美国组。
 - **强制链路前提**：TikTok 必须由 Loongproxy 美国 SOCKS5 出口，并通过用户在 `日本-入口` 手选的 iKuuu 日本节点建立链式代理（`dialer-proxy: 日本-入口`）。不得换成美国首跳或其他机场节点，不得回退机场、DIRECT 或其他出口；没有匹配的 iKuuu 日本节点时失败关闭。
