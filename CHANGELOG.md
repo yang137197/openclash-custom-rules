@@ -1,5 +1,9 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.2.1 — 2026-11-16
+
+- 状态为 candidate。修复指定的 iKuuu Z01/Z02 因节点名带有旗帜前缀而未出现在 `TikTok首跳` 组的情况。继续仅允许指定的两个节点手选，未选择或选择失效时拒绝。
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.2.0 — 2026-11-16
 
 - 状态为 candidate。TikTok 首跳改为手选指定 iKuuu 美国 Z01/Z02，初次启用及所选节点缺失时使用 REJECT。Loongproxy 美国静态节点继续提供最终出口。

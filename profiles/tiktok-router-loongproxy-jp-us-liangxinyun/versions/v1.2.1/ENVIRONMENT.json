@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.2.1",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "unknown",
+    "openclashBuild": "unknown",
+    "mihomoVersion": "unknown",
+    "mihomoBuild": "unknown",
+    "openwrtVersion": "unknown",
+    "deviceArchitecture": "unknown",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "none",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "用户提供活动订阅的两个节点名，确认含旗帜前缀。修复后路由器首跳显示和实际播放待验收。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

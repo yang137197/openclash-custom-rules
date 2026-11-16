@@ -194,3 +194,25 @@ class LiangxinyunProfileTests(unittest.TestCase):
             **old_local, "proxies+": [{**old_local["proxies+"][0], "dialer-proxy": "TikTok首跳"}],
         })
         self.assertEqual(sha(new_path), versions["1.2.0"]["localTemplateSha256"])
+
+    def test_first_hop_filter_accepts_actual_flag_prefix_without_broadening_node_scope(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        old = load_yaml(read(versions["1.2.0"]["modulePath"]), module=True)
+        new = load_yaml(read(versions["1.2.1"]["modulePath"]), module=True)
+        old_group, *remaining = old["proxy-groups!"]
+        new_group = new["proxy-groups!"][0]
+        actual_names = ("🇺🇲 美国Z01 | IEPL | x1.5", "🇺🇲 美国Z02 | IEPL | x1.5")
+        for name in actual_names:
+            self.assertIsNone(re.fullmatch(old_group["filter"], name))
+            self.assertIsNotNone(re.fullmatch(new_group["filter"], name))
+            self.assertIsNotNone(re.fullmatch(new_group["filter"], name.removeprefix("🇺🇲 ")))
+        for name in (
+            "🇺🇲 美国Z03 | IEPL | x1.5", "🇺🇲 美国Z01 | IEPL | x2",
+            "🇯🇵 美国Z01 | IEPL | x1.5", "LXY: 🇺🇲 美国Z01 | IEPL | x1.5",
+        ):
+            self.assertIsNone(re.fullmatch(new_group["filter"], name))
+        self.assertIsNotNone(re.fullmatch(new_group["filter"], "REJECT"))
+        expected = {**old, "proxy-groups!": [{**old_group, "filter": new_group["filter"]}, *remaining]}
+        self.assertEqual(new, expected)
+        self.assertEqual(read(versions["1.2.1"]["localModuleTemplatePath"]),
+                         read(versions["1.2.0"]["localModuleTemplatePath"]))
