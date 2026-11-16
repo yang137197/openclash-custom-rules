@@ -24,11 +24,13 @@
 
 **永久更新流程 B：大版本更新或重构。**创建高于该方案已记录最高版本的候选版，完成候选验证并经用户验收后发布正式版本；正式发布时将已验收模块同步到同一滚动模块路径并更新 `latestModuleSha256`。路由器仍使用同一个滚动远程覆写地址，点击更新后重启 OpenClash。已发布版本快照、标签和 Release 不得改写。流程 A 不涵盖规则优先级、策略组、DNS、代理链路、插件设置或生成/发布机制本身的变化。
 
+良心云正式方案共用流程 A 的唯一手动直连源。同步工作流还更新其独立滚动模块 `profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf` 及 catalog 滚动哈希。
+
 上述 A/B 是仓库永久维护流程，不得因日常提交、版本候选或文档整理而删改或绕过；只有用户明确重新定义长期流程时才可调整。除流程 A 的手动域名数据变更外，其他运行行为更改均须经过候选验证和正式发布门禁。
 
 ## 当前事实与授权
 
-- 候选方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0` 按用户指定的验收范围仅允许手选 iKuuu 日本 Z01–Z04 为 TikTok 首跳。Loongproxy 美国节点提供落地出口。Claude 和其余代理流量使用良心云。v1.4.0 实机日志记录日本 Z04 与 TikTok-ISP-Local 活动连接，v1.5.0 的对应日志待补。
+- 良心云正式方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0` 已于 2026-11-16 获用户实机验收。TikTok 手选 iKuuu 日本 Z01–Z04，Loongproxy 美国节点提供落地出口。Claude 和其余代理流量使用良心云。[滚动远程覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf)。
 
 - 当前正式方案：`tiktok-router-loongproxy-jp-us v1.0.7`，继承 J1–J11、J13–J17 并实现 J18–J21，stable。用户于 2026-10-28 确认 v1.0.7 验收通过。该版本保持源规则语法、格式和同步一致性校验，同时允许 `rules/manual-direct.yaml` 的有效规则按需任意增删，不设固定条数或当前域名清单；滚动覆写由 GitHub Actions 生成。环境快照复用 v1.0.6，没有提供新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其自身验收证据。
 - 历史未验收候选：v1.0.1 仅新增 `update.kies.samsung.com` 精确域名 DIRECT；v1.0.2 加入 Claude Code 官方端点；v1.0.3 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。v1.0.4 继续保持 Claude 出口，并将 `github.com`、`githubusercontent.com` 与 `githubassets.com` 改走美国组。

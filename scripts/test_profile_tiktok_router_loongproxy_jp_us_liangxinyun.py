@@ -1,10 +1,13 @@
 """Regression checks for the candidate with a separate Liangxinyun subscription."""
 
 import json
+from pathlib import Path
 import re
+from tempfile import TemporaryDirectory
 import unittest
 
 from strict_yaml import load_yaml
+from sync_manual_direct import SOURCE_PATH, synchronize
 from validate_repository import JP, git, read, sha
 
 
@@ -299,3 +302,33 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(load_yaml(local, module=True),
                          load_yaml(read(versions["1.4.0"]["localModuleTemplatePath"]), module=True))
         self.assertEqual(sha(local), versions["1.5.0"]["localTemplateSha256"])
+
+    def test_rollings_share_the_source_without_editing_versioned_modules(self):
+        rules = ["DOMAIN,only.example.com", "DOMAIN-SUFFIX,new.example.net", "DOMAIN,only.example.com"]
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            catalog = self.catalog["profiles"]
+            enabled = {profile_id: catalog[profile_id] for profile_id in (JP, PROFILE)}
+            relative_source = root / SOURCE_PATH
+            relative_source.parent.mkdir()
+            relative_source.write_text("payload:\n" + "".join(f"  - {rule}\n" for rule in rules), encoding="utf-8")
+            index = root / "profiles/catalog.json"
+            for entry in enabled.values():
+                rolling = root / entry["latestModulePath"]
+                rolling.parent.mkdir(parents=True)
+                rolling.write_text(read(entry["latestModulePath"]), encoding="utf-8")
+                snapshot_path = entry["versions"][entry["currentVersion"]]["modulePath"]
+                snapshot = root / snapshot_path
+                snapshot.parent.mkdir(parents=True)
+                snapshot.write_text(read(snapshot_path), encoding="utf-8")
+            index.write_text(json.dumps({"profiles": enabled}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            self.assertTrue(synchronize(root, write=True))
+            resulting = json.loads(index.read_text(encoding="utf-8"))["profiles"]
+            for profile_id, provider_name in ((JP, "Manual-Direct!"), (PROFILE, "Manual-Direct")):
+                entry = resulting[profile_id]
+                rolling_text = (root / entry["latestModulePath"]).read_text(encoding="utf-8")
+                self.assertEqual(load_yaml(rolling_text, module=True)["rule-providers"][provider_name]["payload"], rules)
+                self.assertEqual(sha(rolling_text), entry["latestModuleSha256"])
+                snapshot = entry["versions"][entry["currentVersion"]]["modulePath"]
+                self.assertEqual((root / snapshot).read_text(encoding="utf-8"), read(snapshot))
+            self.assertFalse(synchronize(root, write=False))

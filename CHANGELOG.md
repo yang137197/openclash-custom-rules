@@ -2,7 +2,8 @@
 
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0 — 2026-11-16
 
-- 状态为 candidate。按验收范围将 `TikTok首跳` 收窄为手选 iKuuu 日本 Z01–Z04，保留无可用手选时的 REJECT、Loongproxy 美国落地、良心云默认代理和现有直连规则。
+- 状态为 stable。用户于 2026-11-16 确认实机验收通过。按验收范围将 `TikTok首跳` 收窄为手选 iKuuu 日本 Z01–Z04，保留无可用手选时的 REJECT、Loongproxy 美国落地、良心云默认代理和现有直连规则。
+- 根据对应实机日志记录运行环境与验收，并建立独立滚动覆写。手动直连源同步到两个已登记的正式方案。
 
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.4.0 — 2026-11-16
 

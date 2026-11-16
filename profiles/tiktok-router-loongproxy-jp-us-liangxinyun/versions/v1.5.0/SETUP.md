@@ -1,23 +1,33 @@
-# 良心云默认代理 v1.5.0 候选部署、设置与验收
+# 良心云默认代理 v1.5.0 正式部署、设置与验收
 
 沿用当前 iKuuu 活动配置和正式方案 v1.0.7 的 OpenClash 设置。目标路由器版本、良心云订阅和应用验收见[环境记录](ENVIRONMENT.json)。
 
-## 从 v1.4.0 更新
+## 正式覆写地址
 
-在覆写模块中将候选远程地址换为下方 v1.5.0 地址，沿用已填好的本地模块，重启后在 `TikTok首跳` 确认并手选实测可用的 `🇯🇵 日本Z04 | IEPL`，随后打开 TikTok 播放。
+选择滚动地址可接收手动直连更新。
 
-## 安装候选
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf
+
+固定此版时使用标签地址。
+
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.5.0/openclash-overwrite.conf
+
+## 从候选版更新
+
+在覆写模块中将远程覆写地址换为下方 v1.5.0 地址，沿用已填好的本地模块，重启后在 `TikTok首跳` 确认并手选实测可用的 `🇯🇵 日本Z04 | IEPL`，随后打开 TikTok 播放。
+
+## 安装正式版
 
 1. 记下当前模块开关、顺序、匹配配置、插件值和已使用的首跳节点，保留已用模块备份。
-2. 下载[候选本地模板](local-tiktok-proxy.conf)，在路由器本地填写原 Loongproxy 凭据和良心云 Clash/Mihomo 订阅地址。模板的 `proxy: DIRECT` 需要路由器可直连拉取该订阅。复用已填好的本地模块时，将 `dialer-proxy: 日本-入口` 改为 `dialer-proxy: TikTok首跳`，并确认 `proxy-providers` 里的键为 `liangxinyun:`。保留 `LXY: ` 前缀和既有 Loongproxy 凭据。
-3. 在 **服务 → OpenClash → 运行状态 → 覆写模块 → 添加新模块** 添加[候选远程覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/loongproxy-liangxinyun-candidate/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.5.0/openclash-overwrite.conf)。完整云覆写和本地模块绑定同一 iKuuu 配置完整路径，远程模块放在本地模块上方。
-4. 停用原完整云覆写及替换掉的本地模块，启用候选配套模块后统一重启。首次启用时，在 `TikTok首跳` 中手选 iKuuu 日本 Z01–Z04 的 IEPL 节点。在良心云组中手选一个可用节点。检查 CN 规则集已加载。
+2. 下载[本地模板](local-tiktok-proxy.conf)，在路由器本地填写原 Loongproxy 凭据和良心云 Clash/Mihomo 订阅地址。模板的 `proxy: DIRECT` 需要路由器可直连拉取该订阅。复用已填好的本地模块时，将 `dialer-proxy: 日本-入口` 改为 `dialer-proxy: TikTok首跳`，并确认 `proxy-providers` 里的键为 `liangxinyun:`。保留 `LXY: ` 前缀和既有 Loongproxy 凭据。
+3. 在 **服务 → OpenClash → 运行状态 → 覆写模块 → 添加新模块** 添加[正式滚动覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf)。完整云覆写和本地模块绑定同一 iKuuu 配置完整路径，远程模块放在本地模块上方。
+4. 停用原完整云覆写及替换掉的本地模块，启用本版配套模块后统一重启。首次启用时，在 `TikTok首跳` 中手选 iKuuu 日本 Z01–Z04 的 IEPL 节点。在良心云组中手选一个可用节点。检查 CN 规则集已加载。
 
 真实订阅、认证信息及完整运行配置只在路由器本地保存。
 
 ## 独立手工设置
 
-本次候选验收沿用路由器现行插件值。下表供新装或恢复默认设置时参考，路径均在「服务 → OpenClash」下。候选模块仅注入 `[YAML]`。
+本次实机验收沿用路由器现行插件值。下表供新装或恢复默认设置时参考，路径均在「服务 → OpenClash」下。本版模块仅注入 `[YAML]`。
 
 | 页面 | 设置 | 本轮值 |
 | --- | --- | --- |
@@ -26,7 +36,7 @@
 | 同上 | 旁路网关兼容 | 主路由或回程正常时关闭；仅依据旁路回程证据调整 |
 | 插件设置 → 流量控制 | 路由器本机代理 | 开启 |
 | 同上 | 实验性：绕过指定区域 IPv4 | 绕过中国大陆；数据源 MetaCubeX `cn.mrs` |
-| 同上 | 禁用 QUIC | 开启，沿用 v1.0.4 已验收设置 |
+| 同上 | 禁用 QUIC | 建议开启。v1.5.0 验收时实机停用 |
 | 同上 | 绕过服务器地址 / 仅允许内网访问 | 开启 |
 | 同上 | 仅允许常用端口流量 | 关闭 |
 | 插件设置 → IPv6 设置 | IPv6 代理 / IPv6 DNS / 区域 IPv6 绕过 | 关闭；核对手机没有独立 IPv6 出口 |
@@ -47,9 +57,9 @@ DNS 顺序为 TikTok/Google Fake-IP → 私网/Manual-Direct real-ip → CN real
 1. **先验收 TikTok 和直连。** 手机连路由器 Wi-Fi 后播放 TikTok，核对实际链路为手选的 iKuuu 日本节点 → `TikTok-ISP-Local`。建议复测日本 Z04，使用 `TikTok测速` 并持续播放一段 TikTok 视频，记录节点、时间和结果。测局域网、一个手动直连域名和一个大陆站点。
 2. 复测 Claude 网页或 Claude Code、YouTube 视频、Telegram 文件下载、GitHub 和 Google Play。在连接详情核对出口是 `LXY: ` 节点。Claude 网页与 Claude Code 都在用时，各测一次。
 3. 核对 `TikTok首跳` 只显示已加载的 iKuuu 日本 Z01–Z04 节点和 `REJECT`，`TikTok测速` 仅显示 `TikTok-ISP-Local`。首次启用无手选记录时应为 `REJECT`；原所选节点消失时须手动重新选。普通流量继续经良心云。
-4. 在 **运行日志 → 调试日志 → 生成日志** 保存候选对应的脱敏记录，并记录播放／下载结果。分享前遮盖订阅、凭据、面板密钥和敏感网络信息。
+4. 在 **运行日志 → 调试日志 → 生成日志** 保存本版对应的脱敏记录，并记录播放／下载结果。分享前遮盖订阅、凭据、面板密钥和敏感网络信息。
 
-若 TikTok、直连或启动验收失败，停用候选模块，恢复原模块开关与顺序。若在原本地模块上直接改过 `dialer-proxy`，也恢复备份中的原值。统一重启后核对原模块使用的首跳。
+若 TikTok、直连或启动验收失败，停用本版模块，恢复原模块开关与顺序。若在原本地模块上直接改过 `dialer-proxy`，也恢复备份中的原值。统一重启后核对原模块使用的首跳。
 
 - [OpenClash 官方覆写指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)
 - [OpenClash 官方调试日志指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/13-logs.md)

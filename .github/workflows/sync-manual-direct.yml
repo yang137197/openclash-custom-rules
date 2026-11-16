@@ -45,12 +45,12 @@ jobs:
         run: git diff --check
       - name: Commit generated rolling files
         run: |
-          if git diff --quiet -- profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf profiles/catalog.json; then
+          if git diff --quiet -- ':(glob)profiles/*/overwrite/openclash-overwrite.conf' profiles/catalog.json; then
             echo "Rolling module is already synchronized."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf profiles/catalog.json
+          git add -- ':(glob)profiles/*/overwrite/openclash-overwrite.conf' profiles/catalog.json
           git commit -m "chore: sync manual direct rules"
           git push origin HEAD:main

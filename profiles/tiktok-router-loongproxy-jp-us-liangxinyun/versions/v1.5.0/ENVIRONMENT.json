@@ -2,30 +2,35 @@
   "schemaVersion": 1,
   "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
   "version": "1.5.0",
-  "status": "pending",
+  "status": "verified",
   "behaviorChanged": true,
   "environment": {
-    "openclashVersion": "unknown",
-    "openclashBuild": "unknown",
-    "mihomoVersion": "unknown",
-    "mihomoBuild": "unknown",
-    "openwrtVersion": "unknown",
-    "deviceArchitecture": "unknown",
-    "deviceModel": "unknown"
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX; QEMU Virtual CPU version 2.5+, 2C2T)"
   },
   "runtimeConfiguration": {
-    "activeConfigLabel": "unknown",
-    "enabledModulesInOrder": [],
-    "settingsBaseline": "unknown",
-    "settingsDeviations": []
+    "activeConfigLabel": "iKuuu",
+    "enabledModulesInOrder": [
+      "v1.5.0 远程完整覆写",
+      "本地 TikTok-ISP-Local / 良心云配套覆写"
+    ],
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用 QUIC：实机停用，SETUP.md 建议开启。候选验收沿用实机值。"
+    ]
   },
   "evidence": {
-    "source": "none",
-    "capturedAt": null,
+    "source": "debug-log",
+    "capturedAt": "2026-11-16",
     "rawDebugLogCommitted": false,
-    "runtimeAcceptance": "not-run",
-    "userConfirmed": false,
-    "summary": "v1.4.0 的 2026-11-16 15:24 调试日志显示日本 Z04 与 TikTok-ISP-Local 活动连接。该日志用于选定日本首跳基线，v1.5.0 的实际加载与验证待补。"
+    "runtimeAcceptance": "passed",
+    "userConfirmed": true,
+    "summary": "用户确认 v1.5.0 验收通过。15:31 调试日志确认 v1.5.0 已加载，首跳仅允许 iKuuu 日本 Z01–Z04，记录 7 条 TikTok TCP 经 TikTok-ISP-Local 和 3 条普通代理经良心云的成功记录。日志按生效配置佐证模块组成，模块清单按部署约定顺序记录，未记录界面排序或实际选中节点编号。应用是否可用来自用户验收。"
   },
   "reusedFromVersion": null,
   "setupDocument": "SETUP.md"

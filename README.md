@@ -7,6 +7,7 @@
 | 方案 | 适用需求 | 稳定版本 | Release | 固定覆写链接 | 部署与设置 |
 | --- | --- | --- | --- | --- | --- |
 | [tiktok-router-loongproxy-jp-us](profiles/tiktok-router-loongproxy-jp-us/README.md) | TikTok 与 Claude/Anthropic 经 Loongproxy 静态 ISP；GitHub、Google 和其他境外流量走美国组；中国大陆直连，含 Huzhou 后缀直连 | v1.0.7 | [Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.7) | [v1.0.7 YAML](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf) | [设置与验收](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/SETUP.md) |
+| [tiktok-router-loongproxy-jp-us-liangxinyun](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md) | TikTok 经 iKuuu 日本与 Loongproxy 美国出口。其他代理流量使用良心云，沿用直连规则 | v1.5.0 | [Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0) | [v1.5.0 YAML](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.5.0/openclash-overwrite.conf) | [设置与验收](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.5.0/SETUP.md) |
 
 ### 当前方案要点
 
@@ -30,7 +31,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 
 ## 版本索引
 
-- [tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md)（candidate）：TikTok 首跳限定手选 iKuuu 日本节点，其余代理流量使用良心云，等待该版本实机验收。
+- [良心云方案 v1.5.0 正式发布](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0)，TikTok 手选 iKuuu 日本首跳，其他代理流量使用良心云。
 
 v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手动直连规则的生成与滚动覆写同步自动化，保留规则有效性校验，并允许规则清单随时增删而不固定条数。v1.0.6 及更早已发布目录、标签和 Release 保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。
 
