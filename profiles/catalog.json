@@ -228,7 +228,7 @@
     },
     "tiktok-router-loongproxy-jp-us-liangxinyun": {
       "status": "candidate",
-      "currentVersion": "1.1.0",
+      "currentVersion": "1.1.1",
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/README.md",
       "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us_liangxinyun.py",
       "immutableVersionDirectories": [],
@@ -266,6 +266,21 @@
             "L5",
             "L6",
             "L7"
+          ]
+        },
+        "1.1.1": {
+          "kind": "router-loongproxy-jp-us-liangxinyun",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.1.1",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.1.1/openclash-overwrite.conf",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.1.1/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.1.1/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.1.1/ENVIRONMENT.json",
+          "moduleSha256": "f91f36244bfdb124c52835d8ca31769e84f936f9f042fdf44a0cd5b20ff8d5b1",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.1.1/local-tiktok-proxy.conf",
+          "localTemplateSha256": "26322871e2aa7743803a2f978c0d47b5757cea2ce026f6d48124a1835f23f239",
+          "requirements": [
+            "L8"
           ]
         }
       }

@@ -129,3 +129,21 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(self.default_module["proxy-groups!"], [japan, tiktok, liangxinyun])
         self.assertEqual(sha(self.default_local), self.local_hash)
         self.assertEqual(self.default_local_hash, self.local_hash)
+
+    def test_startup_fix_uses_literal_provider_names_when_the_parent_is_new(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.1.1"]
+        cloud = load_yaml(read(entry["modulePath"]), module=True)
+        local_text = read(entry["localModuleTemplatePath"])
+        local = load_yaml(local_text, module=True)
+        # OpenClash copies a previously missing parent mapping with its keys intact.
+        self.assertEqual(local["proxy-providers"], {
+            "liangxinyun": self.local["proxy-providers"]["liangxinyun!"],
+        })
+        self.assertEqual(local["proxies+"], self.local["proxies+"])
+        self.assertEqual(sha(local_text), entry["localTemplateSha256"])
+        original = self.default_module["rule-providers"]
+        self.assertEqual(cloud["rule-providers"], {
+            "oc-cn-domain": original["oc-cn-domain"],
+            "Manual-Direct": original["Manual-Direct!"],
+        })
+        self.assertEqual({**cloud, "rule-providers": original}, self.default_module)

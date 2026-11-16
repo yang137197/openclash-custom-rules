@@ -1,5 +1,9 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.1.1 — 2026-11-16
+
+- 状态为 candidate。代理提供商 `liangxinyun` 和手动直连规则集 `Manual-Direct` 改用普通键。父级映射缺失时，OpenClash 合并后也能获得与规则引用一致的名称。
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.1.0 — 2026-11-16
 
 - 状态为 candidate，等待路由器验收。仅 TikTok 使用 iKuuu 日本首跳与 Loongproxy 美国静态出口。Claude 网页和 Claude Code 并入良心云默认代理，撤除独立分流条目。
