@@ -1,5 +1,9 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.4.0 — 2026-11-16
+
+- 状态为 candidate。将良心云日本和新加坡的 BGP 流媒体专线各 01–04 加入现有 TikTok 手选首跳组。对照继续使用同一个 Loongproxy 美国出口，保留所选节点缺失时的拒绝行为。
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.3.0 — 2026-11-16
 
 - 状态为 candidate。将 iKuuu 日本 Z01–Z04 加入现有 TikTok 首跳手选组，与美国 Z01、Z02 使用同一 Loongproxy 出口进行实机对照。未手选或所选节点缺失时使用 REJECT。

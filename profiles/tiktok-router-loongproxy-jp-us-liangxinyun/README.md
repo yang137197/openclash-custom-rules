@@ -1,12 +1,12 @@
 # tiktok-router-loongproxy-jp-us-liangxinyun
 
-**v1.3.0 candidate**，待路由器验收。TikTok 首跳在指定 iKuuu 美国和日本节点间手选，使用同一 Loongproxy 美国出口。Claude 和其余代理流量走良心云，沿用现有直连规则。
+**v1.4.0 candidate**，待路由器验收。TikTok 首跳手选指定 iKuuu 美国、日本节点或良心云日本、新加坡专线，使用同一 Loongproxy 美国出口。Claude 和其余代理流量走良心云，沿用现有直连规则。
 
-- [需求合同](versions/v1.3.0/REQUIREMENTS.md)
-- [部署、设置与回退](versions/v1.3.0/SETUP.md)
-- [环境记录](versions/v1.3.0/ENVIRONMENT.json)
-- [本地模块占位模板](versions/v1.3.0/local-tiktok-proxy.conf)
-- [候选远程覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/loongproxy-liangxinyun-candidate/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.3.0/openclash-overwrite.conf)
+- [需求合同](versions/v1.4.0/REQUIREMENTS.md)
+- [部署、设置与回退](versions/v1.4.0/SETUP.md)
+- [环境记录](versions/v1.4.0/ENVIRONMENT.json)
+- [本地模块占位模板](versions/v1.4.0/local-tiktok-proxy.conf)
+- [候选远程覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/loongproxy-liangxinyun-candidate/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.4.0/openclash-overwrite.conf)
 
 [v1.0.0 历史候选](versions/v1.0.0/REQUIREMENTS.md)仅分流 YouTube 和 Telegram。
 
@@ -17,3 +17,5 @@
 [v1.2.0 历史候选](versions/v1.2.0/REQUIREMENTS.md)引入手选美国首跳。
 
 [v1.2.1 历史候选](versions/v1.2.1/REQUIREMENTS.md)修复美国节点的旗帜前缀匹配。
+
+[v1.3.0 历史候选](versions/v1.3.0/REQUIREMENTS.md)用于 iKuuu 美国与日本首跳对照。

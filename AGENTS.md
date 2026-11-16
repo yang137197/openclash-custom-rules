@@ -28,7 +28,7 @@
 
 ## 当前事实与授权
 
-- 候选方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.3.0` 按用户要求将 iKuuu 美国 Z01、Z02 和日本 Z01–Z04 放入同一 TikTok 首跳手选组供实机对照，Loongproxy 美国节点提供落地出口。Claude 和其余代理流量使用良心云。下述日本首跳约束适用于原正式方案与其历史候选。
+- 候选方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.4.0` 按用户要求将 iKuuu 美国 Z01、Z02、日本 Z01–Z04，以及良心云日本与新加坡流媒体专线各 01–04 纳入同一 TikTok 首跳手选组。Loongproxy 美国节点提供落地出口。Claude 和其余代理流量使用良心云。下述日本首跳约束适用于原正式方案与其历史候选。
 
 - 当前正式方案：`tiktok-router-loongproxy-jp-us v1.0.7`，继承 J1–J11、J13–J17 并实现 J18–J21，stable。用户于 2026-10-28 确认 v1.0.7 验收通过。该版本保持源规则语法、格式和同步一致性校验，同时允许 `rules/manual-direct.yaml` 的有效规则按需任意增删，不设固定条数或当前域名清单；滚动覆写由 GitHub Actions 生成。环境快照复用 v1.0.6，没有提供新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其自身验收证据。
 - 历史未验收候选：v1.0.1 仅新增 `update.kies.samsung.com` 精确域名 DIRECT；v1.0.2 加入 Claude Code 官方端点；v1.0.3 将 Claude 网页 Anthropic/Claude 第一方域名统一指向 TikTok-ISP。v1.0.4 继续保持 Claude 出口，并将 `github.com`、`githubusercontent.com` 与 `githubassets.com` 改走美国组。

@@ -244,3 +244,36 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(load_yaml(local, module=True),
                          load_yaml(read(versions["1.2.1"]["localModuleTemplatePath"]), module=True))
         self.assertEqual(sha(local), versions["1.3.0"]["localTemplateSha256"])
+
+    def test_liangxinyun_comparison_admits_only_eight_prefixed_bgp_nodes(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        old = load_yaml(read(versions["1.3.0"]["modulePath"]), module=True)
+        new = load_yaml(read(versions["1.4.0"]["modulePath"]), module=True)
+        old_group, *remaining = old["proxy-groups!"]
+        updated = dict(old_group)
+        del updated["exclude-filter"]
+        pattern = new["proxy-groups!"][0]["filter"]
+        updated["filter"] = pattern
+        for region in ("🇯🇵日本", "🇸🇬新加坡"):
+            for number in range(1, 5):
+                name = f"{region}专线0{number}|BGP|流媒体"
+                self.assertIsNotNone(re.fullmatch(pattern, f"LXY: {name}"), name)
+                self.assertIsNone(re.fullmatch(pattern, name), name)
+        accepted = (
+            "REJECT",
+            *(f"🇺🇲 美国Z0{index} | IEPL | x1.5" for index in range(1, 3)),
+            *(f"🇯🇵 日本Z0{index} | IEPL" for index in range(1, 5)),
+        )
+        for name in accepted:
+            self.assertIsNotNone(re.fullmatch(pattern, name), name)
+        for name in (
+            "LXY: 🇯🇵日本专线05|BGP|流媒体", "LXY: 🇸🇬新加坡专线01|BGP|游戏",
+            "LXY: 🇭🇰香港专线01|BGP|流媒体", "LXY: 🇯🇵 日本Z01 | IEPL",
+            "LXY: 🇯🇵日本专线03|BGP|流媒体额外", "DIRECT",
+        ):
+            self.assertIsNone(re.fullmatch(pattern, name), name)
+        self.assertEqual(new, {**old, "proxy-groups!": [updated, *remaining]})
+        local = read(versions["1.4.0"]["localModuleTemplatePath"])
+        self.assertEqual(load_yaml(local, module=True),
+                         load_yaml(read(versions["1.3.0"]["localModuleTemplatePath"]), module=True))
+        self.assertEqual(sha(local), versions["1.4.0"]["localTemplateSha256"])
