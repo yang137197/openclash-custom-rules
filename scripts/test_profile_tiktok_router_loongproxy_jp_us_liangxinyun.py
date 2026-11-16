@@ -277,3 +277,25 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(load_yaml(local, module=True),
                          load_yaml(read(versions["1.3.0"]["localModuleTemplatePath"]), module=True))
         self.assertEqual(sha(local), versions["1.4.0"]["localTemplateSha256"])
+
+    def test_acceptance_candidate_limits_the_first_hop_to_ikuuu_japan(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        old = load_yaml(read(versions["1.4.0"]["modulePath"]), module=True)
+        new = load_yaml(read(versions["1.5.0"]["modulePath"]), module=True)
+        original, *remaining = old["proxy-groups!"]
+        pattern = new["proxy-groups!"][0]["filter"]
+        for number in range(1, 5):
+            name = f"日本Z0{number} | IEPL"
+            self.assertIsNotNone(re.fullmatch(pattern, name), name)
+            self.assertIsNotNone(re.fullmatch(pattern, f"🇯🇵 {name}"), name)
+        self.assertIsNotNone(re.fullmatch(pattern, "REJECT"))
+        for name in (
+            "🇺🇲 美国Z01 | IEPL | x1.5", "🇯🇵 日本Z05 | IEPL", "LXY: 🇯🇵 日本Z04 | IEPL",
+            "LXY: 🇯🇵日本专线04|BGP|流媒体", "LXY: 🇸🇬新加坡专线04|BGP|流媒体", "DIRECT",
+        ):
+            self.assertIsNone(re.fullmatch(pattern, name), name)
+        self.assertEqual(new, {**old, "proxy-groups!": [{**original, "filter": pattern}, *remaining]})
+        local = read(versions["1.5.0"]["localModuleTemplatePath"])
+        self.assertEqual(load_yaml(local, module=True),
+                         load_yaml(read(versions["1.4.0"]["localModuleTemplatePath"]), module=True))
+        self.assertEqual(sha(local), versions["1.5.0"]["localTemplateSha256"])
