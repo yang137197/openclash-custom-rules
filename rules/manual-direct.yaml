@@ -238,6 +238,7 @@ payload:
   - DOMAIN-SUFFIX,ippure.com
   - DOMAIN-SUFFIX,ipkk.com
   - DOMAIN-SUFFIX,whoer.net
+  - DOMAIN-SUFFIX,wyctt.com
 
   # ==========================================================
   # 电商域名
