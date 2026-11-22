@@ -10,7 +10,7 @@
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
       "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us.py",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "991e4bb8b69d8457d036c118266f6aa943efeecd5dd4affe126d1970e68603bc",
+      "latestModuleSha256": "e4443db1d58bdb08701b4a890184aba5407d5c92452f00d515bd6f63331dc4bb",
       "immutableVersionDirectories": [
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4",
@@ -369,7 +369,7 @@
       },
       "title": "iKuuu 日本首跳 + Loongproxy 美国出口 + 良心云默认代理",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "c85392a352914b988e879d12d3dc12ee20f87a6442c5c2abed5070345fbc88b1",
+      "latestModuleSha256": "ff5f04e31ed3798aafcd44b7e0eb00c0b2ed95b2263a20553c0c147d01223d87",
       "manualRulesPath": "rules/manual-direct.yaml",
       "manualRulesGeneratorPath": "scripts/sync_manual_direct.py",
       "manualRulesSyncWorkflowPath": ".github/workflows/sync-manual-direct.yml"
