@@ -242,7 +242,9 @@ payload:
   - DOMAIN-SUFFIX,medeyun.com
   - DOMAIN-SUFFIX,mede.com
   - DOMAIN-SUFFIX,gdmd.com
-   # ==========================================================
+  - DOMAIN-SUFFIX, os.medeyun.com
+  
+  # ==========================================================
   # 电商域名
   # ==========================================================
   - DOMAIN-SUFFIX,one.alimama.com
