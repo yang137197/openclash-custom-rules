@@ -239,8 +239,10 @@ payload:
   - DOMAIN-SUFFIX,ipkk.com
   - DOMAIN-SUFFIX,whoer.net
   - DOMAIN-SUFFIX,wyctt.com
-
-  # ==========================================================
+  - DOMAIN-SUFFIX,medeyun.com
+  - DOMAIN-SUFFIX,mede.com
+  - DOMAIN-SUFFIX,gdmd.com
+   # ==========================================================
   # 电商域名
   # ==========================================================
   - DOMAIN-SUFFIX,one.alimama.com
