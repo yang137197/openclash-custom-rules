@@ -4,3 +4,5 @@
 *.py text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+*.rb text eol=lf
+*.init text eol=lf
