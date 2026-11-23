@@ -42,6 +42,8 @@ def main():
         assert len(actual) == probes == report["probeRequests"]
         assert report["probeRequestAttempted"] is bool(probes)
         assert [r[1] for r in requests] == PATHS[:len(requests)]
+        if flags == ("--inspect-only",) and not error:
+            assert [r[1] for r in requests] == PATHS[:2]
         if error:
             assert completed.returncode == 1 and report["error"] == error, report
         else:
@@ -76,7 +78,9 @@ def main():
     assert run(data)["result"] == "unknown"
 
     data = fixture(); data[1]["now"] = "LXY: 日本高速02"
-    run(data, probes=0, error="current-selection-not-authorized-node")
+    report = run(data, probes=0, error="current-selection-not-authorized-node")
+    assert report["currentSelection"] == "LXY: 日本高速02" and not report["authorizedNodeSelected"]
+    assert report["authorizedNodeInGroup"] is True
 
     data = fixture(); data[3]["now"] = "LXY: 日本高速02"
     run(data, probes=0, error="selection-or-members-changed-before-probe")
@@ -100,6 +104,24 @@ def main():
     run(probes=0, error="json-shape-incompatible", incompatible_codec=True)
     run(statuses=[401] * 7, probes=0, error="api-http-401")
     run(statuses=[200, 200, 200, 200, 302, 200, 200])
+
+    report = run(flags=("--inspect-only",), probes=0, stdin_script=True)
+    assert report["readOnly"] is True and report["mode"] == "selection-inspection"
+    assert report["inspectionComplete"] is True and report["authorizedNodeSelected"] is True
+    assert report["currentSelectionUtf8Hex"] == NODE.encode().hex()
+
+    data = fixture(); data[1]["now"] = "LXY: 日本高速02"
+    report = run(data, flags=("--inspect-only",), probes=0)
+    assert report["authorizedNodeSelected"] is False and report["authorizedNodeInGroup"] is True
+
+    data = fixture(); data[1]["all"].remove(NODE)
+    report = run(data, flags=("--inspect-only",), probes=0)
+    assert report["authorizedNodeSelected"] is True and report["authorizedNodeInGroup"] is False
+
+    data = fixture(); data[1]["now"] = NODE + " "
+    report = run(data, flags=("--inspect-only",), probes=0)
+    assert report["authorizedNodeSelected"] is False
+    assert report["currentSelectionUtf8Hex"] == (NODE + " ").encode().hex()
     print(f"PASS real Lua 5.1/curl single-node probe fixture scenarios: {harness.cases}")
 
 

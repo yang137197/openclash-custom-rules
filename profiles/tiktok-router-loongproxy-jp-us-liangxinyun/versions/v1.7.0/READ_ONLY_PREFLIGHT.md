@@ -72,4 +72,10 @@ GET /providers/proxies/liangxinyun/<当前节点URL编码>/healthcheck?url=https
 
 接口依据：[目标核心 provider 单节点路由](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/provider.go)、[检测参数处理](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/proxies.go)、[历史写入](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。
 
+## 单节点调用被前置核对拦截（2026-11-23）
+
+用户执行提交 7166293 的工具，结果为 `current-selection-not-authorized-node`、`probeRequestAttempted=false`、`probeRequests=0`、`selectionApplied=false`。只进行了版本和策略组读取，没有发出检测。该条件检查“精确目标名已选中且存在组内”；旧摘要未包含实际选择值，尚不能断定选择变化、名称格式差异或目标成员缺失。
+
+仅补充 `--inspect-only` 查看模式，读取 `/version` 和良心云组后返回；显示实际选择、两项精确匹配结果及名称 UTF-8 字节，不检测、不切换，也不扩大到其他节点。检测模式的固定目标与保护条件不变。新增模式与已有检测场景合计 22 个本地 HTTP 夹具通过，目标查看结果待回传。此前单节点授权继续有效，但实际检测仍未发生，不应反复执行检测模式排查此错误。
+
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。

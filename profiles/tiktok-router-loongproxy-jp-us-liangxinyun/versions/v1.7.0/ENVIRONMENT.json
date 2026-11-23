@@ -27,7 +27,7 @@
     "rawDebugLogCommitted": false,
     "runtimeAcceptance": "not-run",
     "userConfirmed": false,
-    "summary": "2026-11-23 11:06 安装前日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1；运行配置仍为 v1.5.0 手选方案。用户终端摘要确认 Ruby 所需库加载失败、Python3 不存在，现有 Lua 5.1、luci.jsonc/UCI/nixio 及 curl 的只读查询可用。早期摘要报告 45 个节点有历史，其后两轮模拟无历史的差异原因尚未确定。最新已运行 8cf2778 增强只读工具：JSON URL/数组自检通过，45 个 provider 节点的 extra 均为空表，普通和逐 URL 历史非空计数均为 0；四档为 4/5/7/5 共 21 个，另 24 个只在模拟中忽略，实际组仍有 45 个。读取前后成员与手选一致，selectionApplied=false；REJECT 为未知高档阻止降级的模拟建议，不证明节点超时。只读预检完成，但不能验证实际最低延迟选择；用户已单独授权只对当前良心云日本专线01做一次5秒HTTPS204检测，独立工具通过18个本地HTTP夹具场景，待用户在设备执行；尚未主动检测目标路由器、未安装依赖或服务、未修改配置或切换节点。完整控制器仍未运行，runtimeAcceptance=not-run、userConfirmed=false；本目录仍是 Ruby 实现。日志省略 proxies/proxy-providers 不能视为缺失，启用模块顺序仍未知。设备直连为 v1.5.0 的 141 条，仓库/候选为 148 条；7 条已有维护差异本轮未应用，部署前须单独核对。详见 READ_ONLY_PREFLIGHT.md。"
+    "summary": "2026-11-23 11:06 安装前日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1；运行配置仍为 v1.5.0 手选方案。用户终端摘要确认 Ruby 所需库加载失败、Python3 不存在，现有 Lua 5.1、luci.jsonc/UCI/nixio 及 curl 的只读查询可用。早期摘要报告 45 个节点有历史，其后两轮模拟无历史的差异原因尚未确定。最新已运行 8cf2778 增强只读工具：JSON URL/数组自检通过，45 个 provider 节点的 extra 均为空表，普通和逐 URL 历史非空计数均为 0；四档为 4/5/7/5 共 21 个，另 24 个只在模拟中忽略，实际组仍有 45 个。读取前后成员与手选一致，selectionApplied=false；REJECT 为未知高档阻止降级的模拟建议，不证明节点超时。只读预检完成，但不能验证实际最低延迟选择；用户已单独授权只对当前良心云日本专线01做一次5秒HTTPS204检测，首个工具通过18个本地HTTP夹具场景，用户执行被current-selection-not-authorized-node拦截，probeRequests=0，未触发检测；该错误同时检查精确选择和组成员，实际选择尚未知。增加只读inspect-only，两个普通GET后返回实际名称及精确匹配结果，22个本地HTTP场景通过，新增查看待设备执行；尚未主动检测目标路由器、未安装依赖或服务、未修改配置或切换节点。完整控制器仍未运行，runtimeAcceptance=not-run、userConfirmed=false；本目录仍是 Ruby 实现。日志省略 proxies/proxy-providers 不能视为缺失，启用模块顺序仍未知。设备直连为 v1.5.0 的 141 条，仓库/候选为 148 条；7 条已有维护差异本轮未应用，部署前须单独核对。详见 READ_ONLY_PREFLIGHT.md。"
   },
   "reusedFromVersion": null,
   "setupDocument": "SETUP.md"

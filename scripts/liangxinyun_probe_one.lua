@@ -23,7 +23,11 @@ local report = {mode = "single-node-probe", selectionApplied = false, formalAcce
 local available, json = pcall(require, "luci.jsonc")
 if not available then print("lua-json-module-unavailable"); os.exit(1) end
 local ok, failure = pcall(function()
-  if not arg or arg[1] ~= "--probe-once" or arg[2] ~= nil then error("arguments-invalid", 0) end
+  if not arg or (arg[1] ~= "--probe-once" and arg[1] ~= "--inspect-only") or arg[2] ~= nil then
+    error("arguments-invalid", 0)
+  end
+  local inspect_only = arg[1] == "--inspect-only"
+  if inspect_only then report.mode, report.readOnly = "selection-inspection", true end
   local sample = json.parse([[{"extra":{"https:\/\/www.gstatic.com\/generate_204":{"alive":true,"history":[{"delay":7}]}}}]])
   local state = type(sample) == "table" and type(sample.extra) == "table" and sample.extra[URL] or nil
   if type(state) ~= "table" or state.alive ~= true or type(state.history) ~= "table"
@@ -101,6 +105,14 @@ local ok, failure = pcall(function()
   report.coreVersion = version.version
   local before = read(GROUP)
   local before_members = members(before)
+  report.currentSelection = before.now
+  report.authorizedNodeSelected = before.now == NODE
+  report.authorizedNodeInGroup = before_members[NODE] == true
+  local function hex(s)
+    return (s:gsub(".", function(c) return string.format("%02x", c:byte()) end))
+  end
+  report.currentSelectionUtf8Hex, report.authorizedNodeUtf8Hex = hex(before.now), hex(NODE)
+  if inspect_only then report.inspectionComplete = true; return end
   if before.now ~= NODE or not before_members[NODE] then error("current-selection-not-authorized-node", 0) end
   local provider_before = read(PROVIDER)
   local node_before = target(provider_before)
