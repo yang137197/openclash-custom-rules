@@ -5,27 +5,29 @@
   "status": "pending",
   "behaviorChanged": true,
   "environment": {
-    "openclashVersion": "unknown",
-    "openclashBuild": "unknown",
-    "mihomoVersion": "unknown",
-    "mihomoBuild": "unknown",
-    "openwrtVersion": "unknown",
-    "deviceArchitecture": "unknown",
-    "deviceModel": "unknown"
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX - QEMU Virtual CPU version 2.5+ : 2C2T"
   },
   "runtimeConfiguration": {
-    "activeConfigLabel": "unknown",
+    "activeConfigLabel": "iKuuu",
     "enabledModulesInOrder": [],
-    "settingsBaseline": "unknown",
-    "settingsDeviations": []
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用 QUIC 实际停用，沿用现行值；SETUP.md 保留建议开启。"
+    ]
   },
   "evidence": {
-    "source": "none",
-    "capturedAt": null,
+    "source": "debug-log",
+    "capturedAt": "2026-11-23",
     "rawDebugLogCommitted": false,
     "runtimeAcceptance": "not-run",
     "userConfirmed": false,
-    "summary": "用户授权准备独立控制器，以严格保留类别优先级。本地 Ruby 策略测试及真实 Mihomo 核心合成节点测试见 VALIDATION.md，不代表目标路由器兼容或实机验收。尚未采集本候选当前设备日志，未安装控制器、未替换正式滚动模块。"
+    "summary": "2026-11-23 11:06 安装前调试日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1；核心 API /version 返回正常。良心云仍为未加四类过滤的手选结构，当前不是 v1.7.0；日志只作安装前环境证据，runtimeAcceptance 仍为 not-run。额外 Ruby 库、逐 URL API 状态及独立服务均待只读预检。调试脚本主动省略 proxies/proxy-providers，不能据此判断节点或本地模块缺失。运行 Manual-Direct 为 v1.5.0 的 141 条，仓库与候选为 148 条，差异属于已提交的日常直连维护，上路由前需单独核对；本轮没有应用规则或改动路由器。 覆写模块清单章节为空，实际启用模块顺序未确认。"
   },
   "reusedFromVersion": null,
   "setupDocument": "SETUP.md"

@@ -4,7 +4,7 @@
 
 ## 当前下一步：只读预检
 
-先取得目标路由器当前新生成的脱敏 OpenClash 调试日志，核对环境。随后把本目录的 `liangxinyun-controller.rb` 暂存路由器，不先启用候选模块或服务，运行 `ruby /实际暂存目录/liangxinyun-controller.rb --preflight`。此命令只读现有 UCI 和核心 API，不测速、不切换节点、不写状态文件。旧稳定版的 `candidateCompatible: false` 是预期结果；先看 Ruby 依赖能否加载、API 是否可达及是否有逐 URL 状态。预检输出不包含 API 密钥或订阅；可遮盖节点名后分享。
+2026-11-23 11:06 的安装前调试日志已核对，环境见 ENVIRONMENT.json；当前仍为原手选方案，未应用 v1.7.0。下一步把本目录的 `liangxinyun-controller.rb` 暂存路由器，不先启用候选模块或服务，运行 `ruby /实际暂存目录/liangxinyun-controller.rb --preflight`。此命令只读现有 UCI 和核心 API，不测速、不切换节点、不写状态文件。旧稳定结构的 `candidateCompatible: false` 是预期结果；先看 Ruby 依赖能否加载、API 是否可达及是否有逐 URL 状态。预检输出不包含 API 密钥或订阅；可遮盖节点名后分享。
 
 控制器使用 OpenClash 原有 Ruby 与 curl。OpenWrt 将 Ruby 标准库拆成多个包，需要 `ruby-json`、`ruby-open3`、`ruby-optparse`、`ruby-time`、`ruby-uri` 及其依赖；是否已安装须以预检为准，不能因 OpenClash 自身能启动就假设齐全。在「系统 → 软件包」按缺失组件核对，控制器不自动安装。包名依据 [OpenWrt 24.10 Ruby Makefile](https://github.com/openwrt/packages/blob/openwrt-24.10/lang/ruby/Makefile)。
 
@@ -27,7 +27,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/liangx
 
 ## 独立手工设置
 
-模块只含 `[YAML]`，控制器不写插件设置。保留 v1.5.0 建议，现有用户沿用当前值。历史实测为 OpenClash 0.48.002、alpha-gbc76c13、OpenWrt 24.10.2 x86_64；v1.7.0 当前目标环境未知。
+模块只含 `[YAML]`，控制器不写插件设置。保留 v1.5.0 建议，现有用户沿用当前值。2026-11-23 安装前日志确认 OpenClash 0.48.002、alpha-gbc76c13、OpenWrt 24.10.2 x86_64，Ruby 3.3.6、curl 8.11.1；额外 Ruby 库与 v1.7.0 运行兼容性仍待验证。
 
 | 页面（服务 → OpenClash 下） | 设置 | 建议与适用条件 |
 | --- | --- | --- |
@@ -49,6 +49,8 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/liangx
 | 插件设置 → GEO 数据库订阅 / 大陆白名单订阅 | GeoSite、GeoIP、大陆 IPv4 列表 | 确认下载有效，保持更新 |
 
 DNS 顺序为 TikTok/Google Fake-IP → 私网/Manual-Direct real-ip → CN real-ip → 其他 Fake-IP。TikTok DoH 经 `TikTok测速`；Google/Play DoH 及 CN 规则集更新经 `良心云`。直连快照取自 3372eb5；日常维护唯一来源继续为 `rules/manual-direct.yaml`。候选快照不自动追随后续源数据更新。
+
+安装前日志的运行 Manual-Direct 与 v1.5.0 固定快照逐项相同（141 条）；仓库滚动模块和候选包含已提交日常维护后的 148 条。部署前须单独核对这 7 条已有维护差异，不能把仓库快照一致写成当前设备直连逐项未变；本轮未应用任何直连更新。
 
 大陆真实 IP 可在防火墙旁路；禁用 QUIC 可在核心前拒绝 UDP/443；关闭 IPv6 代理不等于全网 IPv6 关闭。客户端继续使用路由器 DNS，其他 DNS／网关路径需另行核对。
 

@@ -25,7 +25,15 @@
 
 ## 尚未验证
 
-目标路由器当前环境、Ruby 拆包依赖、逐 URL API 字段、UCI 取值与认证、procd 自启动／重启、核心及控制器异常重启、实际健康检查目标可达性、应用层播放／下载。API 故障或 SIGKILL 时不保证已清理选择，相关限制见合同。不得把本地通过写成 alpha-gbc76c13 或实机通过。
+Ruby 拆包依赖、逐 URL API 字段、控制器读取 UCI 与认证、procd 自启动／重启、核心及控制器异常重启、实际健康检查目标可达性、应用层播放／下载。API 故障或 SIGKILL 时不保证已清理选择，相关限制见合同。不得把本地通过写成 alpha-gbc76c13 或实机通过。
+
+## 安装前设备记录（2026-11-23）
+
+11:06 调试日志确认 OpenClash 0.48.002、Mihomo alpha-gbc76c13、OpenWrt 24.10.2 r7492-3fda82b52、x86_64，Ruby 3.3.6-1 和 curl 8.11.1-1 已安装。核心 `/version` API 返回正常；现有良心云仍为手选结构，不能视作 v1.7.0 已加载或通过验收。额外 Ruby 模块没有在日志中检查，不能据此断言它们缺失或已齐全。
+
+官方 v0.48.002 [openclash_debug.sh](https://github.com/vernesong/OpenClash/blob/v0.48.002/luci-app-openclash/root/usr/share/openclash/openclash_debug.sh)主动省略配置中的 proxies/proxy-providers；本日志未显示节点及 provider 不能作为缺失结论。覆写模块清单章节为空，无法确认实际模块顺序。采样活动连接仅含直连，不能证明 TikTok 或良心云应用可用。
+
+运行 Manual-Direct 与 v1.5.0 固定快照逐项相同（141 条），仓库当前滚动模块及候选为 148 条，新增来自先前流程 A 的日常维护。部署前须核对差异，未在本次分析中应用任何规则变更。原始附件不入仓，环境记录状态仍为 pending／not-run。
 
 ## 复核入口
 
