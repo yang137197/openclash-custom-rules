@@ -27,7 +27,7 @@
     "rawDebugLogCommitted": false,
     "runtimeAcceptance": "not-run",
     "userConfirmed": false,
-    "summary": "2026-11-23 11:06 安装前调试日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1；核心 API /version 返回正常。良心云仍为未加四类过滤的手选结构，当前不是 v1.7.0；日志只作安装前环境证据，runtimeAcceptance 仍为 not-run。额外 Ruby 库、逐 URL API 状态及独立服务均待只读预检。调试脚本主动省略 proxies/proxy-providers，不能据此判断节点或本地模块缺失。运行 Manual-Direct 为 v1.5.0 的 141 条，仓库与候选为 148 条，差异属于已提交的日常直连维护，上路由前需单独核对；本轮没有应用规则或改动路由器。 覆写模块清单章节为空，实际启用模块顺序未确认。"
+    "summary": "2026-11-23 11:06 安装前调试日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1。用户随后回传只读终端摘要：Ruby 所需库加载未通过，Python3 命令不存在；Lua 5.1、luci.jsonc、luci.model.uci、luci.sys、nixio 加载及 JSON 解析通过，已有 curl 8.11.1。本机 GET 查询成功，核心 alpha-gbc76c13，良心云 Selector 与提供商各有 45 个成员／节点；45 个节点均存在普通历史及至少一个 URL 的历史，抽样字段为 delay/time、alive/history。首次 testUrlPresent=false，补查字段存在且为 string；初次逐 URL 记录计数依赖非空 testUrl，返回 0 不能证明缺少历史。URL 实际键、记录新鲜度及自动控制仍未验证，详见 READ_ONLY_PREFLIGHT.md。当前仍为原手选方案，未应用 v1.7.0，未安装或启用服务、未主动测速或切换节点；runtimeAcceptance 仍为 not-run。本目录仍是 Ruby 实现，Lua 基础读取通过不等于 Ruby 候选兼容。调试脚本主动省略 proxies/proxy-providers，不能据此判断节点或本地模块缺失。运行 Manual-Direct 为 v1.5.0 的 141 条，仓库与候选为 148 条；部署前仍须核对这 7 条日常维护差异，本轮未应用。覆写模块清单章节为空，实际启用模块顺序未确认。"
   },
   "reusedFromVersion": null,
   "setupDocument": "SETUP.md"

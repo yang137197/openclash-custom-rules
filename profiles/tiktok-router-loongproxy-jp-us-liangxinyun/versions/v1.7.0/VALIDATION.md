@@ -25,7 +25,7 @@
 
 ## 尚未验证
 
-Ruby 拆包依赖、逐 URL API 字段、控制器读取 UCI 与认证、procd 自启动／重启、核心及控制器异常重启、实际健康检查目标可达性、应用层播放／下载。API 故障或 SIGKILL 时不保证已清理选择，相关限制见合同。不得把本地通过写成 alpha-gbc76c13 或实机通过。
+Ruby 控制器读取 UCI 与认证、procd 自启动／重启、核心及控制器异常重启、实际健康检查目标可达性、应用层播放／下载仍未验证。后续已确认 Ruby 所需库加载失败、Lua 基础读取通过；见下节，不能继续将依赖列为全未知。API 故障或 SIGKILL 时不保证已清理选择，相关限制见合同。不得把本地通过写成 alpha-gbc76c13 或完整实机通过。
 
 ## 安装前设备记录（2026-11-23）
 
@@ -34,6 +34,12 @@ Ruby 拆包依赖、逐 URL API 字段、控制器读取 UCI 与认证、procd �
 官方 v0.48.002 [openclash_debug.sh](https://github.com/vernesong/OpenClash/blob/v0.48.002/luci-app-openclash/root/usr/share/openclash/openclash_debug.sh)主动省略配置中的 proxies/proxy-providers；本日志未显示节点及 provider 不能作为缺失结论。覆写模块清单章节为空，无法确认实际模块顺序。采样活动连接仅含直连，不能证明 TikTok 或良心云应用可用。
 
 运行 Manual-Direct 与 v1.5.0 固定快照逐项相同（141 条），仓库当前滚动模块及候选为 148 条，新增来自先前流程 A 的日常维护。部署前须核对差异，未在本次分析中应用任何规则变更。原始附件不入仓，环境记录状态仍为 pending／not-run。
+
+## 后续基础预检与 Lua 模拟准备（2026-11-23）
+
+用户回传确认 Ruby 所需库加载失败、Python3 不存在；现有 Lua 5.1、JSON／UCI／nixio 模块与 curl 的只读查询通过。45 个 provider 节点存在普通历史和至少一个 URL 历史，不等于 45 个节点当前健康；真实 URL、时间及预期状态仍待核对。详见 [READ_ONLY_PREFLIGHT.md](READ_ONLY_PREFLIGHT.md)。
+
+另备 `scripts/liangxinyun_readonly.lua` 单次只读模拟工具，本地 Lua 5.1.5 的 321 项策略断言及 14 个实际 curl／本地 HTTP 场景通过。工具没有测速、写选择、状态文件或服务，不替换 Ruby 运行实现；Lua 模块替身与真实路由器的验证边界见[工具说明](../../../../scripts/LIANGXINYUN_READONLY.md)。本脚本尚待设备执行，不将本地模拟计入控制器实机验收。
 
 ## 复核入口
 

@@ -1,16 +1,22 @@
 # 良心云严格自动选择 v1.7.0 候选部署与设置
 
-**candidate，当前仅完成本地准备，目标路由器待预检。** [需求合同](REQUIREMENTS.md)和[验证记录](VALIDATION.md)分别说明要求与证据。本轮没有安装路由器服务、替换正式远程覆写或发布 Release。当前正式入口继续为 v1.5.0。
+**candidate，Ruby 实现已完成本地准备，目标设备的 Lua＋curl 基础只读预检通过，完整控制器尚未实机验收。** [需求合同](REQUIREMENTS.md)、[本地验证记录](VALIDATION.md)和[只读预检记录](READ_ONLY_PREFLIGHT.md)分别说明要求与证据。另有[单次 Lua 只读模拟工具](../../../../scripts/LIANGXINYUN_READONLY.md)，仅在本地验证，待路由器运行。本轮没有安装路由器服务、替换正式远程覆写或发布 Release。当前正式入口继续为 v1.5.0。
 
-## 当前下一步：只读预检
+## 当前状态：基础只读预检通过，Ruby 候选暂不部署
 
-2026-11-23 11:06 的安装前调试日志已核对，环境见 ENVIRONMENT.json；当前仍为原手选方案，未应用 v1.7.0。下一步把本目录的 `liangxinyun-controller.rb` 暂存路由器，不先启用候选模块或服务，运行 `ruby /实际暂存目录/liangxinyun-controller.rb --preflight`。此命令只读现有 UCI 和核心 API，不测速、不切换节点、不写状态文件。旧稳定结构的 `candidateCompatible: false` 是预期结果；先看 Ruby 依赖能否加载、API 是否可达及是否有逐 URL 状态。预检输出不包含 API 密钥或订阅；可遮盖节点名后分享。
+2026-11-23 11:06 的安装前调试日志及用户随后回传的终端预检摘要已核对，环境见 ENVIRONMENT.json；当前仍为原手选方案，未应用 v1.7.0。本目录的控制器和服务仍是 Ruby 实现。Ruby 所需库加载未通过，Python3 命令不存在；本轮不安装依赖、不换源、不升级运行库或核心。
 
-控制器使用 OpenClash 原有 Ruby 与 curl。OpenWrt 将 Ruby 标准库拆成多个包，需要 `ruby-json`、`ruby-open3`、`ruby-optparse`、`ruby-time`、`ruby-uri` 及其依赖；是否已安装须以预检为准，不能因 OpenClash 自身能启动就假设齐全。在「系统 → 软件包」按缺失组件核对，控制器不自动安装。包名依据 [OpenWrt 24.10 Ruby Makefile](https://github.com/openwrt/packages/blob/openwrt-24.10/lang/ruby/Makefile)。
+Lua 5.1、`luci.jsonc`、`luci.model.uci`、`luci.sys`、`nixio` 的加载和 JSON 解析通过，已有 curl 8.11.1。只读访问本机 API 成功，核心为 `alpha-gbc76c13`，良心云仍是 45 个成员的 Selector，提供商返回 45 个节点，全部存在普通历史和至少一个测试 URL 的历史记录。初次 `nodesWithPerUrlRecords: 0` 的统计依赖非空 `testUrl`，不能将其解释为缺少历史；独立统计已确认历史存在。详见 [READ_ONLY_PREFLIGHT.md](READ_ONLY_PREFLIGHT.md)。
+
+这些结果只证明已有组件和读取接口可用；测试 URL 的实际键、记录时间新鲜度、四档节点筛选、切换写入、故障恢复和持续运行稳定性尚未实机验证。单次 Lua 模拟工具已完成本地策略与 HTTP 夹具测试，仅输出四档计数、未知原因和建议，不测速、不写选择；它不是 Lua 自动控制器，也未在路由器运行。不能把基础预检或模拟当作 Ruby 候选部署通过或正式验收。
+
+既有 Ruby 控制器另需 `ruby-json`、`ruby-open3`、`ruby-optparse`、`ruby-time`、`ruby-uri` 及其依赖，包名依据 [OpenWrt 24.10 Ruby Makefile](https://github.com/openwrt/packages/blob/openwrt-24.10/lang/ruby/Makefile)。其 `--preflight` 只读现有 UCI 和核心 API，但当前依赖条件未满足，不继续安装来推进这条路线。
 
 默认只读 `openclash.config.cn_port` 与 `openclash.config.dashboard_password`，连接 `127.0.0.1`，不需要再次填写机场订阅或 Loongproxy 凭据。端口／secret 变更后需重启控制器。若使用了覆盖这些设置的额外模块，须先核对实际 API 参数。
 
-## 预检通过后才执行的部署草案
+## 原 Ruby 部署草案（当前不执行）
+
+以下是既有 Ruby 候选的部署草案。Lua＋curl 基础读取预检通过不解除 Ruby 依赖和完整实机验收门禁，当前不执行安装、启用服务或替换正式覆写。
 
 1. 保存现有远程模块地址、开关、顺序与 TikTok 手选节点。本地已填好的 v1.5.0 模块继续复用，与本候选占位模板一致。
 2. 将本目录的 `liangxinyun-controller.rb` 安装到 `/usr/share/openclash/liangxinyun-controller.rb`，服务模板 `liangxinyun-controller.init` 安装为 `/etc/init.d/liangxinyun-controller` 并赋予执行权限。先启动为待机服务，确认它在旧稳定方案上只报告等待，不写节点选择；实际 enable／start 操作留到预检通过后安排。
@@ -27,7 +33,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/codex/liangx
 
 ## 独立手工设置
 
-模块只含 `[YAML]`，控制器不写插件设置。保留 v1.5.0 建议，现有用户沿用当前值。2026-11-23 安装前日志确认 OpenClash 0.48.002、alpha-gbc76c13、OpenWrt 24.10.2 x86_64，Ruby 3.3.6、curl 8.11.1；额外 Ruby 库与 v1.7.0 运行兼容性仍待验证。
+模块只含 `[YAML]`，控制器不写插件设置。保留 v1.5.0 建议，现有用户沿用当前值。2026-11-23 安装前日志确认 OpenClash 0.48.002、alpha-gbc76c13、OpenWrt 24.10.2 x86_64，Ruby 3.3.6、curl 8.11.1；后续 Ruby 库加载未通过，Lua＋curl 基础只读预检通过，完整控制器的运行兼容性仍未验证。
 
 | 页面（服务 → OpenClash 下） | 设置 | 建议与适用条件 |
 | --- | --- | --- |

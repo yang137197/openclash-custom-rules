@@ -12,11 +12,13 @@
 
 ## 当前候选（candidate）
 
-[v1.7.0 独立控制器](versions/v1.7.0/REQUIREMENTS.md)：用户选择保持严格顺序，控制器直接按叶节点健康状态与延迟自动管理良心云。已完成本地策略与真实核心夹具验证，待目标路由器预检和实机验收，尚未部署。
+[v1.7.0 独立控制器](versions/v1.7.0/REQUIREMENTS.md)：用户选择保持严格顺序，控制器直接按叶节点健康状态与延迟自动管理良心云。Ruby 实现完成本地策略与真实核心夹具验证，但目标所需库加载失败，暂不部署。现有 Lua＋curl 基础读取通过，已准备单次只读模拟工具，待设备执行；完整控制器仍未实机验收。
 
 - [v1.7.0 设置、预检与回退](versions/v1.7.0/SETUP.md)
 - [v1.7.0 环境记录](versions/v1.7.0/ENVIRONMENT.json)
 - [v1.7.0 本地验证](versions/v1.7.0/VALIDATION.md)
+- [Lua 基础预检记录](versions/v1.7.0/READ_ONLY_PREFLIGHT.md)
+- [单次 Lua 只读模拟工具](../../scripts/LIANGXINYUN_READONLY.md)
 
 [v1.6.0 分层自动选择](versions/v1.6.0/REQUIREMENTS.md)：四个 url-test 配合 fallback 的候选组合。本地已复现同档部分故障时短暂提前降级，尚未严格满足需求，暂不部署；稳定入口仍为 v1.5.0。
 

@@ -31,7 +31,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 
 ## 版本索引
 
-- [良心云方案 v1.7.0 独立控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.7.0/REQUIREMENTS.md)：严格按最高可用档选最低延迟，本地验证通过，待路由器预检／实机验收，尚未部署。
+- [良心云方案 v1.7.0 独立控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.7.0/REQUIREMENTS.md)：Ruby 运行实现本地验证通过，但目标依赖未通过，暂不部署。现有 Lua＋curl 基础读取通过，另备[单次只读模拟工具](scripts/LIANGXINYUN_READONLY.md)，待设备执行；完整控制器仍未实机验收。
 - [良心云方案 v1.6.0 候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.6.0/REQUIREMENTS.md)：四档嵌套组合已复现短暂提前降级，未严格满足需求，暂不部署；正式滚动入口仍使用 v1.5.0。
 - [良心云方案 v1.5.0 正式发布](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0)，TikTok 手选 iKuuu 日本首跳，其他代理流量使用良心云。
 
