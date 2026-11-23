@@ -11,8 +11,11 @@ from verify_liangxinyun_readonly import Harness, GROUP_PATH, PROVIDER_PATH, URL,
 
 
 NODE = "LXY: 🇯🇵日本专线01|BGP|流媒体"
+NODE_02 = "LXY: 🇯🇵日本专线02|BGP|流媒体"
 PROBE = f"{PROVIDER_PATH}/{quote(NODE, safe='')}/healthcheck?url={quote(URL, safe='')}&timeout=5000&expected=204"
 PATHS = ["/version", GROUP_PATH, PROVIDER_PATH, GROUP_PATH, PROBE, PROVIDER_PATH, GROUP_PATH]
+PROBE_02 = f"{PROVIDER_PATH}/{quote(NODE_02, safe='')}/healthcheck?url={quote(URL, safe='')}&timeout=5000&expected=204"
+PATHS_02 = ["/version", GROUP_PATH, PROVIDER_PATH, GROUP_PATH, PROBE_02, PROVIDER_PATH, GROUP_PATH]
 
 
 def fixture(*, alive=True, delay=37):
@@ -35,13 +38,16 @@ def main():
     harness = Harness(lua, shutil.which("curl"), script=Path(__file__).with_name("liangxinyun_probe_one.lua"), paths=PATHS)
 
     def run(data=None, *, probes=1, error=None, flags=("--probe-once",), **kwargs):
+        paths = PATHS_02 if flags == ("--probe-node-02-once",) else PATHS
+        harness.paths = paths
         completed, requests = harness.run(data or fixture(), args=flags, **kwargs)
         report = json.loads(completed.stdout)
         assert report["selectionApplied"] is False and report["formalAcceptance"] is False
-        actual = [request for request in requests if request[1] == PROBE]
+        actual = [request for request in requests if request[1] in (PROBE, PROBE_02)]
         assert len(actual) == probes == report["probeRequests"]
+        assert not actual or actual[0][1] == paths[4]
         assert report["probeRequestAttempted"] is bool(probes)
-        assert [r[1] for r in requests] == PATHS[:len(requests)]
+        assert [r[1] for r in requests] == paths[:len(requests)]
         if flags == ("--inspect-only",) and not error:
             assert [r[1] for r in requests] == PATHS[:2]
         if error:
@@ -130,6 +136,36 @@ def main():
     report = run(data, flags=("--inspect-only",), probes=0)
     assert report["authorizedNodeSelected"] is False
     assert report["currentSelectionUtf8Hex"] == (NODE + " ").encode().hex()
+
+    def fixture_02(*, alive=True):
+        data = fixture()
+        # Node 01's earlier failure stays present; only node 02 may be probed.
+        failed_01 = {"name": NODE, "extra": {URL: {"alive": False,
+                     "history": [{"time": STAMP, "delay": 0}]}}, "history": []}
+        empty_02 = {"name": NODE_02, "extra": {}, "history": []}
+        measured_02 = copy.deepcopy(empty_02)
+        measured_02["extra"][URL] = {"alive": alive,
+            "history": [{"time": STAMP, "delay": 37 if alive else 0}]}
+        data[2]["proxies"] = [copy.deepcopy(failed_01), empty_02]
+        data[5]["proxies"] = [copy.deepcopy(failed_01), measured_02]
+        for group in (data[1], data[3], data[6]):
+            group["now"], group["all"] = NODE_02, [NODE, NODE_02]
+        return data
+
+    report = run(fixture_02(), flags=("--probe-node-02-once",), stdin_script=True)
+    assert report["node"] == NODE_02 and report["result"] == "healthy-for-requested-204"
+    assert report["currentSelection"] == NODE_02 and report["currentSelectionUnchanged"] is True
+
+    data = fixture_02(alive=False); data[4] = {"message": "synthetic request timeout"}
+    report = run(data, flags=("--probe-node-02-once",), statuses=[200, 200, 200, 200, 504, 200, 200])
+    assert report["node"] == NODE_02 and report["result"] == "failed-for-requested-204"
+
+    data = fixture_02()
+    data[2]["proxies"][1]["extra"] = copy.deepcopy(data[5]["proxies"][1]["extra"])
+    run(data, flags=("--probe-node-02-once",), probes=0, error="existing-test-history-no-repeat")
+
+    data = fixture_02(); data[2]["proxies"].pop()
+    run(data, flags=("--probe-node-02-once",), probes=0, error="target-not-in-provider")
     print(f"PASS real Lua 5.1/curl single-node probe fixture scenarios: {harness.cases}")
 
 

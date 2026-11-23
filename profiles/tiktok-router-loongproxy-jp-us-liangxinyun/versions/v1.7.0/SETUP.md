@@ -1,6 +1,6 @@
 # 良心云严格自动选择 v1.7.0 候选部署与设置
 
-**candidate，Ruby 实现已完成本地准备，目标设备的 Lua＋curl 只读预检已完成，完整控制器尚未实机验收。** [需求合同](REQUIREMENTS.md)、[本地验证记录](VALIDATION.md)和[只读预检记录](READ_ONLY_PREFLIGHT.md)分别说明要求与证据。[单次 Lua 只读模拟](../../../../scripts/LIANGXINYUN_READONLY.md)确认四档 4／5／7／5 个节点，JSON 自检通过，但全部 45 个 provider 节点的普通／逐 URL 历史当前均无样本，尚不能验证实际最低延迟选择。本轮没有安装路由器服务、替换正式远程覆写或发布 Release。当前正式入口继续为 v1.5.0。
+**candidate，Ruby 实现已完成本地准备，目标设备的 Lua＋curl 只读预检已完成，完整控制器尚未实机验收。** [需求合同](REQUIREMENTS.md)、[本地验证记录](VALIDATION.md)和[只读预检记录](READ_ONLY_PREFLIGHT.md)分别说明要求与证据。[单次 Lua 只读模拟](../../../../scripts/LIANGXINYUN_READONLY.md)确认四档 4／5／7／5 个节点，JSON 自检通过，预检时 45 个 provider 节点均无检测历史；后续 01 单次检测已读回超时记录，02 同条件对照另获授权、待执行，仍不能验证实际最低延迟选择。本轮没有安装路由器服务、替换正式远程覆写或发布 Release。当前正式入口继续为 v1.5.0。
 
 ## 当前状态：基础只读预检通过，Ruby 候选暂不部署
 
@@ -8,7 +8,7 @@
 
 Lua 5.1、`luci.jsonc`、`luci.model.uci`、`luci.sys`、`nixio` 的加载和 JSON 解析通过，已有 curl 8.11.1。只读访问本机 API 成功，核心为 `alpha-gbc76c13`，良心云仍是 45 个成员的 Selector，提供商返回 45 个节点，全部存在普通历史和至少一个测试 URL 的历史记录。初次 `nodesWithPerUrlRecords: 0` 的统计依赖非空 `testUrl`，不能将其解释为缺少历史；独立统计已确认历史存在。详见 [READ_ONLY_PREFLIGHT.md](READ_ONLY_PREFLIGHT.md)。
 
-这些结果只证明已有组件和读取接口可用。后续第一版单次 Lua 模拟取得四档 4／5／7／5 个节点，21 个均缺默认 URL 记录；增强摘要确认 JSON 自检通过，全部 45 个节点的 extra 为空表，普通和逐 URL 历史非空计数均为 0。按高档未知输出模拟 REJECT，未写选择；这不证明节点超时。前次历史计数与当前结果的差异原因仍未知。只读预检已完成，用户已单独允许对当前良心云日本专线 01 做一次 5 秒 HTTPS 204 检测；[独立工具](../../../../scripts/LIANGXINYUN_PROBE_ONE.md)已完成本地验证，待用户执行，不检测整组、不写配置。检测记录、切换写入、故障恢复和持续运行稳定性仍未实机验证；不能据此验收 Ruby 候选。
+这些结果只证明已有组件和读取接口可用。后续第一版单次 Lua 模拟取得四档 4／5／7／5 个节点，21 个均缺默认 URL 记录；增强摘要确认 JSON 自检通过，全部 45 个节点的 extra 为空表，普通和逐 URL 历史非空计数均为 0。按高档未知输出模拟 REJECT，未写选择；这不证明节点超时。前次历史计数与当前结果的差异原因仍未知。只读预检已完成，已授权的 01 单次检测已完成，API504、URL状态失败、延迟0，新增1条历史；02手选和成员未变。已验证检测与失败记录读回，不表示01完全断网。用户另行授权02以同URL/5秒/期望204做一次对照，[独立工具](../../../../scripts/LIANGXINYUN_PROBE_ONE.md)已准备，待执行，不检测整组或重测01、不写配置。成功204、真实正延迟、切换写入、故障恢复和持续运行稳定性仍未验证；不能据此验收 Ruby 候选。
 
 既有 Ruby 控制器另需 `ruby-json`、`ruby-open3`、`ruby-optparse`、`ruby-time`、`ruby-uri` 及其依赖，包名依据 [OpenWrt 24.10 Ruby Makefile](https://github.com/openwrt/packages/blob/openwrt-24.10/lang/ruby/Makefile)。其 `--preflight` 只读现有 UCI 和核心 API，但当前依赖条件未满足，不继续安装来推进这条路线。
 

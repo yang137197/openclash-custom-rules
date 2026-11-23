@@ -49,6 +49,6 @@ HTTP 夹具使用合成数据，替代 UCI、时间和 JSON 模块。JSON 输入
 
 2026-11-23，用户已执行提交 df02abf 的第一版只读模拟：45 个 provider 节点，四档计数分别为 4／5／7／5，共 21 个；其余 24 个仅在模拟中忽略，实际组仍为 45 个。21 个节点均未命中默认 URL 记录，`observedTestUrls` 为空，建议为未知高档阻止降级的 REJECT；`selectionApplied=false`，当前手选未改变。**这不证明 21 个节点超时。**
 
-随后提交 8cf2778 的增强工具也已在设备执行：JSON URL／数组自检通过，45 个节点（含四档 21 个）的 extra 全为空表，普通历史和逐 URL 历史非空计数均为 0，未发现缺失／非表 extra 或异常状态。这次确认是采样时没有检测数据，不是单纯测试地址不匹配；与更早历史摘要的差异原因尚未确定。只读预检完成，不需反复执行本工具等待其生成样本。用户随后单独允许仅检测当前日本专线 01 一次，使用[另一份单节点工具](LIANGXINYUN_PROBE_ONE.md)，实机结果待回传；本只读工具仍没有任何检测接口。完整控制器仍未验收。
+随后提交 8cf2778 的增强工具也已在设备执行：JSON URL／数组自检通过，45 个节点（含四档 21 个）的 extra 全为空表，普通历史和逐 URL 历史非空计数均为 0，未发现缺失／非表 extra 或异常状态。这次确认是采样时没有检测数据，不是单纯测试地址不匹配；与更早历史摘要的差异原因尚未确定。只读预检完成，不需反复执行本工具等待其生成样本。随后单独授权的01检测已完成并读回一条超时记录，02手选未变；用户另行允许02同条件单次对照，使用[另一份单节点工具](LIANGXINYUN_PROBE_ONE.md)，02结果待回传。本只读工具仍没有任何检测接口，也未用于触发这些检测。完整控制器仍未验收。
 
 接口依据：[OpenClash 官方 API 指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[目标 Mihomo 提交的逐 URL 状态](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。

@@ -1,6 +1,7 @@
 -- Explicitly authorized diagnostic: one named node, one URLTest call, no retries.
 -- No selection/configuration writes, service installation or file writes.
-local NODE = "LXY: 🇯🇵日本专线01|BGP|流媒体"
+local probe_02 = arg and arg[1] == "--probe-node-02-once"
+local NODE = probe_02 and "LXY: 🇯🇵日本专线02|BGP|流媒体" or "LXY: 🇯🇵日本专线01|BGP|流媒体"
 local URL = "https://www.gstatic.com/generate_204"
 local GROUP = "/proxies/%E8%89%AF%E5%BF%83%E4%BA%91"
 local PROVIDER = "/providers/proxies/liangxinyun"
@@ -23,7 +24,8 @@ local report = {mode = "single-node-probe", selectionApplied = false, formalAcce
 local available, json = pcall(require, "luci.jsonc")
 if not available then print("lua-json-module-unavailable"); os.exit(1) end
 local ok, failure = pcall(function()
-  if not arg or (arg[1] ~= "--probe-once" and arg[1] ~= "--inspect-only") or arg[2] ~= nil then
+  if not arg or (arg[1] ~= "--probe-once" and arg[1] ~= "--probe-node-02-once"
+    and arg[1] ~= "--inspect-only") or arg[2] ~= nil then
     error("arguments-invalid", 0)
   end
   local inspect_only = arg[1] == "--inspect-only"

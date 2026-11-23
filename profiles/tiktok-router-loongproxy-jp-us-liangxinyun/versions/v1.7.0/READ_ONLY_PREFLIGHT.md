@@ -86,4 +86,14 @@ GET /providers/proxies/liangxinyun/<当前节点URL编码>/healthcheck?url=https
 
 23 个本地 HTTP 夹具通过，包含保持 02 时只发 01 检测请求、01 缺失时零检测；实际单节点请求数仍为 0，修正后工具待用户执行。本结论只定位诊断工具拦截原因，不证明任一线路可用或完整控制器已验收。
 
+## 01 单次检测完成，02 对照另获授权（2026-11-23）
+
+用户已执行 48472cf 的修正版：`probeRequests=1`、API HTTP 504、`urlAlive=false`、`urlDelayMs=0`、`urlHistoryCount=1`、`recordAppearedAfterProbe=true`。当前选择仍为 02，`currentSelectionUnchanged`、`groupMembersUnchanged`、`providerUpdatedAtUnchanged` 均为 true，`selectionApplied=false`。
+
+结论：单节点检测 API 与失败历史读回在当前设备可用；01 对指定 HTTPS 204 地址的这次 5 秒检测超时。核心在 deadline 到期时返回 504，不是目标网站状态；0 是失败标记，不能作为零毫秒延迟参加选优。没有成功 204 或正延迟实测，不能据此认定 01 完全不可上网、同档全部失败、Lua 不稳定或完整控制器已兼容。
+
+01 的单次授权已执行完毕，不再自动检测 01。用户随后明确允许仅对当前 02 以相同 URL、5 秒超时和期望 204 做一次对照；不切换、不安装或启用服务、TikTok 与直连不变。工具增加明确的 `--probe-node-02-once` 入口，只绑定精确 02，不回退至 01；保留既有历史与重复检测保护。27 个本地 HTTP 场景通过，02 实机结果待回传。
+
+若 02 同条件成功，只说明其本次检测与 01 的样本不同，支持节点／线路相关差异；若也超时，仍不足以区分共同测试目标、DNS、网络路径或节点问题，不据此批量降级。此对照不授权更换 URL、延长超时、检测其他节点或启用控制器。
+
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。
