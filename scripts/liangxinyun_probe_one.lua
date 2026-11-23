@@ -113,7 +113,8 @@ local ok, failure = pcall(function()
   end
   report.currentSelectionUtf8Hex, report.authorizedNodeUtf8Hex = hex(before.now), hex(NODE)
   if inspect_only then report.inspectionComplete = true; return end
-  if before.now ~= NODE or not before_members[NODE] then error("current-selection-not-authorized-node", 0) end
+  -- Provider-scoped URLTest addresses NODE directly; the manual choice stays as-is.
+  if not before_members[NODE] then error("authorized-node-not-in-group", 0) end
   local provider_before = read(PROVIDER)
   local node_before = target(provider_before)
   if not node_before then error("target-not-in-provider", 0) end
@@ -121,7 +122,7 @@ local ok, failure = pcall(function()
   if #old_history > 0 then error("existing-test-history-no-repeat", 0) end
   if existing_bucket then error("existing-test-state-no-repeat", 0) end
   local ready = read(GROUP)
-  if ready.now ~= NODE or not same(before_members, members(ready)) then
+  if ready.now ~= before.now or not same(before_members, members(ready)) then
     error("selection-or-members-changed-before-probe", 0)
   end
   -- Exactly one active API call. Even errors proceed only to ordinary readback.

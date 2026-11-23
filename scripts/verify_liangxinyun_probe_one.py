@@ -77,10 +77,18 @@ def main():
     data = fixture(); data[5]["updatedAt"] = "2026-11-23T12:34:57Z"
     assert run(data)["result"] == "unknown"
 
-    data = fixture(); data[1]["now"] = "LXY: 日本高速02"
-    report = run(data, probes=0, error="current-selection-not-authorized-node")
-    assert report["currentSelection"] == "LXY: 日本高速02" and not report["authorizedNodeSelected"]
+    data = fixture()
+    current = "LXY: 🇯🇵日本专线02|BGP|流媒体"
+    for group in (data[1], data[3], data[6]):
+        group["now"], group["all"] = current, [NODE, current]
+    report = run(data)
+    assert report["currentSelection"] == current and not report["authorizedNodeSelected"]
     assert report["authorizedNodeInGroup"] is True
+    assert report["node"] == NODE and report["result"] == "healthy-for-requested-204"
+    assert report["currentSelectionUnchanged"] is True
+
+    data = fixture(); data[1]["all"].remove(NODE)
+    run(data, probes=0, error="authorized-node-not-in-group")
 
     data = fixture(); data[3]["now"] = "LXY: 日本高速02"
     run(data, probes=0, error="selection-or-members-changed-before-probe")

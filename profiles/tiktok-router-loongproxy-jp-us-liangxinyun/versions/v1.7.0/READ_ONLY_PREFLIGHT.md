@@ -78,4 +78,12 @@ GET /providers/proxies/liangxinyun/<当前节点URL编码>/healthcheck?url=https
 
 仅补充 `--inspect-only` 查看模式，读取 `/version` 和良心云组后返回；显示实际选择、两项精确匹配结果及名称 UTF-8 字节，不检测、不切换，也不扩大到其他节点。检测模式的固定目标与保护条件不变。新增模式与已有检测场景合计 22 个本地 HTTP 夹具通过，目标查看结果待回传。此前单节点授权继续有效，但实际检测仍未发生，不应反复执行检测模式排查此错误。
 
+## 已定位选择差异并修正多余前置条件（2026-11-23）
+
+用户回传 fe22816 的只读结果：`currentSelection` 为良心云日本专线 02，`authorizedNodeInGroup=true`、`authorizedNodeSelected=false`；名称字节仅编号 02／01 不同。没有触发检测。当前问题不是名称格式或 01 缺失，而是程序要求选中 01、实际选中 02。
+
+目标核心的 provider 单节点路由按 provider 与固定节点名直接查找，不依赖 select 的当前选择。要求先选中 01 是开发者加得过严的条件，已修正：01 仍须在组和 provider 中、仍只检测 01 一次；检测前后核对原手选值保持不变，前置读取期间选择变化仍停止。保持用户现有 02 手选，不写切换 API，不把授权对象改为 02。授权对象、URL、5 秒超时与次数未扩大，不再索取同一授权。
+
+23 个本地 HTTP 夹具通过，包含保持 02 时只发 01 检测请求、01 缺失时零检测；实际单节点请求数仍为 0，修正后工具待用户执行。本结论只定位诊断工具拦截原因，不证明任一线路可用或完整控制器已验收。
+
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。
