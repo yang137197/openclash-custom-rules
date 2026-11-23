@@ -12,14 +12,14 @@
 
 ## 当前候选（candidate）
 
-[v1.7.0 独立控制器](versions/v1.7.0/REQUIREMENTS.md)：用户选择保持严格顺序，控制器直接按叶节点健康状态与延迟自动管理良心云。Ruby 实现完成本地策略与真实核心夹具验证，但目标所需库加载失败，暂不部署。Lua＋curl 只读预检已完成，四档共 21 个节点；01 的单次实机检测已读回超时记录，保持 02 手选不变。02 同条件对照另获授权、待执行，实际最低延迟选择及完整控制器仍未实机验收。
+[v1.7.0 独立控制器](versions/v1.7.0/REQUIREMENTS.md)：用户选择保持严格顺序，控制器直接按叶节点健康状态与延迟自动管理良心云。Ruby 实现完成本地策略与真实核心夹具验证，但目标所需库加载失败，暂不部署。Lua＋curl 只读预检和两个单次步骤已完成：01 超时、02 对同目标检测成功且为 159 ms，历史读回及 02 手选保持已验证。完整 Lua 控制器尚待实现，自动选优及长期运行未验收。
 
 - [v1.7.0 设置、预检与回退](versions/v1.7.0/SETUP.md)
 - [v1.7.0 环境记录](versions/v1.7.0/ENVIRONMENT.json)
 - [v1.7.0 本地验证](versions/v1.7.0/VALIDATION.md)
 - [Lua 基础预检记录](versions/v1.7.0/READ_ONLY_PREFLIGHT.md)
 - [单次 Lua 只读模拟工具](../../scripts/LIANGXINYUN_READONLY.md)
-- [单节点检测工具（01 超时，02 对照待执行）](../../scripts/LIANGXINYUN_PROBE_ONE.md)
+- [单节点诊断记录（01 超时，02 为 159 ms，两项均完成）](../../scripts/LIANGXINYUN_PROBE_ONE.md)
 
 [v1.6.0 分层自动选择](versions/v1.6.0/REQUIREMENTS.md)：四个 url-test 配合 fallback 的候选组合。本地已复现同档部分故障时短暂提前降级，尚未严格满足需求，暂不部署；稳定入口仍为 v1.5.0。
 

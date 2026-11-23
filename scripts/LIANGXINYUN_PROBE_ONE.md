@@ -1,6 +1,6 @@
 # 良心云单节点检测
 
-2026-11-23，用户先允许良心云日本专线 01 单次 HTTPS 204 检测；01 已执行一次并返回检测超时。用户随后另行允许当前手选的日本专线 02 用同一地址、同一 5 秒超时做一次对照，02 尚待执行。两项授权均不包含节点切换、安装依赖、启用服务或修改 TikTok／直连规则。本工具属于 L20–L22 的独立诊断准备，不是 v1.7.0 控制器的部署或验收。
+2026-11-23，用户先允许良心云日本专线 01 单次 HTTPS 204 检测，结果为超时；随后另行允许当前手选的日本专线 02 同条件对照，已成功读回 159 ms。**两项已授权步骤均完成，本阶段不再安排执行检测命令。** 两项授权均不包含节点切换、安装依赖、启用服务或修改 TikTok／直连规则。本工具属于 L20–L22 的独立诊断准备，不是 v1.7.0 控制器的部署或验收。
 
 工具：[liangxinyun_probe_one.lua](liangxinyun_probe_one.lua)。与[只读模拟工具](LIANGXINYUN_READONLY.md)分开；原只读程序没有加入检测接口。
 
@@ -16,7 +16,7 @@
 
 ## 执行与结果
 
-当前只执行已单独授权的 02 对照一次：
+以下是已执行的 02 对照入口，供复核代码，不作为追加检测指令：
 
 ```sh
 lua liangxinyun_probe_one.lua --probe-node-02-once
@@ -24,11 +24,11 @@ lua liangxinyun_probe_one.lua --probe-node-02-once
 
 无需保存脚本的远程执行方式由维护者提供固定提交 URL。省略参数会停止，不发起 API 查询。此参数只是显式执行模式，不是再次请求用户授权。
 
-`--probe-once` 是先前 01 的入口，本轮已完成，不作为当前下一步；不能重跑 01 来代替 02 对照，也不清除既有记录绕过保护。
+`--probe-once` 是 01 的入口，两个单次步骤均已完成；不重跑、不清除既有记录绕过保护。新增实机检测需要相应范围的另行授权。
 
 首次设备执行被 `current-selection-not-authorized-node` 拦截，`probeRequests=0`，没有发起检测。此错误同时涵盖“当前未选中精确目标名”和“目标不在组成员中”；原输出的 `node` 是程序预设目标，不是实际选择值，不能据此判断具体差异。
 
-当前下一步使用只读模式，不重跑检测：
+此前排查选择差异使用了只读模式；它不重跑检测：
 
 ```sh
 lua liangxinyun_probe_one.lua --inspect-only
@@ -38,7 +38,9 @@ lua liangxinyun_probe_one.lua --inspect-only
 
 用户已完成只读查看：实际选中 02，精确 01 仍在组内，UTF-8 差异仅为编号。旧工具要求先选中 01 是开发者多加的前置条件；官方 provider 单节点路由直接按节点名查找，不依赖策略组当前选择。工具已移除此多余条件，仍仅向固定 01 发一次检测请求，检测前后核对原手选值不变。此前授权的对象、URL、超时和调用次数均未扩大，无需重新索取同一项授权。
 
-01 实机结果：API HTTP 504、指定 URL 状态 false／delay 0、产生一条新历史；当前选择、组成员和 provider 更新时间均未变化。504 来自核心检测 deadline，不是目标网站返回的 HTTP 504；它证明该次 5 秒检测失败，不证明节点完全断网或其他节点同样失败。检测 API 与失败状态读回已验证，成功 204 和真实正延迟样本仍未取得。02 对照另获单独授权，结果待回传。
+01 实机结果：API HTTP 504、指定 URL 状态 false／delay 0、产生一条新历史；当前选择、组成员和 provider 更新时间均未变化。504 来自核心检测 deadline，不是目标网站返回的 HTTP 504；它证明该次 5 秒检测失败，不证明节点完全断网或其他节点同样失败。
+
+02 同条件对照已完成：API 200，指定 URL 状态 true，API 延迟与逐 URL 历史均为 159 ms，新历史一条，当前 02 选择、成员与 provider 更新时间均未变。检测 API 和成功／失败状态读取在当前设备已验证；尚不能判断 02 是全档最快、01 永久失效或控制器长期稳定。
 
 正常输出为一行 JSON；回传摘要即可，不分享 API secret、订阅或原始 provider 响应。
 
@@ -68,6 +70,6 @@ lua liangxinyun_probe_one.lua --inspect-only
 python3 scripts/verify_liangxinyun_probe_one.py --lua /absolute/path/to/lua5.1
 ```
 
-UCI、JSON 模块和时间为夹具替身；没有真实机场、路由器或完整 Mihomo 参与本组测试。只读工具原有 336 项 Lua 策略断言与 16 个 HTTP 场景在前次准备中通过，本次未修改该程序。**目标设备已完成 01 的一次超时检测及失败历史读回；02 对照待执行，不能记录为节点连通成功或控制器验收。**
+UCI、JSON 模块和时间为夹具替身；没有真实机场、路由器或完整 Mihomo 参与本组测试。只读工具原有 336 项 Lua 策略断言与 16 个 HTTP 场景在前次准备中通过，本次未修改该程序。另有独立实机证据：01 超时、02 对指定 204 地址成功且为 159 ms，均读回历史并保持选择。**单节点诊断已完成，完整控制器尚未验收。**
 
 接口依据：[OpenClash 官方 API 指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[目标核心 provider 单节点路由](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/provider.go)、[参数与 HTTP 响应](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/proxies.go)、[逐 URL 历史写入](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。

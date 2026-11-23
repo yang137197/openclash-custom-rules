@@ -96,4 +96,19 @@ GET /providers/proxies/liangxinyun/<当前节点URL编码>/healthcheck?url=https
 
 若 02 同条件成功，只说明其本次检测与 01 的样本不同，支持节点／线路相关差异；若也超时，仍不足以区分共同测试目标、DNS、网络路径或节点问题，不据此批量降级。此对照不授权更换 URL、延长超时、检测其他节点或启用控制器。
 
+## 02 单次对照成功：检测与读取能力已验证（2026-11-23）
+
+用户回传 da5250e 的 02 单次结果：API HTTP 200、`apiDelayMs=159`、`urlAlive=true`、`urlDelayMs=159`、`urlHistoryCount=1`、`recordAppearedAfterProbe=true`，结果为 `healthy-for-requested-204`。当前选择仍为 02，组成员与 provider 更新时间均未变，`selectionApplied=false`、`formalAcceptance=false`。
+
+| 已授权步骤 | 本次目标 | 结果 |
+| --- | --- | --- |
+| 01 单次 | 同一 gstatic HTTPS 204，5 秒 | API 504，URL 状态失败，delay 0，读回一条新历史 |
+| 02 单次 | 同一地址、超时与期望状态 | API 200，URL 状态健康，API 与历史均为 159 ms |
+
+两次结果证明现有 Lua＋curl 在当前 CatWrt／核心上能完成定向检测、解析成功及失败状态、读回真实正延迟。02 是对该检测地址的单次可用样本，不等于全业务验收或长期稳定。01 的一次超时不能定位具体故障原因或证明永久失效；两次并非同步采样，不能把差异完全归因为节点本身。回贴的 01 旧输出不作为新增检测次数或复测证据。
+
+按严格顺序，某一档仍有最近有效的健康节点时应留在该档，不能因 01 单次失败就判日本专线整档失败。03／04 等未测，不能声称 02 是全档最低延迟；过期记录仍须按 unknown 处理，不因本次成功而放宽 130 秒门槛。
+
+只读预检及两项已授权的单节点步骤均已完成，不再安排追加检测、重测或更换目标。本阶段不安装服务、不写组选择、不改 TikTok／直连；下一阶段应先完成 Lua 控制器本地实现与故障夹具验证，另行准备实机部署门禁。本目录仍为未部署的 Ruby 候选，完整控制器的自动选择、恢复、重启和长期稳定性未验证。
+
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。
