@@ -27,7 +27,7 @@
     "rawDebugLogCommitted": false,
     "runtimeAcceptance": "not-run",
     "userConfirmed": false,
-    "summary": "2026-11-23 11:06 安装前调试日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1。用户随后回传只读终端摘要：Ruby 所需库加载未通过，Python3 命令不存在；Lua 5.1、luci.jsonc、luci.model.uci、luci.sys、nixio 加载及 JSON 解析通过，已有 curl 8.11.1。本机 GET 查询成功，核心 alpha-gbc76c13，良心云 Selector 与提供商各有 45 个成员／节点；45 个节点均存在普通历史及至少一个 URL 的历史，抽样字段为 delay/time、alive/history。首次 testUrlPresent=false，补查字段存在且为 string；初次逐 URL 记录计数依赖非空 testUrl，返回 0 不能证明缺少历史。URL 实际键、记录新鲜度及自动控制仍未验证，详见 READ_ONLY_PREFLIGHT.md。后续用户已运行 df02abf 的单次只读模拟：四档计数 4/5/7/5，共 21 个节点，忽略 24 个但实际组仍为 45 个；21 个均缺默认 URL 记录，observedTestUrls 为空，按高档未知输出模拟 REJECT，selectionApplied=false，当前选择未变。这不证明节点超时；与前次历史计数的差异仍待核对。增强工具增加结构计数和 JSON 自检，仅完成本地验证，待设备运行。当前仍为原手选方案，未应用 v1.7.0，未安装或启用服务、未主动测速或切换节点；runtimeAcceptance 仍为 not-run。本目录仍是 Ruby 实现，Lua 基础读取通过不等于 Ruby 候选兼容。调试脚本主动省略 proxies/proxy-providers，不能据此判断节点或本地模块缺失。运行 Manual-Direct 为 v1.5.0 的 141 条，仓库与候选为 148 条；部署前仍须核对这 7 条日常维护差异，本轮未应用。覆写模块清单章节为空，实际启用模块顺序未确认。"
+    "summary": "2026-11-23 11:06 安装前日志确认当前插件、核心、系统及 Ruby 3.3.6-1、curl 8.11.1-1；运行配置仍为 v1.5.0 手选方案。用户终端摘要确认 Ruby 所需库加载失败、Python3 不存在，现有 Lua 5.1、luci.jsonc/UCI/nixio 及 curl 的只读查询可用。早期摘要报告 45 个节点有历史，其后两轮模拟无历史的差异原因尚未确定。最新已运行 8cf2778 增强只读工具：JSON URL/数组自检通过，45 个 provider 节点的 extra 均为空表，普通和逐 URL 历史非空计数均为 0；四档为 4/5/7/5 共 21 个，另 24 个只在模拟中忽略，实际组仍有 45 个。读取前后成员与手选一致，selectionApplied=false；REJECT 为未知高档阻止降级的模拟建议，不证明节点超时。只读预检完成，但不能验证实际最低延迟选择；单节点 HTTPS 204 检测仅为待授权建议，未主动检测、未安装依赖或服务、未修改配置或切换节点。完整控制器仍未运行，runtimeAcceptance=not-run、userConfirmed=false；本目录仍是 Ruby 实现。日志省略 proxies/proxy-providers 不能视为缺失，启用模块顺序仍未知。设备直连为 v1.5.0 的 141 条，仓库/候选为 148 条；7 条已有维护差异本轮未应用，部署前须单独核对。详见 READ_ONLY_PREFLIGHT.md。"
   },
   "reusedFromVersion": null,
   "setupDocument": "SETUP.md"

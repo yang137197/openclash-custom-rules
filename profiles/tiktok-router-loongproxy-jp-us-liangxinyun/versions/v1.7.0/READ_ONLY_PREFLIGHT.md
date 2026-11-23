@@ -52,4 +52,22 @@
 
 下一步只增加历史结构计数及合成 JSON 自检，保持原有四个 GET 请求、URL 和时限，不触发测速或写选择。增强工具本地通过 336 项策略断言与 16 个 HTTP 场景，待设备运行；仍不构成自动控制器验收。
 
+## 增强摘要回传：只读预检完成（2026-11-23）
+
+用户已执行提交 8cf2778 的增强工具。`jsonUrlArraySelfTest=true`，解析自检通过；全部 45 个节点的 `extra` 均为空表，普通历史非空计数与逐 URL 历史非空计数均为 0。四档 21 个节点得到相同结论；缺失／非表 extra、异常状态和非 URL 键计数均为 0。当前样本是历史数据为空，不是仅默认 URL 不匹配，也没有证据证明 JSON 结构不兼容。
+
+读取前后组成员与手选值一致，实际组仍有 45 个成员；`selectionApplied=false`，没有执行模拟 REJECT。不能把“无样本”标为失败或超时。前次摘要为 45 个节点有历史的具体差异原因仍未确定；当前结果不证明订阅曾刷新或核心曾重启。
+
+目标核心源码 `adapter/adapter.go` 的 `URLTest()` 在检测完成时追加普通历史和逐 URL 历史，普通 `DialContext()` 不做这项记录；`NewProxy()` 从空历史开始。仓库 v1.5.0 的本地模板没有提供商 health-check 配置，与当前无检测数据相符，但本次摘要没有直接验证实机定时健康检查开关。因此只读预检已完成，继续重复相同读取不会主动产生检测样本。
+
+**下一步仅为待确认建议，尚未执行：** 对用户回传的当前良心云日本专线 01 做一次 HTTPS 204 延迟检测；先核对仍选中该节点，使用 provider 下的单节点接口，目标 `https://www.gstatic.com/generate_204`、超时 5000 ms、期望 204，不检测整个 45 节点集合，不写组选择或配置，不启用服务。请求模板为：
+
+```text
+GET /providers/proxies/liangxinyun/<当前节点URL编码>/healthcheck?url=https%3A%2F%2Fwww.gstatic.com%2Fgenerate_204&timeout=5000&expected=204
+```
+
+此 GET 会产生代理检测流量并更新内存历史，属于主动检测，超出用户先前“只读预检”的授权，须单独确认后才安排。成功且出现新的同 URL 有效记录，才证明这条检测与读取链可用；失败或仍无记录时核对 HTTP 状态和该记录，不将单节点结果扩大到整档。提供商健康检查配置、其他 20 个候选节点、自动切换与长期稳定性仍未验证。
+
+接口依据：[目标核心 provider 单节点路由](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/provider.go)、[检测参数处理](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/proxies.go)、[历史写入](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。本节只准备下一步，不包含可自动触发检测的程序或安装动作。
+
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。
