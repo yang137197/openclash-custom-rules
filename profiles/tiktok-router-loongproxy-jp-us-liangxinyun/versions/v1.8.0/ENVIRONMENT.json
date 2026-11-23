@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.0",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX - QEMU Virtual CPU version 2.5+ : 2C2T"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "iKuuu",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用 QUIC 实际停用，沿用现行值；SETUP.md 保留建议开启。"
+    ]
+  },
+  "evidence": {
+    "source": "debug-log",
+    "capturedAt": "2026-11-23",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "目标环境来自2026-11-23安装前日志及用户终端回传，设备仍运行v1.5.0手选方案。已有Lua5.1、luci.jsonc、luci.model.uci、luci.sys、nixio与curl8.11.1；Ruby库缺失、Python3不存在。此前两个单次诊断已完成：日本专线01同HTTPS204/5秒检测超时，02成功，API及逐URL历史均159ms。02手选、组成员、provider更新时间均保持；这些证据只验证检测和历史读回。v1.8.0为新的Lua完整控制器候选，仅在本地夹具验证，目标未安装服务或切换配置，自动控制及长期稳定性未验收。nixio锁、服务停止监督等完整运行接口仍须在当前CatWrt只读预检后另行验收。路由器141条手动直连与候选148条存在7条既有维护差异，本轮不部署，后续部署须单独核对。启用模块顺序仍未知。完整控制器runtimeAcceptance=not-run、userConfirmed=false。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

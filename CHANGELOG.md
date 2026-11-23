@@ -1,5 +1,12 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.8.0 — 2026-11-23
+
+- candidate，L23–L27：新增完整 Lua 5.1＋curl 控制器与 Shell 停止监督、procd 模板，适应目标已有组件；旧 Ruby 候选保留，不安装新依赖。
+- 默认只读预检，显式控制模式才检测／写良心云；严格四档叶节点选择、未知高档 REJECT、快照与来源核对、单实例锁、写后确认和脱敏状态输出。旧手选方案不接管。
+- 候选有效 YAML 与 v1.7.0 相同，TikTok 链路、DNS、路由及148条直连快照保持，本地模板沿用v1.5.0。设备141条直连与仓库的既有差异未部署；本轮不操作路由器或替换正式入口。
+- 新增实际 Lua 策略／状态机和 curl HTTP 故障夹具，复用真实 Mihomo 新连接出口夹具；本地结果与 CatWrt 原生运行、长期稳定性和用户验收严格区分，详见 VALIDATION.md。目标完整候选下一步只读预检，尚不正式发布。
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.7.0 — 2026-11-23
 
 - 状态为 candidate。用户选择保持严格顺序并授权准备独立自动控制器；L19–L22 以叶节点的有效逐 URL 检测结果选择最高可用档最低延迟，未知高档不降级，四档全失败选 REJECT。

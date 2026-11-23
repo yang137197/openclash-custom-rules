@@ -7,3 +7,4 @@
 *.rb text eol=lf
 *.init text eol=lf
 *.lua text eol=lf
+*.run text eol=lf

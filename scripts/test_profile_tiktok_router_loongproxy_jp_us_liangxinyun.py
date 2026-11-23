@@ -443,3 +443,26 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(environment["status"], "pending")
         self.assertEqual(environment["evidence"]["runtimeAcceptance"], "not-run")
         self.assertFalse(environment["evidence"]["userConfirmed"])
+
+    def test_lua_candidate_keeps_routing_dns_tiktok_and_local_template(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.8.0"]
+        before = profile["versions"]["1.7.0"]
+        self.assertEqual(load_yaml(read(entry["modulePath"]), module=True),
+                         load_yaml(read(before["modulePath"]), module=True))
+        self.assertEqual(read(entry["localModuleTemplatePath"]), read(before["localModuleTemplatePath"]))
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+
+    def test_lua_candidate_has_complete_hashed_artifacts_and_pending_acceptance(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.8.0"]
+        self.assertEqual(entry["controllerRuntime"], "lua5.1")
+        for field, filename in (("controller", "liangxinyun-controller.lua"),
+                                ("controllerService", "liangxinyun-controller.init"),
+                                ("controllerSupervisor", "liangxinyun-controller.run")):
+            self.assertEqual(entry[field + "Path"], entry["versionDirectory"] + "/" + filename)
+            self.assertEqual(entry[field + "Sha256"], sha(read(entry[field + "Path"])))
+        env = json.loads(read(entry["environmentPath"]))
+        self.assertEqual(env["status"], "pending")
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(env["evidence"]["userConfirmed"])

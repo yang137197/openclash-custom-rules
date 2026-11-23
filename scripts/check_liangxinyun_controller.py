@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Opt-in, loopback-only real Mihomo + Ruby controller regression fixture."""
+"""Opt-in, loopback-only real Mihomo + Ruby/Lua controller regression fixture."""
 import argparse
 import copy
 import json
@@ -26,15 +26,18 @@ GROUP = '良心云'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--core', required=True, type=Path)
-    parser.add_argument('--ruby-command', required=True, help='JSON array, e.g. ["ruby"] or ["sh","/path/to/ruby-wrapper.sh"]')
+    runtime = parser.add_mutually_exclusive_group(required=True)
+    runtime.add_argument('--ruby-command', help='JSON array, e.g. ["ruby"]')
+    runtime.add_argument('--lua', type=Path, help='Lua 5.1 executable; local LuCI/nixio substitutes are used')
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
-    ruby = json.loads(args.ruby_command)
+    ruby = json.loads(args.ruby_command) if args.ruby_command else [str(args.lua.resolve(strict=True))]
+    directory = DIRECTORY if not args.lua else DIRECTORY.parent / 'v1.8.0'
     core = args.core.resolve(strict=True)
-    module = load_yaml((DIRECTORY / 'openclash-overwrite.conf').read_text(encoding='utf-8'), module=True)
-    local = load_yaml((DIRECTORY / 'local-tiktok-proxy.conf').read_text(encoding='utf-8'), module=True)
+    module = load_yaml((directory / 'openclash-overwrite.conf').read_text(encoding='utf-8'), module=True)
+    local = load_yaml((directory / 'local-tiktok-proxy.conf').read_text(encoding='utf-8'), module=True)
     core_version = subprocess.check_output([str(core), '-v'], text=True).strip()
-    ruby_version = subprocess.check_output([*ruby, '-v'], text=True).strip()
+    ruby_version = subprocess.check_output([*ruby, '-v'], text=True, stderr=subprocess.STDOUT).strip()
     nodes, servers, by_tier, results = [], [], [], []
     states = {}
     secret = 'fixture "secret" $ backslash\\token'
@@ -144,7 +147,12 @@ def main():
             assert syntax.returncode == 0, (syntax.stdout, syntax.stderr)
             with (home/'core.log').open('wb') as log, (home/'controller.log').open('wb') as controller_log:
                 process = subprocess.Popen(core_command, stdout=log, stderr=subprocess.STDOUT)
-                command = [*ruby, str(DIRECTORY/'liangxinyun-controller.rb'), '--api-url', 'http://'+controller_address,
+                extension = 'lua' if args.lua else 'rb'
+                environment = None
+                if args.lua:
+                    from lua_controller_fixture_runtime import install
+                    environment = install(home, args.lua.resolve())
+                command = [*ruby, str(directory/f'liangxinyun-controller.{extension}'), '--api-url', 'http://'+controller_address,
                            '--secret-file', str(token), '--test-url', TEST_URL, '--interval', '1', '--poll', '.15',
                            '--max-age', '3', '--state-file', str(home/'status.json'), '--lock-file', str(home/'lock')]
                 try:
@@ -159,18 +167,21 @@ def main():
                         raise AssertionError('Mihomo/provider did not become ready')
                     api('PUT', '/proxies/'+urllib.parse.quote('TikTok首跳'), {'name': '🇯🇵 日本Z04 | IEPL'})
                     before = group()['now']
-                    preflight = subprocess.run([*command, '--preflight'], capture_output=True, text=True)
+                    preflight = subprocess.run([*command, '--preflight'], capture_output=True, text=True, env=environment)
                     assert preflight.returncode == 0, preflight.stderr
                     assert json.loads(preflight.stdout)['readOnly'] is True
                     assert json.loads(preflight.stdout)['candidateCompatible'] is True
                     assert group()['now'] == before and not (home/'status.json').exists()
                     check_tiktok()
                     results.append({'case': 'preflight-read-only-no-selection-or-file-write', 'passed': True})
-                    ruby_process = subprocess.Popen(command, stdout=controller_log, stderr=subprocess.STDOUT)
+                    run_command = ['sh', str(directory/'liangxinyun-controller.run'), *command, '--run'] if args.lua else command
+                    ruby_process = subprocess.Popen(run_command, stdout=controller_log, stderr=subprocess.STDOUT, env=environment)
                     settle('highest-tier-lowest-delay', by_tier[0][1])
                     assert secret not in ' '.join(command)
-                    duplicate = subprocess.run([*command, '--once'], capture_output=True, text=True)
-                    assert duplicate.returncode == 1 and 'another strict controller' in duplicate.stderr
+                    duplicate = subprocess.run([*command, '--once'], capture_output=True, text=True, env=environment)
+                    assert duplicate.returncode == 1
+                    assert ('another-controller-or-lock-unavailable' in duplicate.stdout if args.lua else
+                            'another strict controller' in duplicate.stderr)
                     results.append({'case': 'single-instance-and-secret-out-of-argv', 'passed': True})
 
                     states[by_tier[0][1]]['up'] = False
@@ -204,7 +215,8 @@ def main():
                     api('PUT', '/providers/proxies/liangxinyun')
                     settle('subscription-new-node-return', added)
                     ruby_process.terminate()
-                    ruby_process.wait(timeout=8)
+                    ruby_process.wait(timeout=20)
+                    assert ruby_process.returncode == 0
                     assert group()['now'] == 'REJECT'
                     check_tiktok()
                     contents = (home/'controller.log').read_text(encoding='utf-8')
@@ -217,7 +229,7 @@ def main():
                 finally:
                     if ruby_process and ruby_process.poll() is None:
                         ruby_process.terminate()
-                        ruby_process.wait(timeout=8)
+                        ruby_process.wait(timeout=20)
                     process.terminate()
                     process.wait(timeout=8)
     finally:
@@ -227,9 +239,11 @@ def main():
             server.shutdown()
             server.server_close()
 
-    report = {'passed': True, 'version': '1.7.0', 'coreVersion': core_version, 'rubyVersion': ruby_version,
+    report = {'passed': True, 'version': '1.8.0' if args.lua else '1.7.0', 'coreVersion': core_version,
+              'runtimeVersion': ruby_version, 'luaNativeModulesSubstituted': bool(args.lua),
               'fixture': {'loopbackOnly': True, 'intervalSeconds': 1, 'timeoutMs': 300,
                           'targetRouterTested': False, 'productionTimingsTested': False}, 'cases': results}
+    report['luaVersion' if args.lua else 'rubyVersion'] = ruby_version
     if args.report:
         args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(f'PASS: {len(results)} strict-controller real-core fixture cases', flush=True)

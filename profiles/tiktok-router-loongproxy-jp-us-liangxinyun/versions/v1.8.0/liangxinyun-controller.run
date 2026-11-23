@@ -1,0 +1,25 @@
+#!/bin/sh
+# Lua 5.1/nixio only offer default/ignored signals. This parent handles graceful stop.
+# Arguments are the Lua executable, candidate script and fixed non-secret options.
+umask 077
+stop_file="/tmp/liangxinyun-stop.$$"
+rm -f "$stop_file"
+stopping=0
+request_stop() {
+    stopping=1
+    : > "$stop_file"
+}
+trap request_stop TERM INT
+trap 'rm -f "$stop_file"' EXIT
+"$@" --stop-file "$stop_file" &
+child=$!
+wait "$child"
+result=$?
+if [ "$stopping" = 1 ]; then
+    # Interrupted wait does not mean the child exited. Allow its bounded API call to finish.
+    while kill -0 "$child" 2>/dev/null; do
+        wait "$child"
+        result=$?
+    done
+fi
+exit "$result"

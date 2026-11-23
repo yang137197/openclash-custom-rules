@@ -12,6 +12,14 @@
 
 ## 当前候选（candidate）
 
+[v1.8.0 Lua＋curl 完整控制器](versions/v1.8.0/REQUIREMENTS.md)：延续四档严格优先级，使用现有 Lua 5.1、LuCI JSON／UCI、nixio 和 curl；默认只读预检，另有 Shell 停止监督和 procd 模板。本轮仅本地准备，不安装／启用路由器服务，不改变02手选、TikTok或直连；实机完整候选未验收。
+
+- [v1.8.0 设置、只读预检与回退](versions/v1.8.0/SETUP.md)
+- [v1.8.0 环境与证据边界](versions/v1.8.0/ENVIRONMENT.json)
+- [v1.8.0 本地验证](versions/v1.8.0/VALIDATION.md)
+
+## 先前候选（candidate）
+
 [v1.7.0 独立控制器](versions/v1.7.0/REQUIREMENTS.md)：用户选择保持严格顺序，控制器直接按叶节点健康状态与延迟自动管理良心云。Ruby 实现完成本地策略与真实核心夹具验证，但目标所需库加载失败，暂不部署。Lua＋curl 只读预检和两个单次步骤已完成：01 超时、02 对同目标检测成功且为 159 ms，历史读回及 02 手选保持已验证。完整 Lua 控制器尚待实现，自动选优及长期运行未验收。
 
 - [v1.7.0 设置、预检与回退](versions/v1.7.0/SETUP.md)

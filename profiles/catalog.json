@@ -407,6 +407,33 @@
           "controllerSha256": "b68e722f276b2c3fbdfd8d2ae5a2d907560941741f87c7089420ca14caaf364f",
           "controllerServicePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.7.0/liangxinyun-controller.init",
           "controllerServiceSha256": "69f5a459398ceb760ac9214791d688c62e3df6e61927b7f8d4151b1d9084cdd3"
+        },
+        "1.8.0": {
+          "kind": "router-loongproxy-jp-us-liangxinyun",
+          "status": "candidate",
+          "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0",
+          "modulePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/openclash-overwrite.conf",
+          "moduleSha256": "84506b238257de9d754819ca3637161b5deaa4466227478880865070bde11f8e",
+          "requirementsPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/REQUIREMENTS.md",
+          "setupPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/SETUP.md",
+          "environmentPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/ENVIRONMENT.json",
+          "localModuleTemplatePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/local-tiktok-proxy.conf",
+          "localTemplateSha256": "71379bfe031c43953029336dd6e177bfa075b2aa33d1609559f114aa718af7a2",
+          "requirements": [
+            "L23",
+            "L24",
+            "L25",
+            "L26",
+            "L27"
+          ],
+          "manualRulesPath": "rules/manual-direct.yaml",
+          "controllerPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/liangxinyun-controller.lua",
+          "controllerSha256": "c7fc4ad24cc8b7a94c3f15e306535a10705592b5f9be7fd2e84cc26cbc6072c1",
+          "controllerServicePath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/liangxinyun-controller.init",
+          "controllerServiceSha256": "d104187629dd297f4da14056a5a956e96941ee19fc4a0bb6fde4068349c75a81",
+          "controllerRuntime": "lua5.1",
+          "controllerSupervisorPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/liangxinyun-controller.run",
+          "controllerSupervisorSha256": "2570469d2a32f70054feb2cbd73cd05811a727eec1fce1efacd348b23a59ec58"
         }
       },
       "title": "iKuuu 日本首跳 + Loongproxy 美国出口 + 良心云默认代理",
