@@ -26,6 +26,7 @@ URL = "https://www.gstatic.com/generate_204"
 STAMP = "2026-11-23T12:34:56Z"
 NOW = 1795437296
 FAKE_SECRET = 'synthetic-only-quote"-slash\\-single\'-dollar$-percent%'
+CODEC_SAMPLE = r'{"extra":{"https:\/\/www.gstatic.com\/generate_204":{"alive":true,"history":[{"delay":7}]}}}'
 
 
 def lua_string(value: str) -> str:
@@ -100,7 +101,8 @@ class Harness:
         self.lua, self.curl = lua, curl
         self.cases = 0
 
-    def run(self, responses, *, statuses=None, args=(), port_override=None, stdin_script=False):
+    def run(self, responses, *, statuses=None, args=(), port_override=None, stdin_script=False,
+            incompatible_codec=False):
         requests = []
         failures = []
         statuses = statuses or [200] * len(responses)
@@ -164,6 +166,8 @@ end} end}
                 (modules / "nixio.lua").write_text(f"return {{gettimeofday=function() return {NOW},0 end}}")
                 mapping = {body: item for body, item in zip(bodies, responses)
                            if not isinstance(item, str)}
+                if not incompatible_codec:
+                    mapping[CODEC_SAMPLE] = json.loads(CODEC_SAMPLE)
                 (modules / "luci/jsonc.lua").write_text(
                     "local known=" + lua_value(mapping) + "\n" + JSON_ENCODER +
                     "\nreturn {parse=function(body) return known[body] end, stringify=encode}\n")
@@ -224,6 +228,7 @@ def main():
         report = json.loads(completed.stdout)
         assert report["readOnly"] is True and report["selectionApplied"] is False
         assert report["formalAcceptance"] is False
+        assert report["jsonUrlArraySelfTest"] is True
         assert [r[1] for r in requests] == PATHS
         return report
 
@@ -232,6 +237,7 @@ def main():
     assert report["recommendation"]["wouldSelect"] == data[2]["proxies"][1]["name"]
     assert report["currentSelection"] == data[1]["now"]
     assert report["providerHealthContractMatches"] is False and report["warning"]
+    assert report["historyDiagnostics"]["eligibleNodes"]["nodesWithAnyExtraHistory"] == 8
 
     data = fixture()
     data[2]["testUrl"], data[2]["expectedStatus"] = URL, "204"
@@ -292,6 +298,40 @@ def main():
 
     completed, requests = harness.run(fixture(), args=("--apply",))
     assert completed.returncode == 2 and not requests and completed.stdout.strip() == "arguments-invalid"
+
+    # Same visible shape as the user's latest result: 21 eligible, 24 ignored,
+    # no URL history. This is unknown data, never an all-nodes-failed verdict.
+    data = fixture()
+    nodes = data[2]["proxies"]
+    for i, count in enumerate((4, 5, 7, 5)):
+        prototype = copy.deepcopy(nodes[i * 2])
+        for j in range(count - 2):
+            added = copy.deepcopy(prototype)
+            added["name"] += f"|fixture-extra-{j}"
+            nodes.append(added)
+    for i in range(24):
+        nodes.append({"name": f"LXY: 新加坡专线{i:02d}", "extra": {URL: {
+            "alive": True, "history": [{"time": STAMP, "delay": 1}],
+        }}})
+    for node in nodes[:21]:
+        node["extra"] = {}
+        node["history"] = [{"time": STAMP, "delay": 1}]
+    data[1]["all"] = [node["name"] for node in nodes]
+    data[3] = copy.deepcopy(data[1])
+    report = simulate(data)
+    assert [row["total"] for row in report["recommendation"]["tiers"]] == [4, 5, 7, 5]
+    assert report["recommendation"]["ignoredProviderNodes"] == 24
+    assert report["recommendation"]["wouldSelect"] == "REJECT"
+    assert report["recommendation"]["reason"] == "higher-tier-measurements-unknown"
+    assert not report["observedTestUrls"]
+    stats = report["historyDiagnostics"]
+    assert stats["eligibleNodes"]["extraEmptyNodes"] == 21
+    assert stats["eligibleNodes"]["nodesWithGlobalHistory"] == 21
+    assert stats["allProvider"]["nodesWithAnyExtraHistory"] == 24
+
+    completed, requests = harness.run(fixture(), incompatible_codec=True)
+    assert completed.returncode == 1 and not requests
+    assert json.loads(completed.stdout)["error"] == "api-json-shape-incompatible"
     print(f"PASS real Lua 5.1/curl HTTP fixture scenarios: {harness.cases}")
 
 

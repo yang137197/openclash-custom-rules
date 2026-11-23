@@ -1,6 +1,6 @@
 # 良心云严格自动选择 v1.7.0 候选部署与设置
 
-**candidate，Ruby 实现已完成本地准备，目标设备的 Lua＋curl 基础只读预检通过，完整控制器尚未实机验收。** [需求合同](REQUIREMENTS.md)、[本地验证记录](VALIDATION.md)和[只读预检记录](READ_ONLY_PREFLIGHT.md)分别说明要求与证据。另有[单次 Lua 只读模拟工具](../../../../scripts/LIANGXINYUN_READONLY.md)，仅在本地验证，待路由器运行。本轮没有安装路由器服务、替换正式远程覆写或发布 Release。当前正式入口继续为 v1.5.0。
+**candidate，Ruby 实现已完成本地准备，目标设备的 Lua＋curl 基础只读预检通过，完整控制器尚未实机验收。** [需求合同](REQUIREMENTS.md)、[本地验证记录](VALIDATION.md)和[只读预检记录](READ_ONLY_PREFLIGHT.md)分别说明要求与证据。[单次 Lua 只读模拟](../../../../scripts/LIANGXINYUN_READONLY.md)首次设备运行取得四档 4／5／7／5 个节点，但 URL 历史未取得；增强结构摘要待运行。本轮没有安装路由器服务、替换正式远程覆写或发布 Release。当前正式入口继续为 v1.5.0。
 
 ## 当前状态：基础只读预检通过，Ruby 候选暂不部署
 
@@ -8,7 +8,7 @@
 
 Lua 5.1、`luci.jsonc`、`luci.model.uci`、`luci.sys`、`nixio` 的加载和 JSON 解析通过，已有 curl 8.11.1。只读访问本机 API 成功，核心为 `alpha-gbc76c13`，良心云仍是 45 个成员的 Selector，提供商返回 45 个节点，全部存在普通历史和至少一个测试 URL 的历史记录。初次 `nodesWithPerUrlRecords: 0` 的统计依赖非空 `testUrl`，不能将其解释为缺少历史；独立统计已确认历史存在。详见 [READ_ONLY_PREFLIGHT.md](READ_ONLY_PREFLIGHT.md)。
 
-这些结果只证明已有组件和读取接口可用；测试 URL 的实际键、记录时间新鲜度、四档节点筛选、切换写入、故障恢复和持续运行稳定性尚未实机验证。单次 Lua 模拟工具已完成本地策略与 HTTP 夹具测试，仅输出四档计数、未知原因和建议，不测速、不写选择；它不是 Lua 自动控制器，也未在路由器运行。不能把基础预检或模拟当作 Ruby 候选部署通过或正式验收。
+这些结果只证明已有组件和读取接口可用。后续第一版单次 Lua 模拟已在设备取得四档 4／5／7／5 个节点，21 个均缺默认 URL 记录，任意 URL 非空历史计数也为空，按高档未知输出模拟 REJECT，未写选择；这不证明节点超时。增强结构摘要与 JSON 自检待执行，以核对和前次 45 个节点有历史的差异。测试 URL 实际键、新鲜度、切换写入、故障恢复和持续运行稳定性仍未验证；该工具不是 Lua 自动控制器，不能据此验收 Ruby 候选。
 
 既有 Ruby 控制器另需 `ruby-json`、`ruby-open3`、`ruby-optparse`、`ruby-time`、`ruby-uri` 及其依赖，包名依据 [OpenWrt 24.10 Ruby Makefile](https://github.com/openwrt/packages/blob/openwrt-24.10/lang/ruby/Makefile)。其 `--preflight` 只读现有 UCI 和核心 API，但当前依赖条件未满足，不继续安装来推进这条路线。
 

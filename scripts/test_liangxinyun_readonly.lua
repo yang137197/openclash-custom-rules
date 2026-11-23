@@ -119,6 +119,33 @@ local coverage = M.url_coverage({node(nodes[1].name, 10, true),
   {name = nodes[2].name, extra = {["https://private.test/?secret=fixture"] = {history = {{delay = 1}}}}}})
 eq(#coverage, 2, "URL coverage")
 eq(coverage[1].url, "<custom URL redacted>", "unlisted URL not disclosed")
+local summary = M.history_diagnostics({
+  {name = nodes[1].name, extra = {}, history = {{delay = 1}}},
+  {name = nodes[2].name},
+  {name = nodes[3].name, extra = {[url] = {history = {}}}},
+  {name = nodes[4].name, extra = {[url] = {alive = true}}},
+  {name = nodes[5].name, extra = {[url] = false}},
+  node(nodes[6].name, 10, true),
+  {name = nodes[7].name, extra = {other = {history = {{delay = 2}}}}},
+  node("LXY: 新加坡专线01", 10, true)
+})
+eq(summary.eligibleNodes.nodes, 7, "eligible diagnostics scope")
+eq(summary.allProvider.nodes, 8, "provider diagnostics scope")
+eq(summary.eligibleNodes.nodesWithGlobalHistory, 1, "global history counted separately")
+eq(summary.eligibleNodes.extraEmptyNodes, 1, "empty extra")
+eq(summary.eligibleNodes.extraMissingOrNonTableNodes, 1, "missing extra")
+eq(summary.eligibleNodes.emptyHistoryEntries, 1, "empty URL history")
+eq(summary.eligibleNodes.missingOrNonTableHistoryEntries, 1, "missing URL history")
+eq(summary.eligibleNodes.nonTableStateEntries, 1, "invalid state")
+eq(summary.eligibleNodes.nonUrlExtraEntries, 1, "non URL key")
+eq(summary.eligibleNodes.nodesWithAnyExtraHistory, 2, "extra histories include unknown keys")
+eq(summary.eligibleNodes.urlStateEntries, 4, "URL key count")
+eq(summary.allProvider.nodesWithAnyExtraHistory, 3, "excluded node histories counted separately")
+eq(M.check_json({parse = function() return {extra = {[url] = {alive = true, history = {{delay = 7}}}}} end}),
+  true, "codec shape accepted")
+eq(M.check_json({parse = function() return {extra = {[url] = {alive = true, history = {[0] = {delay = 7}}}}} end}),
+  false, "zero based codec shape refused")
+eq(M.check_json({parse = function() return {} end}), false, "missing URL key refused")
 local read = M.reader({}, 9090)
 rejected(function() read("/providers/proxies/liangxinyun/healthcheck") end, "active health check refused")
 rejected(function() read("/proxies/other") end, "other proxy refused")

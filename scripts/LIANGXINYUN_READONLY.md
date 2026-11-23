@@ -25,6 +25,8 @@ lua liangxinyun_readonly.lua
 - `recommendation.wouldSelect`：按日本专线 → 日本高速 → 美国流媒体 → 美国高速，选择最高可用档内**最近有效记录**延迟最低的节点；同延迟优先保留当前节点。同档还有健康节点时继续留档；高档无健康但有未知时不能降级。
 - `wouldSelect: REJECT`：模拟认为应停止选择，**不影响现有流量**，也不向现行手选组添加 REJECT。高档记录未知与四档全部失败分别给出不同 `reason`。
 - `observedTestUrls`：符合四档名称的节点有哪些非空 URL 历史及覆盖数量，不代表记录有效或当前节点健康。
+- `jsonUrlArraySelfTest: true`：当前 JSON 模块对合成的转义 URL 键、布尔值和从 1 开始的历史数组自检通过；失败会在 API 查询前停止。
+- `historyDiagnostics`：分别统计全部 provider 节点与四档节点的全局历史、空／缺失 extra、URL 状态及空／缺失／非空历史。不输出自定义字段名或 URL。可区分“默认 URL 不匹配”和“没有任何非空逐 URL 历史”；不能用全局记录代替后者。
 - `providerHealthContractMatches`：提供商元数据是否恰好声明选定 URL 和预期 204；不是一次 HTTP 204 实测。为 false 时结果带 `warning`，只能作为待核对的模拟建议，不能据此启用自动切换。
 - `formalAcceptance: false`：不表示完整控制器已兼容或实机验收通过。
 
@@ -40,9 +42,11 @@ lua liangxinyun_readonly.lua
 python3 scripts/verify_liangxinyun_readonly.py --lua /absolute/path/to/lua5.1
 ```
 
-- 321 项真实 Lua 5.1 策略断言：256 种四档各两节点存活组合、未知／过期／未来记录、UTC／偏移时区、来源、名称、同延迟和读取边界。
-- 14 个实际 Lua＋curl／本地 HTTP 场景：旧方案空 `testUrl`、元数据匹配、同档未知、整档降级、过期阻止降级、全失败、URL 遮蔽、401、302 不跟随、无效 JSON、选择变化、成员变化、端口拒绝和禁止 apply。捕获的请求均为固定 GET；合成密钥含引号和反斜杠，认证成功且不进入 curl 参数或输出。
+- 336 项真实 Lua 5.1 策略断言：256 种四档各两节点存活组合、未知／过期／未来记录、UTC／偏移时区、来源、名称、同延迟、读取边界、结构计数及拒绝不兼容 JSON 数组。
+- 16 个实际 Lua＋curl／本地 HTTP 场景：原 14 项覆盖旧方案空 `testUrl`、元数据匹配、同档未知、整档降级、过期阻止降级、全失败、URL 遮蔽、401、302 不跟随、无效 JSON、选择变化、成员变化、端口拒绝和禁止 apply；另加 21 个四档节点无 URL 历史但其余 24 节点有历史、JSON 结构自检失败时零 API 请求。捕获的请求均为固定 GET；合成密钥含引号和反斜杠，认证成功且不进入 curl 参数或输出。
 
-HTTP 夹具使用合成数据，替代 UCI、时间和 JSON 模块。JSON 输入适配器将预定义响应映射为 Lua 表，不是目标 `luci.jsonc` 的实现验证；目标设备基础 JSON 解析已由用户单独确认。本地测试没有真实机场线路或设备连接，不证明 TikTok 播放、完整自动控制或长时间稳定性。**本脚本本轮尚待用户在路由器执行。**
+HTTP 夹具使用合成数据，替代 UCI、时间和 JSON 模块。JSON 输入适配器将预定义响应映射为 Lua 表，不是目标 `luci.jsonc` 的实现验证；目标设备基础 JSON 解析已由用户单独确认。本地测试没有真实机场线路或设备连接，不证明 TikTok 播放、完整自动控制或长时间稳定性。
+
+2026-11-23，用户已执行提交 df02abf 的第一版只读模拟：45 个 provider 节点，四档计数分别为 4／5／7／5，共 21 个；其余 24 个仅在模拟中忽略，实际组仍为 45 个。21 个节点均未命中默认 URL 记录，`observedTestUrls` 为空，建议为未知高档阻止降级的 REJECT；`selectionApplied=false`，当前手选未改变。**这不证明 21 个节点超时。** 与前次“45 个节点有 URL 历史”的摘要差异尚未定位；新版增加结构计数及 JSON 自检，待用户执行。完整控制器仍未验收。
 
 接口依据：[OpenClash 官方 API 指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[目标 Mihomo 提交的逐 URL 状态](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。

@@ -30,7 +30,7 @@
 
 目前未验证历史属于哪一个具体 URL、是否对应预期 HTTP 204、每条记录的新鲜度及每个节点的实时可用性。不能用“存在历史”替代“当前健康”，也不能把记录缺失、过期或 URL 未确认直接当作超时来降级。
 
-尚未验证四档节点筛选、严格分档选择、策略组写入、故障恢复、重启行为、资源占用或持续运行稳定性；没有本轮 TikTok 播放或直连应用回归结果。基础读取通过不代表完整控制器稳定、bug 少或 v1.7.0 已获用户验收；ENVIRONMENT.json 保持 `pending`、`runtimeAcceptance: not-run`、`userConfirmed: false`。
+初次预检未验证四档节点筛选；后续单次模拟已取得四档计数，见下节。严格分档选择、策略组写入、故障恢复、重启行为、资源占用或持续运行稳定性仍未实机验证；没有本轮 TikTok 播放或直连应用回归结果。基础读取通过不代表完整控制器稳定、bug 少或 v1.7.0 已获用户验收；ENVIRONMENT.json 保持 `pending`、`runtimeAcceptance: not-run`、`userConfirmed: false`。
 
 ## 本轮操作范围
 
@@ -40,6 +40,16 @@
 
 路由器现有 141 条 Manual-Direct 与仓库／候选 148 条的已有差异仍待部署前单独核对，本次未同步这 7 条维护数据。
 
-后续已在本地准备[单次 Lua 只读模拟工具](../../../../scripts/LIANGXINYUN_READONLY.md)，通过 321 项 Lua 5.1 策略断言和 14 个实际 curl／本地 HTTP 场景；仅输出建议，不发起测速或写选择，待用户在路由器执行。它不替换本目录的 Ruby 控制器，也不解除后续部署和验收门禁。
+后续已准备[单次 Lua 只读模拟工具](../../../../scripts/LIANGXINYUN_READONLY.md)，首次本地通过 321 项 Lua 5.1 策略断言和 14 个 HTTP 场景后由用户执行。它不替换本目录的 Ruby 控制器，也不解除后续部署和验收门禁。
+
+## 首次单次模拟回传（2026-11-23）
+
+提交 df02abf 的实机摘要确认：组与 provider 各 45 个节点，成员和当前手选在两次读取间一致；日本专线 4、日本高速 5、美国流媒体 7、美国高速 5，共 21 个纳入模拟，另 24 个忽略，实际组成员未删减。
+
+21 个节点均为 `test-url-record-missing`，并且四档的 `observedTestUrls` 为空；provider 测试 URL／预期 204 元数据不匹配。`wouldSelect=REJECT` 的原因为高档未知阻止降级，不能解释为节点全失败或超时。`selectionApplied=false`，本轮没有应用该建议。
+
+与前次“45 个节点有 URL 历史”的摘要在时间、范围和检查方式上均不同，尚未定位差异；不能仅归因为 URL 不一致，也没有证据认定核心或 Lua 解析出错。官方 LuCI 源码将数组解析为从 1 开始的 Lua 表，Mihomo 源码以 URL 为 extra 的键；当前程序采用相同约定。
+
+下一步只增加历史结构计数及合成 JSON 自检，保持原有四个 GET 请求、URL 和时限，不触发测速或写选择。增强工具本地通过 336 项策略断言与 16 个 HTTP 场景，待设备运行；仍不构成自动控制器验收。
 
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。

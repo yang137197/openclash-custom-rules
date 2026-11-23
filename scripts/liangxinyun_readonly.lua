@@ -161,6 +161,55 @@ local PUBLIC_URLS = {
   ["https://www.google.com/generate_204"] = true
 }
 
+-- Exercise the target codec, including escaped URL keys and one-based arrays.
+M.JSON_SAMPLE = [[{"extra":{"https:\/\/www.gstatic.com\/generate_204":{"alive":true,"history":[{"delay":7}]}}}]]
+function M.check_json(json)
+  local ok, sample = pcall(json.parse, M.JSON_SAMPLE)
+  local state = ok and type(sample) == "table" and type(sample.extra) == "table"
+    and sample.extra[M.TEST_URL] or nil
+  return type(state) == "table" and state.alive == true and type(state.history) == "table"
+    and #state.history == 1 and type(state.history[1]) == "table" and state.history[1].delay == 7
+end
+
+-- Counts only: never emit arbitrary field names, URLs, timestamps or credentials.
+function M.history_diagnostics(proxies)
+  local function row()
+    return {nodes = 0, nodesWithGlobalHistory = 0, nodesWithNonemptyExtra = 0,
+      nodesWithAnyExtraHistory = 0, extraMissingOrNonTableNodes = 0, extraEmptyNodes = 0,
+      urlStateEntries = 0, nonUrlExtraEntries = 0, nonTableStateEntries = 0,
+      nonemptyHistoryEntries = 0, emptyHistoryEntries = 0, missingOrNonTableHistoryEntries = 0}
+  end
+  local all, eligible = row(), row()
+  local function add(out, node)
+    out.nodes = out.nodes + 1
+    if type(node.history) == "table" and #node.history > 0 then
+      out.nodesWithGlobalHistory = out.nodesWithGlobalHistory + 1
+    end
+    if type(node.extra) ~= "table" then
+      out.extraMissingOrNonTableNodes = out.extraMissingOrNonTableNodes + 1
+      return
+    end
+    if next(node.extra) == nil then out.extraEmptyNodes = out.extraEmptyNodes + 1; return end
+    out.nodesWithNonemptyExtra = out.nodesWithNonemptyExtra + 1
+    local has_history = false
+    for key, state in pairs(node.extra) do
+      local kind = type(key) == "string" and key:match("^https?://") and "urlStateEntries" or "nonUrlExtraEntries"
+      out[kind] = out[kind] + 1
+      if type(state) ~= "table" then out.nonTableStateEntries = out.nonTableStateEntries + 1
+      elseif type(state.history) ~= "table" then
+        out.missingOrNonTableHistoryEntries = out.missingOrNonTableHistoryEntries + 1
+      elseif #state.history == 0 then out.emptyHistoryEntries = out.emptyHistoryEntries + 1
+      else out.nonemptyHistoryEntries, has_history = out.nonemptyHistoryEntries + 1, true end
+    end
+    if has_history then out.nodesWithAnyExtraHistory = out.nodesWithAnyExtraHistory + 1 end
+  end
+  for _, node in ipairs(proxies) do
+    add(all, node)
+    if M.tier(node.name) then add(eligible, node) end
+  end
+  return {allProvider = all, eligibleNodes = eligible}
+end
+
 function M.url_coverage(proxies)
   local covered, out = {}, {}
   for _, node in ipairs(proxies) do
@@ -249,6 +298,7 @@ function M.main(args)
   local available, json = pcall(require, "luci.jsonc")
   if not available then print("lua-json-module-unavailable"); return 1 end
   local ok, result = pcall(function()
+    if not M.check_json(json) then error("api-json-shape-incompatible", 0) end
     local uci = require("luci.model.uci").cursor()
     local nixio = require "nixio"
     local read = M.reader(json, uci:get("openclash", "config", "cn_port"))
@@ -273,6 +323,7 @@ function M.main(args)
       snapshotNamesAndSelectionConsistent = true,
       providerHealthContractMatches = provider.testUrl == options.url and provider.expectedStatus == "204",
       observedTestUrls = M.url_coverage(provider.proxies), recommendation = decision,
+      jsonUrlArraySelfTest = true, historyDiagnostics = M.history_diagnostics(provider.proxies),
       formalAcceptance = false
     }
     if not data.providerHealthContractMatches then

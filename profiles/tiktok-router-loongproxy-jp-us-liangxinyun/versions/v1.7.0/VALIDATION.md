@@ -39,7 +39,9 @@ Ruby 控制器读取 UCI 与认证、procd 自启动／重启、核心及控制�
 
 用户回传确认 Ruby 所需库加载失败、Python3 不存在；现有 Lua 5.1、JSON／UCI／nixio 模块与 curl 的只读查询通过。45 个 provider 节点存在普通历史和至少一个 URL 历史，不等于 45 个节点当前健康；真实 URL、时间及预期状态仍待核对。详见 [READ_ONLY_PREFLIGHT.md](READ_ONLY_PREFLIGHT.md)。
 
-另备 `scripts/liangxinyun_readonly.lua` 单次只读模拟工具，本地 Lua 5.1.5 的 321 项策略断言及 14 个实际 curl／本地 HTTP 场景通过。工具没有测速、写选择、状态文件或服务，不替换 Ruby 运行实现；Lua 模块替身与真实路由器的验证边界见[工具说明](../../../../scripts/LIANGXINYUN_READONLY.md)。本脚本尚待设备执行，不将本地模拟计入控制器实机验收。
+另备 `scripts/liangxinyun_readonly.lua` 单次只读模拟工具。第一版经 321 项策略断言与 14 个 HTTP 场景后已由用户在设备执行：四档 4／5／7／5 共 21 个节点，默认 URL 记录全部缺失，未发现四档任意 URL 的非空历史；按未知处理，未写选择，不等于节点全失败。前次 45 个节点有历史与本次结果的差异仍待核对。
+
+工具增加历史结构摘要及 JSON 转义 URL／数组自检，本地 Lua 5.1.5 的 336 项策略断言及 16 个实际 curl／本地 HTTP 场景通过。工具没有测速、写选择、状态文件或服务，不替换 Ruby 运行实现；Lua 模块替身与真实路由器的验证边界见[工具说明](../../../../scripts/LIANGXINYUN_READONLY.md)。增强摘要待设备执行，不将单次模拟计入控制器实机验收。
 
 ## 复核入口
 
