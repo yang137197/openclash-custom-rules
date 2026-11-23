@@ -19,6 +19,7 @@
 - [v1.7.0 本地验证](versions/v1.7.0/VALIDATION.md)
 - [Lua 基础预检记录](versions/v1.7.0/READ_ONLY_PREFLIGHT.md)
 - [单次 Lua 只读模拟工具](../../scripts/LIANGXINYUN_READONLY.md)
+- [已授权的单节点检测工具（待执行）](../../scripts/LIANGXINYUN_PROBE_ONE.md)
 
 [v1.6.0 分层自动选择](versions/v1.6.0/REQUIREMENTS.md)：四个 url-test 配合 fallback 的候选组合。本地已复现同档部分故障时短暂提前降级，尚未严格满足需求，暂不部署；稳定入口仍为 v1.5.0。
 

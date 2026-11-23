@@ -97,8 +97,9 @@ def fixture():
 
 
 class Harness:
-    def __init__(self, lua: Path, curl: str):
+    def __init__(self, lua: Path, curl: str, *, script: Path = SCRIPT, paths=None):
         self.lua, self.curl = lua, curl
+        self.script, self.paths = script, PATHS if paths is None else paths
         self.cases = 0
 
     def run(self, responses, *, statuses=None, args=(), port_override=None, stdin_script=False,
@@ -119,7 +120,7 @@ class Harness:
                 requests.append((self.command, self.path, self.headers.get("Authorization")))
                 try:
                     assert index < len(responses), "unexpected additional request"
-                    assert self.path == PATHS[index], "unexpected API path"
+                    assert self.path == owner.paths[index], "unexpected API path"
                     assert self.headers.get("Authorization") == "Bearer " + FAKE_SECRET, "auth mismatch"
                 except AssertionError as exc:
                     failures.append(str(exc))
@@ -188,8 +189,8 @@ end} end}
                     "http_proxy": "http://127.0.0.1:1", "all_proxy": "http://127.0.0.1:1",
                 })
                 completed = subprocess.run(
-                    [str(self.lua), "-" if stdin_script else str(SCRIPT), *args], env=env,
-                    input=SCRIPT.read_text() if stdin_script else None,
+                    [str(self.lua), "-" if stdin_script else str(self.script), *args], env=env,
+                    input=self.script.read_text() if stdin_script else None,
                     text=True, capture_output=True, timeout=45)
                 assert FAKE_SECRET not in completed.stdout + completed.stderr, "secret in output"
                 assert not completed.stderr, "unexpected stderr: " + completed.stderr

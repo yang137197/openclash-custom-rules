@@ -60,14 +60,16 @@
 
 目标核心源码 `adapter/adapter.go` 的 `URLTest()` 在检测完成时追加普通历史和逐 URL 历史，普通 `DialContext()` 不做这项记录；`NewProxy()` 从空历史开始。仓库 v1.5.0 的本地模板没有提供商 health-check 配置，与当前无检测数据相符，但本次摘要没有直接验证实机定时健康检查开关。因此只读预检已完成，继续重复相同读取不会主动产生检测样本。
 
-**下一步仅为待确认建议，尚未执行：** 对用户回传的当前良心云日本专线 01 做一次 HTTPS 204 延迟检测；先核对仍选中该节点，使用 provider 下的单节点接口，目标 `https://www.gstatic.com/generate_204`、超时 5000 ms、期望 204，不检测整个 45 节点集合，不写组选择或配置，不启用服务。请求模板为：
+**后续单节点范围已获用户明确授权，尚未执行：** 对用户回传的当前良心云日本专线 01 做一次 HTTPS 204 延迟检测；先核对仍选中该节点，使用 provider 下的单节点接口，目标 `https://www.gstatic.com/generate_204`、超时 5000 ms、期望 204，不检测整个 45 节点集合，不写组选择或配置，不启用服务。请求模板为：
 
 ```text
 GET /providers/proxies/liangxinyun/<当前节点URL编码>/healthcheck?url=https%3A%2F%2Fwww.gstatic.com%2Fgenerate_204&timeout=5000&expected=204
 ```
 
-此 GET 会产生代理检测流量并更新内存历史，属于主动检测，超出用户先前“只读预检”的授权，须单独确认后才安排。成功且出现新的同 URL 有效记录，才证明这条检测与读取链可用；失败或仍无记录时核对 HTTP 状态和该记录，不将单节点结果扩大到整档。提供商健康检查配置、其他 20 个候选节点、自动切换与长期稳定性仍未验证。
+此 GET 会产生代理检测流量并更新内存历史，属于主动检测，超出先前只读范围；用户随后明确回复“允许单节点检测（推荐）”，已获得这一项独立授权，无需再索取。成功且出现新的同 URL 有效记录，才证明这条检测与读取链可用；失败或仍无记录时核对 HTTP 状态和该记录，不将单节点结果扩大到整档。提供商健康检查配置、其他 20 个候选节点、自动切换与长期稳定性仍未验证。
 
-接口依据：[目标核心 provider 单节点路由](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/provider.go)、[检测参数处理](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/proxies.go)、[历史写入](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。本节只准备下一步，不包含可自动触发检测的程序或安装动作。
+已准备独立[单节点工具](../../../../scripts/LIANGXINYUN_PROBE_ONE.md)，先检查固定节点、现有 URL 状态和选择变化，确认条件后只发一个检测请求，再读回；没有自动重试、组写入或安装动作。本地 18 个实际 Lua 5.1／curl HTTP 夹具场景通过，原只读工具 336 项策略断言及 16 个 HTTP 场景也通过。实机单节点结果仍待回传，不改变完整控制器 `not-run`／未验收状态。
+
+接口依据：[目标核心 provider 单节点路由](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/provider.go)、[检测参数处理](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/proxies.go)、[历史写入](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。
 
 依据：[OpenClash 官方 API 指南 15-api.md §15.2](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[Mihomo 节点状态序列化源码](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。实机结论以上述用户回传为准，源码只用于核对接口含义。
