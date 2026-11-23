@@ -30,6 +30,8 @@
 
 ## 当前事实与授权
 
+- 2026-11-23 用户授权良心云按日本专线 → 日本高速 → 美国流媒体 → 美国高速严格自动选择，各档内部最低延迟。v1.6.0 纯覆写嵌套方案本地复现提前降级，保留为未通过对照；用户随后明确授权准备独立自动控制器。当前开发候选为良心云 v1.7.0，仅管理 `良心云`，TikTok 与直连沿用最新稳定规则；本地验证与目标实机验收必须分开，尚未安装路由器服务或替换正式滚动入口。详见其 REQUIREMENTS.md、SETUP.md、ENVIRONMENT.json 和 VALIDATION.md。
+
 - 良心云正式方案 `tiktok-router-loongproxy-jp-us-liangxinyun v1.5.0` 已于 2026-11-16 获用户实机验收。TikTok 手选 iKuuu 日本 Z01–Z04，Loongproxy 美国节点提供落地出口。Claude 和其余代理流量使用良心云。[滚动远程覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf)。
 
 - 当前正式方案：`tiktok-router-loongproxy-jp-us v1.0.7`，继承 J1–J11、J13–J17 并实现 J18–J21，stable。用户于 2026-10-28 确认 v1.0.7 验收通过。该版本保持源规则语法、格式和同步一致性校验，同时允许 `rules/manual-direct.yaml` 的有效规则按需任意增删，不设固定条数或当前域名清单；滚动覆写由 GitHub Actions 生成。环境快照复用 v1.0.6，没有提供新的 v1.0.7 调试日志。v1.0.6 的 Huzhou 实机日志仍是其自身验收证据。

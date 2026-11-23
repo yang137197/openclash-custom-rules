@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.6.0",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "unknown",
+    "openclashBuild": "unknown",
+    "mihomoVersion": "unknown",
+    "mihomoBuild": "unknown",
+    "openwrtVersion": "unknown",
+    "deviceArchitecture": "unknown",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "none",
+    "capturedAt": null,
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "v1.6.0 本地 v1.19.34 合成节点测试已复现同档仍有健康节点却短暂提前降级，未满足 L16，暂不部署。详见 VALIDATION.md。尚未采集目标设备调试日志或应用验收；v1.5.0 环境仅为历史参考，不声明当前环境未变。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

@@ -332,3 +332,114 @@ class LiangxinyunProfileTests(unittest.TestCase):
                 snapshot = entry["versions"][entry["currentVersion"]]["modulePath"]
                 self.assertEqual((root / snapshot).read_text(encoding="utf-8"), read(snapshot))
             self.assertFalse(synchronize(root, write=False))
+
+    def automatic_candidate(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.6.0"]
+        return entry, load_yaml(read(entry["modulePath"]), module=True)
+
+    def test_automatic_candidate_preserves_tiktok_dns_rules_and_direct_snapshot(self):
+        entry, module = self.automatic_candidate()
+        rolling_path = self.catalog["profiles"][PROFILE]["latestModulePath"]
+        # A candidate is a snapshot; later daily source updates must remain free
+        # to change the rolling module without rewriting this historical input.
+        baseline = load_yaml(git("show", f"3372eb5:{rolling_path}"), module=True)
+        for key in baseline:
+            if key != "proxy-groups!":
+                self.assertEqual(module[key], baseline[key], key)
+        self.assertEqual(set(module), set(baseline) | {"proxy-providers"})
+        self.assertEqual(module["proxy-groups!"][:2], baseline["proxy-groups!"][:2])
+        self.assertEqual(read(entry["localModuleTemplatePath"]),
+                         read(self.catalog["profiles"][PROFILE]["versions"]["1.5.0"]["localModuleTemplatePath"]))
+        self.assertEqual(self.catalog["profiles"][PROFILE]["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+
+    def test_automatic_candidate_accepts_numbered_categories_and_excludes_other_nodes(self):
+        _, module = self.automatic_candidate()
+        groups = {g["name"]: g for g in module["proxy-groups!"]}
+        provider_filter = module["proxy-providers"]["liangxinyun"]["filter"]
+        cases = {
+            "日本专线": ("🇯🇵日本专线01|BGP|流媒体", "日本专线12|BGP|流媒体"),
+            "日本高速": ("🇯🇵日本高速04|BGP|CUCM", "日本高速11|BGP|CUCM"),
+            "美国流媒体": ("🇺🇸美国05|流媒体|0.1x", "美国流媒体12|BGP", "流媒体|美国09"),
+            "美国高速": ("🇺🇸美国高速05|CTCU|0.1x", "美国高速12|BGP"),
+        }
+        for category, names in cases.items():
+            for raw in names:
+                name = "LXY: " + raw
+                self.assertIsNotNone(re.search(provider_filter, name), name)
+                matched = [key for key in cases if re.search(groups["良心云-" + key]["filter"], name)]
+                self.assertEqual(matched, [category], name)
+        for name in ("LXY: 🇭🇰香港专线01|BGP|流媒体", "LXY: 🇸🇬新加坡专线01|BGP|流媒体",
+                     "LXY: 美国普通01|BGP", "LXY: 日本普通01|BGP", "TikTok-ISP-Local", "REJECT"):
+            self.assertIsNone(re.search(provider_filter, name), name)
+
+    def test_automatic_candidate_priority_is_separate_from_latency_and_fails_closed(self):
+        _, module = self.automatic_candidate()
+        _, _, total, *tiers = module["proxy-groups!"]
+        expected_names = ["良心云-" + c for c in ("日本专线", "日本高速", "美国流媒体", "美国高速")]
+        self.assertEqual(total["name"], "良心云")
+        self.assertEqual(total["type"], "fallback")
+        self.assertEqual(total["proxies"], expected_names)
+        self.assertNotIn("use", total)
+        self.assertEqual([tier["name"] for tier in tiers], expected_names)
+        for tier in tiers:
+            self.assertEqual(tier["type"], "url-test")
+            self.assertEqual(tier["use"], ["liangxinyun"])
+            self.assertEqual(tier["tolerance"], 0)
+            for forbidden in ("proxies", "include-all", "include-all-providers", "include-all-proxies", "default-selected"):
+                self.assertNotIn(forbidden, tier)
+        for group in (total, *tiers):
+            self.assertEqual(group["empty-fallback"], "REJECT")
+            self.assertIs(group["lazy"], False)
+            self.assertEqual((group["interval"], group["timeout"], group["expected-status"]), (60, 5000, 204))
+            self.assertEqual(group["url"], "https://www.gstatic.com/generate_204")
+
+    def test_automatic_candidate_checks_provider_nodes_without_overwriting_credentials(self):
+        _, module = self.automatic_candidate()
+        provider = module["proxy-providers"]["liangxinyun"]
+        self.assertEqual(set(module["proxy-providers"]), {"liangxinyun"})
+        self.assertEqual(set(provider), {"filter", "health-check"})
+        self.assertEqual(provider["health-check"], {
+            "enable": True, "url": "https://www.gstatic.com/generate_204", "expected-status": 204,
+            "interval": 60, "timeout": 5000, "lazy": False,
+        })
+
+    def test_strict_controller_candidate_preserves_stable_routing_and_local_credentials_template(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.7.0"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        baseline = load_yaml(git("show", f"3372eb5:{profile['latestModulePath']}"), module=True)
+        for key in baseline:
+            if key != "proxy-groups!":
+                self.assertEqual(module[key], baseline[key], key)
+        self.assertEqual(module["proxy-groups!"][:2], baseline["proxy-groups!"][:2])
+        self.assertEqual(set(module), set(baseline) | {"proxy-providers"})
+        self.assertEqual(read(entry["localModuleTemplatePath"]),
+                         read(profile["versions"]["1.5.0"]["localModuleTemplatePath"]))
+
+    def test_strict_controller_candidate_exposes_only_a_guarded_leaf_selector(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.7.0"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        _, _, group = module["proxy-groups!"]
+        pattern = module["proxy-providers"]["liangxinyun"]["filter"]
+        self.assertEqual(group, {
+            "name": "良心云", "type": "select", "proxies": ["REJECT"], "default-selected": "REJECT",
+            "use": ["liangxinyun"], "filter": pattern, "empty-fallback": "REJECT",
+        })
+        _, automatic = self.automatic_candidate()
+        self.assertEqual(module["proxy-providers"], automatic["proxy-providers"])
+
+    def test_strict_controller_artifacts_are_hashed_and_runtime_acceptance_is_pending(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.7.0"]
+        directory = entry["versionDirectory"]
+        for field, filename in (("controller", "liangxinyun-controller.rb"),
+                                ("controllerService", "liangxinyun-controller.init")):
+            self.assertEqual(entry[field + "Path"], directory + "/" + filename)
+            self.assertEqual(entry[field + "Sha256"], sha(read(entry[field + "Path"])))
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+        environment = json.loads(read(entry["environmentPath"]))
+        self.assertEqual(environment["status"], "pending")
+        self.assertEqual(environment["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(environment["evidence"]["userConfirmed"])

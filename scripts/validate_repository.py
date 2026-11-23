@@ -528,6 +528,14 @@ def validate_profile_artifacts(profile_id, profile, modules):
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
         additional_direct_rules_path = entry.get("additionalDirectRulesPath")
+        for field, filename in (("controller", "liangxinyun-controller.rb"),
+                                ("controllerService", "liangxinyun-controller.init")):
+            path = entry.get(field + "Path")
+            if path:
+                require(path == directory + "/" + filename,
+                        f"{profile_id} v{version}: invalid {field} path")
+                require(entry.get(field + "Sha256") == sha(read(path)),
+                        f"{profile_id} v{version}: {field} hash mismatch")
         if additional_direct_rules_path:
             read(additional_direct_rules_path)
 

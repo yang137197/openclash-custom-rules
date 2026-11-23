@@ -21,6 +21,11 @@ jobs:
           python-version: '3.12'
       - name: Install YAML validation dependency
         run: python3 -m pip install -r scripts/requirements-validation.txt
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - name: Test strict Liangxinyun controller
+        run: ruby scripts/test_liangxinyun_controller.rb
       - name: Regenerate rolling Manual-Direct payload from source
         run: python3 scripts/sync_manual_direct.py --write
       - name: Test YAML regression guards
