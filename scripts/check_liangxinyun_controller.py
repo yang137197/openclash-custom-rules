@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
     ruby = json.loads(args.ruby_command) if args.ruby_command else [str(args.lua.resolve(strict=True))]
-    directory = DIRECTORY if not args.lua else DIRECTORY.parent / 'v1.8.0'
+    directory = DIRECTORY if not args.lua else DIRECTORY.parent / 'v1.8.1'
     core = args.core.resolve(strict=True)
     module = load_yaml((directory / 'openclash-overwrite.conf').read_text(encoding='utf-8'), module=True)
     local = load_yaml((directory / 'local-tiktok-proxy.conf').read_text(encoding='utf-8'), module=True)
@@ -239,7 +239,7 @@ def main():
             server.shutdown()
             server.server_close()
 
-    report = {'passed': True, 'version': '1.8.0' if args.lua else '1.7.0', 'coreVersion': core_version,
+    report = {'passed': True, 'version': '1.8.1' if args.lua else '1.7.0', 'coreVersion': core_version,
               'runtimeVersion': ruby_version, 'luaNativeModulesSubstituted': bool(args.lua),
               'fixture': {'loopbackOnly': True, 'intervalSeconds': 1, 'timeoutMs': 300,
                           'targetRouterTested': False, 'productionTimingsTested': False}, 'cases': results}

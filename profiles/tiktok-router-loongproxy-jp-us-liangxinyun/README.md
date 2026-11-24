@@ -12,6 +12,14 @@
 
 ## 当前候选（candidate）
 
+[v1.8.1 权限兼容修正](versions/v1.8.1/REQUIREMENTS.md)：修正v1.8.0中nixio.open不合法的数值权限参数384，改为 `rw-------`。只改两处权限实参，选路和覆写有效YAML不变；旧运行文件保留，v1.8.0暂不部署。用户要求继续隔离状态文件写入与替换测试，该单次工具已准备，目标结果待回传；不接入API、不安装／启用服务。
+
+- [v1.8.1 设置与单项验证](versions/v1.8.1/SETUP.md)
+- [v1.8.1 环境与证据边界](versions/v1.8.1/ENVIRONMENT.json)
+- [v1.8.1 本地验证](versions/v1.8.1/VALIDATION.md)
+
+## v1.8.0 已知权限缺陷（candidate）
+
 [v1.8.0 Lua＋curl 完整控制器](versions/v1.8.0/REQUIREMENTS.md)：延续四档严格优先级，使用现有 Lua 5.1、LuCI JSON／UCI、nixio 和 curl；默认只读预检，另有 Shell 停止监督和 procd 模板。2026-11-24完整脚本基础只读预检已完成，当前02手选未变；随后获授权的一次[独立原生锁测试](../../scripts/LIANGXINYUN_NATIVE_LOCK.md)已成功回传，授权已完成；状态写入和服务启停仍待验证。不安装／启用路由器服务，不改TikTok或直连；完整候选未验收。
 
 - [v1.8.0 设置、只读预检与回退](versions/v1.8.0/SETUP.md)

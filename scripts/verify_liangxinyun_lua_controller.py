@@ -13,7 +13,7 @@ from lua_controller_fixture_runtime import install
 from verify_liangxinyun_readonly import FAKE_SECRET, GROUP_PATH, PROVIDER_PATH, URL
 
 ROOT = Path(__file__).resolve().parents[1]
-DIRECTORY = ROOT / 'profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0'
+DIRECTORY = ROOT / 'profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1'
 
 
 def run(lua, case, *, mode='--once', mutate=None, fault=None, args=(), expected=0):
@@ -97,6 +97,9 @@ def run(lua, case, *, mode='--once', mutate=None, fault=None, args=(), expected=
                 assert group['now'] == before
                 assert not (home/'state').exists() and not (home/'lock').exists()
                 assert all(method == 'GET' and not path.endswith('/healthcheck') for method, path in requests)
+            elif (home/'state').exists():
+                assert (home/'state').stat().st_mode & 0o777 == 0o600
+                assert (home/'lock').stat().st_mode & 0o777 == 0o600
             if argv_log.exists():
                 assert FAKE_SECRET not in argv_log.read_text(), 'credential in argv'
             assert not failures, failures

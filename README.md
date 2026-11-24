@@ -31,6 +31,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 
 ## 版本索引
 
+- [良心云方案 v1.8.1 权限修正候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/REQUIREMENTS.md)：按上游nixio接口将两处384改为 `rw-------`，补充旧值拒绝回归；准备用户要求的[隔离状态文件单次测试](scripts/LIANGXINYUN_NATIVE_STATE.md)，尚未实机回传或部署。
 - [良心云方案 v1.8.0 Lua＋curl 控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/REQUIREMENTS.md)：使用目标已有组件，默认只读；严格四档选择、Shell 停止监督及本地验证见[记录](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/VALIDATION.md)。完整脚本基础只读预检及一次独立原生锁测试已完成，状态写入和服务启停等仍待验证；尚未部署，正式入口仍是 v1.5.0。
 - [良心云方案 v1.7.0 独立控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.7.0/REQUIREMENTS.md)：Ruby 运行实现本地验证通过，但目标依赖未通过，暂不部署。Lua＋curl [只读预检与单节点诊断](scripts/LIANGXINYUN_READONLY.md)已完成；实机已读回 01 超时、02 同目标 159 ms 的记录，选择未变。完整 Lua 控制器尚待实现，自动选优及长期运行未验收。
 - [良心云方案 v1.6.0 候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.6.0/REQUIREMENTS.md)：四档嵌套组合已复现短暂提前降级，未严格满足需求，暂不部署；正式滚动入口仍使用 v1.5.0。

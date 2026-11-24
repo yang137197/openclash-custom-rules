@@ -466,3 +466,26 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(env["status"], "pending")
         self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
         self.assertFalse(env["evidence"]["userConfirmed"])
+
+    def test_lua_permission_fix_changes_only_two_open_modes_and_preserves_routing(self):
+        profile = self.catalog["profiles"][PROFILE]
+        before, after = (profile["versions"][v] for v in ("1.8.0", "1.8.1"))
+        self.assertEqual(read(before["controllerPath"]).count(', 384)'), 2)
+        self.assertEqual(read(after["controllerPath"]),
+                         read(before["controllerPath"]).replace(', 384)', ', "rw-------")'))
+        self.assertEqual(load_yaml(read(before["modulePath"]), module=True),
+                         load_yaml(read(after["modulePath"]), module=True))
+        for field in ("localModuleTemplatePath", "controllerServicePath", "controllerSupervisorPath"):
+            self.assertEqual(read(before[field]), read(after[field]))
+
+    def test_lua_permission_fix_candidate_keeps_pending_runtime_acceptance(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.8.1"]
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+        for key in ("module", "controller", "controllerService", "controllerSupervisor"):
+            self.assertEqual(entry[key + "Sha256"], sha(read(entry[key + "Path"])))
+        env = json.loads(read(entry["environmentPath"]))
+        self.assertEqual(env["status"], "pending")
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(env["evidence"]["userConfirmed"])
