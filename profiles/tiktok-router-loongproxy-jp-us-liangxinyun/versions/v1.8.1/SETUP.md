@@ -14,6 +14,12 @@
 
 本次仅使用私有 `/tmp/liangxinyun-supervisor-<随机后缀>` 和原监督脚本需要的 `/tmp/liangxinyun-stop.<测试进程PID>` 标记，均已清理。不安装服务、不接入OpenClash API、不加载完整控制器，不代表procd或完整控制器API清理已验证；详情及边界见上述说明。
 
+## 当前步骤：只读核对配置差异
+
+用户要求下一步后，先使用[独立只读差异工具](../../../../scripts/LIANGXINYUN_CANDIDATE_READONLY.md)解释此前candidateCompatible=false。脚本不带参数，仅对本机版本、良心云组和提供商发出四次GET，核对REJECT首项、四类节点过滤、提供商来源和HTTPS204检测合同。不调用健康检测、不切换、不写配置、不安装服务；不输出订阅或密钥。已完成的锁、状态和停止监督不重测。
+
+以交付的固定提交执行一次 `scripts/liangxinyun_candidate_readonly.lua`，回传JSON。完成应有inspectionComplete=true、apiRequests=4、probeRequests=0、selectionApplied=false、configurationWritten=false。candidateCompatible=false时先依据blockingReasons核对差异，不接管旧手选组。此工具只读当前接口，不把结果当作节点可用性或完整候选验收，目标结果待回传。
+
 ## 权限修正与旧候选
 
 上游nixio数值权限参数接受600，不接受384。v1.8.0误传384，既有只读预检和mkstemp原生锁测试未执行这两处open，旧本地替代模块也未校验参数。v1.8.1改用明确的 `rw-------`，并补充可复现旧值被拒绝的本地回归。旧v1.8.0运行文件和哈希保留，该候选暂不部署；本版完整控制器也未在路由器运行。

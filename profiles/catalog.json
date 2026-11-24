@@ -449,7 +449,8 @@
           "requirements": [
             "L28",
             "L29",
-            "L30"
+            "L30",
+            "L31"
           ],
           "manualRulesPath": "rules/manual-direct.yaml",
           "controllerPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/liangxinyun-controller.lua",

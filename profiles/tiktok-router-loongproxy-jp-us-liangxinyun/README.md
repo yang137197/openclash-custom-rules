@@ -16,7 +16,7 @@
 
 [停止监督脚本离线测试](../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)已于2026-11-24收到目标成功回传：仅运行原监督脚本与合成worker，immediate／delayed两项均正常停止、回收并清理，监督退出码0，未使用强制清理；API／测速请求0、选择未应用、正式验收false。该单项已完成，不重测；本地372项替代接口断言、8项实际Shell／Lua／源文件场景另行通过。TikTok、直连和正式入口不变，未安装或启用服务。
 
-- [v1.8.1 设置与单项验证](versions/v1.8.1/SETUP.md)
+当前下一步为[候选配置只读差异核对](../../scripts/LIANGXINYUN_CANDIDATE_READONLY.md)，仅四次本机GET，解释此前candidateCompatible=false；不测速、切换、写配置或安装服务。本地101项Lua断言及8项HTTP场景通过，目标输出待回传。(versions/v1.8.1/SETUP.md)
 - [v1.8.1 环境与证据边界](versions/v1.8.1/ENVIRONMENT.json)
 - [v1.8.1 本地验证](versions/v1.8.1/VALIDATION.md)
 
