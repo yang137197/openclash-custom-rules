@@ -1,5 +1,7 @@
 # 隔离状态文件单次测试
 
+**本次单项已于2026-11-24通过。** 用户回传前一步固定提交 `7d15d3d27c41c4bcdbed0e34a4cae8a00ceb3955` 所提供脚本的结果：stateFileTestPassed、stateWriteReadback、replacementReadback、cleanupComplete、privateDirectory、exclusiveCreateRespected、oldOpenFilePreserved、sameDirectoryRename及originalPreservedBeforeReplace均true，stateFileMode为rw-------；API／测速请求0，选择未应用、正式验收false。这一次授权已完成，不自动重测。
+
 2026-11-24，用户在原生锁通过后按“下一步建议仅验证临时状态文件写入与原子替换”的提议要求继续。本步骤仅限这一次隔离测试，不安装或启用服务，不运行完整控制器，不访问UCI／OpenClash API、不测速或切换节点。旧锁测试已结束，不重测。
 
 脚本 `liangxinyun_native_state.lua` 默认或 `--inspect-only` 仅检查接口。`--test-once` 从 `/dev/urandom` 读取8字节生成 `/tmp/liangxinyun-state-<随机后缀>`，一次排他创建0700目录；存在时停止、不复用、不清理既有目录。只创建 `state.json`、`replacement.tmp` 两个0600文件，数据为固定合成JSON，不涉及订阅或凭据。
@@ -10,6 +12,6 @@
 
 准备本检查时发现v1.8.0误将384传给nixio.open的权限实参：该接口数值形式接受600，不接受含数字8的384。该运行路径未在目标执行，独立原生锁用mkstemp也没有覆盖；[v1.8.1](../profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/REQUIREMENTS.md)改用明确的 `rw-------`，保留旧候选。正式滚动入口仍为v1.5.0。
 
-本地161项内存文件系统断言和6项实际Lua／POSIX场景通过；本地JSON/nixio由替代模块提供，不能宣称目标原生通过。目标结果仍待用户执行回传。
+本地161项内存文件系统断言和6项实际Lua／POSIX场景通过；本地JSON/nixio由替代模块提供，与上述目标原生单项回传分别记录。目标回传证明本次隔离目录内的权限字符串、写入、正常rename替换、读回和清理可用，不表示生产路径、完整控制器或服务启停通过。
 
 依据：[nixio权限解析／文件系统接口](https://github.com/openwrt/luci/blob/master/libs/luci-lib-nixio/src/fs.c)、[nixio.open／write／close](https://github.com/openwrt/luci/blob/master/libs/luci-lib-nixio/src/file.c)。

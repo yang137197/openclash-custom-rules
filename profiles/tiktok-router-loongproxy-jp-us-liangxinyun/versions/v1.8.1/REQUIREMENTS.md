@@ -9,4 +9,4 @@
 
 本地验收须复现旧权限值被拒绝、确认新值创建实际0600文件，并保留四档选路及故障恢复回归。隔离状态测试只核对正常写入／同目录rename替换与读回，不证明掉电持久性、崩溃一致性、生产路径权限或长期稳定性。完整候选仍须另行安排目标控制模式、服务启停及TikTok／直连等验收后才能发布。
 
-依据：[nixio权限解析](https://github.com/openwrt/luci/blob/master/libs/luci-lib-nixio/src/fs.c#L28-L95)、[nixio.open](https://github.com/openwrt/luci/blob/master/libs/luci-lib-nixio/src/file.c#L29-L60)。实际目标的状态测试结果待回传，不将本地替代模块结果当作CatWrt原生通过。
+依据：[nixio权限解析](https://github.com/openwrt/luci/blob/master/libs/luci-lib-nixio/src/fs.c#L28-L95)、[nixio.open](https://github.com/openwrt/luci/blob/master/libs/luci-lib-nixio/src/file.c#L29-L60)。已取得目标隔离状态单项成功回传，与本地替代模块结果分别记录；不代表生产路径或完整控制器已通过。
