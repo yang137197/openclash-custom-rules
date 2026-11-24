@@ -8,7 +8,11 @@
 
 原生锁的既有单次授权已完成，不重测；本次“下一步”不扩大为真实状态路径、服务启停或完整控制模式授权。
 
-下一项仅建议做临时目录中的停止监督脚本离线测试，验证正常停止时测试子进程能够退出和清理；不接入OpenClash API，不安装服务。目前尚未授权或执行。
+## 当前步骤：停止监督脚本离线测试
+
+用户已明确授权本项，见[独立诊断说明](../../../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)。脚本内嵌与候选逐字节一致的监督Shell，只运行合成worker；两个场景分别在收到停止后立即退出、延迟约200ms清理后退出。不安装服务、不接入OpenClash API、不加载完整控制器；目标结果待回传。
+
+从交付的固定提交下载 `scripts/liangxinyun_supervisor_offline.lua`，以 `lua - --test-once` 执行一次。它创建私有 `/tmp/liangxinyun-supervisor-<随机后缀>` 和原监督脚本需要的两个 `/tmp/liangxinyun-stop.<测试进程PID>` 标记，结束清理。仅向自己尚未回收的直接测试子进程发停止信号，不碰既有服务。成功要求 `supervisorTestPassed:true`、`cleanupComplete:true`、`forcedCleanupUsed:false`，两个case均通过；API／测速请求0、选择未应用、正式验收false。失败时回传完整输出，不重试。详情及清理边界见上述说明。
 
 ## 权限修正与旧候选
 

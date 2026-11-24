@@ -108,7 +108,11 @@ local function stat(path)
 end
 local fs={stat=stat,lstat=stat,unlink=os.remove,rmdir=os.remove,
  mkdir=function(path,mode) return os.execute('mkdir -m '..permission(mode)..' '..q(path)..' 2>/dev/null')==0 end}
-return {getpid=pid,open=open,fs=fs,const={EEXIST=17},open_flags=function(...)
+local function ppid()
+ local f=assert(io.open('/proc/self/stat')); local data=f:read('*a'); f:close()
+ return tonumber(data:match('^%d+ %(.+%) %S+ (%d+)'))
+end
+return {getpid=pid,getppid=ppid,open=open,fs=fs,const={EEXIST=17},open_flags=function(...)
  local t={}; for _,v in ipairs({...}) do t[v]=true end; return t
 end,gettimeofday=function() return os.time(),0 end,
 nanosleep=function(s,ns) os.execute('sleep '..tostring(s+ns/1000000000)) end}

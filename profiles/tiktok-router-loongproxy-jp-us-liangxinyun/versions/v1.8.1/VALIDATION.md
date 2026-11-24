@@ -12,6 +12,7 @@ v1.8.1仅把两处实参改为 `rw-------`；旧版本运行文件、稳定版�
 
 - 新增状态诊断161项实际Lua／内存文件系统断言通过，覆盖短写、独占创建、权限、替换、旧打开描述符、读回、清理与失败路径。
 - 6个实际Lua／本地POSIX场景通过：默认检查、显式检查、stdin单次测试、非法参数、权限格式回归、旧控制器错误参数回归。JSON及nixio由测试模块替代；本地使用真实文件、chmod和rename，验证读回及临时目录清理，不冒充目标C模块结果。
+- 停止监督离线诊断372项实际Lua／替代接口断言通过；8项实际Shell／Lua／源文件场景通过，含立即和延迟清理退出、三个故障反例、自然退出码传递及内嵌Shell与候选逐字节一致。本地父进程接口为替代实现、Shell不是目标ash；原生诊断驱动和目标停止结果仍待回传。候选监督运行文件未修改。
 - 完整控制器358项实际Lua策略／状态机断言、19个curl／HTTP故障场景、13项真实Mihomo v1.19.34新连接出口夹具通过。新增权限检查同时确认本地锁／状态文件为0600；部分失败不提前降级、整档降级、恢复、订阅变更及正常停止继续通过。JSON／nixio在这些夹具中仍由替代模块提供，不能称目标原生运行通过。
 - 63项Python仓库回归、版本／环境／哈希／不可变历史校验、Shell模板语法与 `git diff --check` 通过。正式模块、直连源、旧v1.8.0运行代码和catalog中的既有哈希未修改。
 
@@ -22,6 +23,7 @@ v1.8.1仅把两处实参改为 `rw-------`；旧版本运行文件、稳定版�
 ```text
 lua5.1 scripts/test_liangxinyun_lua_controller.lua profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/liangxinyun-controller.lua
 python3 scripts/verify_liangxinyun_native_state.py --lua /path/to/lua5.1
+python3 scripts/verify_liangxinyun_supervisor_offline.py --lua /path/to/lua5.1
 python3 scripts/verify_liangxinyun_lua_controller.py --lua /path/to/lua5.1
 python3 scripts/check_liangxinyun_controller.py --core /path/to/mihomo --lua /path/to/lua5.1
 python -m unittest discover -s scripts -p "test_*.py"
@@ -33,4 +35,4 @@ git diff --check
 
 2026-11-24用户已回传[隔离状态文件单次测试](../../../../scripts/LIANGXINYUN_NATIVE_STATE.md)成功：初始写入／读回、0600文件权限、0700目录、独占创建、替换前原内容保持、同目录rename后的新内容／旧打开描述符读回及清理均通过。API／测速请求均0，selectionApplied=false、formalAcceptance=false。明确证明rw-------参数在当前目标本次临时文件操作中可用；未运行完整控制器、未使用生产文件路径。这次授权已完成，不重测。
 
-仍待验证：生产锁／状态路径权限、停止监督、procd启停、默认检测参数、重启和长期运行、实际流量及用户验收。下一项仅建议在临时目录离线验证停止监督脚本能使测试子进程正常退出并清理，不连接OpenClash API、不安装服务；尚未授权或执行。TikTok、直连和节点选择未由本次测试修改。
+仍待验证：生产锁／状态路径权限、停止监督、procd启停、默认检测参数、重启和长期运行、实际流量及用户验收。2026-11-24用户已明确授权当前这一次[停止监督离线测试](../../../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)，脚本和本地检查已准备，目标结果待回传；不连接OpenClash API、不安装服务。TikTok、直连和节点选择未由本次准备修改。
