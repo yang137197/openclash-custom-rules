@@ -30,6 +30,8 @@ jobs:
         run: python3 scripts/verify_liangxinyun_incremental_merge.py
       - name: Verify v1.8.2 scope guard and rollback bundle with official merge
         run: python3 scripts/verify_liangxinyun_v182.py
+      - name: Verify v1.8.3 official merge, cached baseline and rollback
+        run: python3 scripts/verify_liangxinyun_v183.py --report "$RUNNER_TEMP/v183-scope.json"
       - name: Install local CI Lua interpreter (no router installation)
         run: sudo apt-get update && sudo apt-get install -y lua5.1
       - name: Test Lua strict controller policy and HTTP boundaries
@@ -47,6 +49,27 @@ jobs:
           python3 scripts/verify_liangxinyun_lua_controller.py --lua /usr/bin/lua5.1 --candidate-directory profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2
           sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/liangxinyun-controller.run
           sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/liangxinyun-controller.init
+      - name: Test v1.8.3 Lua policy, wrapper and HTTP boundaries
+        run: |
+          lua5.1 scripts/test_liangxinyun_v183.lua profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/liangxinyun-controller.lua
+          python3 scripts/verify_liangxinyun_v183_http.py --lua /usr/bin/lua5.1
+          sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/liangxinyun-controller.run
+          sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/liangxinyun-controller.init
+      - name: Test v1.8.3 real Mihomo auto wrapper through loopback proxies
+        run: |
+          curl -q -fsSL --connect-timeout 10 --max-time 120 'https://github.com/MetaCubeX/mihomo/releases/download/v1.19.34/mihomo-linux-amd64-v1.19.34.gz' -o "$RUNNER_TEMP/mihomo-v183.gz"
+          printf '%s  %s\n' '223fab877e5795ce780ba39902e5f0b1113c1256ae244a7160f1165e017e9ccc' "$RUNNER_TEMP/mihomo-v183.gz" | sha256sum -c -
+          gzip -dc "$RUNNER_TEMP/mihomo-v183.gz" > "$RUNNER_TEMP/mihomo-v183"
+          chmod 700 "$RUNNER_TEMP/mihomo-v183"
+          python3 scripts/check_liangxinyun_v183.py --core "$RUNNER_TEMP/mihomo-v183" --lua /usr/bin/lua5.1 --report "$RUNNER_TEMP/v183-core.json"
+      - name: Upload v1.8.3 synthetic validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liangxinyun-v183-validation
+          path: |
+            ${{ runner.temp }}/v183-scope.json
+            ${{ runner.temp }}/v183-core.json
       - name: Regenerate rolling Manual-Direct payload from source
         run: python3 scripts/sync_manual_direct.py --write
       - name: Test YAML regression guards

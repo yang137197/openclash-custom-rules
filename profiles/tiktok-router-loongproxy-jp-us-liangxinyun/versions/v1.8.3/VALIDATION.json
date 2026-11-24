@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.3",
+  "verificationSource": "commit-specific-github-actions",
+  "ciResultPredeclared": false,
+  "localComputerOperated": false,
+  "routerContacted": false,
+  "serviceInstalled": false,
+  "targetRouterTested": false,
+  "actualDashboardTested": false,
+  "formalAcceptance": false,
+  "requiredReports": [
+    "v183-scope.json",
+    "v183-core.json"
+  ]
+}

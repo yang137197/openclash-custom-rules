@@ -518,3 +518,41 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(patch["proxy-providers*"]["where"], {"key": "liangxinyun"})
         self.assertEqual(patch["proxy-groups*"]["set"]["proxies!"], ["REJECT"])
         self.assertEqual(patch["proxy-providers*"]["set"]["health-check!"]["expected-status"], 204)
+
+
+    def test_v183_native_auto_wrapper_has_one_guarded_internal_selector(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.8.3"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        groups = {g["name"]: g for g in module["proxy-groups!"]}
+        outer, inner = groups["良心云"], groups["良心云-严格控制"]
+        self.assertEqual(outer["type"], "url-test")
+        self.assertEqual(outer["proxies"], ["良心云-严格控制"])
+        self.assertNotIn("use", outer)
+        self.assertFalse(outer["hidden"])
+        self.assertEqual(outer["empty-fallback"], "REJECT")
+        self.assertEqual(inner["type"], "select")
+        self.assertEqual(inner["proxies"], ["REJECT"])
+        self.assertEqual(inner["use"], ["liangxinyun"])
+        self.assertTrue(inner["hidden"])
+        self.assertEqual(inner["default-selected"], "REJECT")
+        self.assertEqual(self.catalog["profiles"][PROFILE]["currentVersion"], "1.5.0")
+
+    def test_v183_keeps_policy_bytes_and_public_artifact_integrity(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        prior, entry = versions["1.8.2"], versions["1.8.3"]
+        before, after = read(prior["controllerPath"]), read(entry["controllerPath"])
+        policy = lambda s: s[s.index("local function finite"):s.index("local function names")]
+        self.assertEqual(policy(before), policy(after))
+        for field in ("controllerServicePath", "controllerSupervisorPath", "localModuleTemplatePath"):
+            self.assertEqual(read(prior[field]), read(entry[field]))
+        manifest = json.loads(read(entry["bundleManifestPath"]))
+        self.assertEqual(manifest["version"], "1.8.3")
+        for name, checksum in manifest["files"].items():
+            self.assertEqual(checksum, sha(read(entry["versionDirectory"] + "/" + name)))
+        env = json.loads(read(entry["environmentPath"]))
+        self.assertFalse(env["evidence"]["userConfirmed"])
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        patch = load_yaml(read(entry["incrementalModulePath"]), module=True)
+        self.assertEqual(set(patch), {"proxy-groups*", "proxy-groups+", "proxy-providers*"})
+        self.assertEqual(patch["proxy-groups*"]["where"], {"name": "良心云"})
+        self.assertEqual(patch["proxy-groups+"][0]["name"], "良心云-严格控制")
