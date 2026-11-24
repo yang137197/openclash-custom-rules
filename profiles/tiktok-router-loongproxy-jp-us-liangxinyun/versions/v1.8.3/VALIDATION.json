@@ -13,5 +13,18 @@
   "requiredReports": [
     "v183-scope.json",
     "v183-core.json"
-  ]
+  ],
+  "functionalVerification": {
+    "sourceCommit": "799ba333565a463f892e10ffee35b38565a93972",
+    "workflowRunId": 45360249651,
+    "workflowUrl": "https://github.com/yang137197/openclash-custom-rules/actions/runs/45360249651",
+    "scopeCases": 48,
+    "luaAssertions": 600,
+    "httpCases": 21,
+    "realCoreCases": 13,
+    "pythonUnitTests": 67,
+    "repositoryValidationPassed": true,
+    "workflowOverallConclusion": "failure",
+    "remainingIssueOnThatCommit": "SETUP.md new blank line at EOF; corrected in follow-up"
+  }
 }

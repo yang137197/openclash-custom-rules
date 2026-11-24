@@ -154,7 +154,11 @@ def main():
         bundle = home/'bundle'
         # Reproduce the observed 148 cached / 141 running discrepancy before writing a bundle.
         cache_drift = home/'cloud-148.conf'
-        cache_drift.write_bytes((PROFILE/'overwrite/openclash-overwrite.conf').read_bytes())
+        cache_patch = guard.parse(full_raw, True)
+        cache_patch['rule-providers']['Manual-Direct']['payload'] += [
+            f'DOMAIN,cache-fixture-{i}.invalid' for i in range(7)]
+        assert len(cache_patch['rule-providers']['Manual-Direct']['payload']) == 148
+        cache_drift.write_text('[YAML]\n' + yaml.safe_dump(cache_patch, allow_unicode=True, sort_keys=False))
         drift_inventory = copy.deepcopy(inventory)
         drift_inventory['modules'][0]['file'] = str(cache_drift)
         drift_inventory_path = home/'drift-inventory.json'
