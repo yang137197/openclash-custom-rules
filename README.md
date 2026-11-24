@@ -29,6 +29,8 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
+当前已准备[仅调整良心云的应用与回退方案](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/APPLY_ROLLBACK_PLAN.md)：复核历史141／148条的7项差异，仅提供增量结构草案和只读文件核对工具；不应用、不安装服务，保持TikTok和当前直连。
+
 ## 版本索引
 
 - [良心云方案 v1.8.1 权限修正候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/REQUIREMENTS.md)：按上游nixio接口将两处384改为 `rw-------`，补充旧值拒绝回归；[隔离状态文件单次测试](scripts/LIANGXINYUN_NATIVE_STATE.md)已成功回传。用户已授权[停止监督离线测试](scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)，本地通过，2026-11-24目标两个合成正常停止场景亦通过，回收与清理成功、未使用强制清理，单项已完成；不接入API、不安装服务，完整控制器仍未部署或验收。[只读配置差异核对](scripts/LIANGXINYUN_CANDIDATE_READONLY.md)已完成：快照和来源通过，21个允许节点、24个档外节点；REJECT首项、节点过滤及检测URL／状态码共五项不符，未测速、切换或写配置，完整控制器仍未运行。

@@ -22,6 +22,8 @@
 - [v1.8.1 环境与证据边界](versions/v1.8.1/ENVIRONMENT.json)
 - [v1.8.1 本地验证](versions/v1.8.1/VALIDATION.md)
 
+[仅良心云的应用与回退方案](APPLY_ROLLBACK_PLAN.md)已准备，当前不应用、不安装服务。历史141／148条已复核为仅7条仓库新增、原序保留；增量结构只精确匹配良心云，避免带入直连更新和TikTok变化。最新运行路径文件输出待只读确认，结构草案尚非可部署模块，未来须更高候选。
+
 ## v1.8.0 已知权限缺陷（candidate）
 
 [v1.8.0 Lua＋curl 完整控制器](versions/v1.8.0/REQUIREMENTS.md)：延续四档严格优先级，使用现有 Lua 5.1、LuCI JSON／UCI、nixio 和 curl；默认只读预检，另有 Shell 停止监督和 procd 模板。2026-11-24完整脚本基础只读预检已完成，当前02手选未变；随后获授权的一次[独立原生锁测试](../../scripts/LIANGXINYUN_NATIVE_LOCK.md)已成功回传，授权已完成；状态写入和服务启停仍待验证。不安装／启用路由器服务，不改TikTok或直连；完整候选未验收。

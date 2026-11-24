@@ -1,0 +1,25 @@
+{
+  "auditedAt": "2026-11-24",
+  "source": "user-provided-debug-log; sanitized inline Manual-Direct comparison only",
+  "deviceSnapshotDate": "2026-11-23",
+  "repositoryReferenceCommit": "5ae361f2ea6ae9adc06956491476da6c4203ad1b",
+  "deviceSnapshotCount": 141,
+  "repositorySnapshotCount": 148,
+  "v181SnapshotCount": 148,
+  "v181PayloadMatchesRepository": true,
+  "deviceSnapshotOrderPreservedInRepository": true,
+  "repositoryOnly": [
+    "DOMAIN-SUFFIX,wyctt.com",
+    "DOMAIN-SUFFIX,medeyun.com",
+    "DOMAIN-SUFFIX,mede.com",
+    "DOMAIN-SUFFIX,gdmd.com",
+    "DOMAIN-SUFFIX,os.medeyun.com",
+    "DOMAIN-SUFFIX,mede.vip",
+    "DOMAIN-SUFFIX,mede.cn"
+  ],
+  "deviceSnapshotOnlyCount": 0,
+  "currentRouterVerified": false,
+  "rawDebugLogCommitted": false,
+  "applied": false,
+  "note": "Historical evidence only. The current runtime-path file audit is pending; it cannot prove the core's in-memory configuration. Counts and lists here do not constrain future manual-direct source maintenance."
+}

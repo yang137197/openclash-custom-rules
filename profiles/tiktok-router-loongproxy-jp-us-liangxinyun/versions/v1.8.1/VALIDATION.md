@@ -43,4 +43,6 @@ git diff --check
 
 2026-11-24用户已回传固定提交 `01ee585cab50c31e016a6e9a0b4a40caeb11f7fb` 的[只读配置差异核对](../../../../scripts/LIANGXINYUN_CANDIDATE_READONLY.md)：inspectionComplete、snapshotConsistent、contractChecksAgree均true，核心alpha-gbc76c13；组和提供商各45节点，其中允许四档分别4／5／7／5，共21个，各有24档外节点。来源检查通过、wrongSourceNodes=0，selectionUnchanged=true。五项不符为REJECT非首项、组含档外节点、提供商含档外节点、testUrl不符、expectedStatus不符（类型string，具体值未输出）；首个拒绝candidate-selector-required，candidateCompatible=false。API请求4、测速0、未应用选择或写配置、formalAcceptance=false。本项已完成，不自动重测；未检验健康、服务或完整控制模式。
 
-结论限于当前运行配置不满足候选合同，不能据此认定CatWrt不兼容。下一步建议准备仅调整良心云组／提供商的候选应用与回退方案，并先核对设备141条与候选148条直连的既有差异，避免整套替换改变当前直连；这只是建议，未执行配置变更、安装或服务启动。
+结论限于当前运行配置不满足候选合同，不能据此认定CatWrt不兼容。用户现已要求准备[仅良心云的应用与回退方案](../../APPLY_ROLLBACK_PLAN.md)，并先核对直连差异；本轮不执行配置变更、安装或服务启动。
+
+已直接复核11月23日实机日志的141条与固定仓库／v1.8.1的148条：仅7条仓库新增，无删除，旧payload是仓库payload的同序子序列，详见[脱敏差异](../../DIRECT_DIFF_AUDIT.json)。新增只读运行路径文件工具132项实际Lua／替代接口断言通过；真实Lua读取原私有日志也确认141条、仅7条对照差异和原序一致。结构草案YAML解析、精确目标与字段范围检查通过，但没有执行新增量的真实OpenClash合并，不称为目标应用或回退通过。最新文件输出和核心内存一致性仍未验证。没有可部署新模块、运行版本、服务或路由器写入，原始日志未公开。
