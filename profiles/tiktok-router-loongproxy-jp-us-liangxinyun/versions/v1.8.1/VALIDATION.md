@@ -45,4 +45,10 @@ git diff --check
 
 结论限于当前运行配置不满足候选合同，不能据此认定CatWrt不兼容。用户现已要求准备[仅良心云的应用与回退方案](../../APPLY_ROLLBACK_PLAN.md)，并先核对直连差异；本轮不执行配置变更、安装或服务启动。
 
-已直接复核11月23日实机日志的141条与固定仓库／v1.8.1的148条：仅7条仓库新增，无删除，旧payload是仓库payload的同序子序列，详见[脱敏差异](../../DIRECT_DIFF_AUDIT.json)。新增只读运行路径文件工具132项实际Lua／替代接口断言通过；真实Lua读取原私有日志也确认141条、仅7条对照差异和原序一致。结构草案YAML解析、精确目标与字段范围检查通过，但没有执行新增量的真实OpenClash合并，不称为目标应用或回退通过。11月24日用户回传固定提交3a0e71685975a6fb50da93fe1ce6cb18ba3bbede核对完成：inspectionComplete、fileReadTwiceSame、matchesNov23Snapshot均true，currentCount=141、currentOnlyCount=0，referenceOnly与原7项相同；API／测速／文件写入均0，未应用选择或写配置、formalAcceptance=false。本项完成、不自动重测；runtimeFileSnapshotOnly=true、activeCoreConfigurationVerified=false，核心内存一致性仍未验证。没有可部署新模块、运行版本、服务或路由器写入，原始日志未公开。
+已直接复核11月23日实机日志的141条与固定仓库／v1.8.1的148条：仅7条仓库新增，无删除，旧payload是仓库payload的同序子序列，详见[脱敏差异](../../DIRECT_DIFF_AUDIT.json)。新增只读运行路径文件工具132项实际Lua／替代接口断言通过；真实Lua读取原私有日志也确认141条、仅7条对照差异和原序一致。当时仅完成结构草案YAML解析、精确目标与字段范围检查；本轮真实OpenClash本地合并结果见下节，仍不称为目标应用或回退通过。11月24日用户回传固定提交3a0e71685975a6fb50da93fe1ce6cb18ba3bbede核对完成：inspectionComplete、fileReadTwiceSame、matchesNov23Snapshot均true，currentCount=141、currentOnlyCount=0，referenceOnly与原7项相同；API／测速／文件写入均0，未应用选择或写配置、formalAcceptance=false。本项完成、不自动重测；runtimeFileSnapshotOnly=true、activeCoreConfigurationVerified=false，核心内存一致性仍未验证。没有可部署新模块、运行版本、服务或路由器写入，原始日志未公开。
+
+## 真实OpenClash本地合并验证
+
+用户明确授权本轮仅在本地加载官方v0.48.002固定实现，详见[方法、结果和局限](../../INCREMENTAL_MERGE_VALIDATION.md)及[脱敏报告](../../INCREMENTAL_MERGE_VALIDATION.json)。已有便携Ruby3.3.8，源码提交e553e82e01c697aefbe1555261a503f425e00ccd，SHA-256为1249abf411e1df9e8fe542fb3584f34a27e6e3a587942e5d9f759a32b1bd8261。本地18场景通过，17公开场景加入CI；正常基线变化仅良心云组的proxies／default-selected／filter及提供商的filter／health-check。全rules、rule-providers、DNS、TikTok组与141条直连原序保持。ISP全字段在稳定版占位模板夹具保持。幂等、内存备份恢复、旧字段、同前缀名称和越界／目标／共享引用保护检查通过；拒绝行为来自测试层，不是模块自动保护。
+
+私有历史配置中无提供商和ISP节点定义，提供商以占位模板补齐；原文件未改，原文及完整配置未入仓。此结果不证明真实凭据、当前整份配置、核心内存、目标核心语法、实际模块应用／回退、控制器或服务已验证。本轮没有接触路由器、安装服务、启动核心、生成新运行版本或可部署模块，运行文件及既有哈希不变。

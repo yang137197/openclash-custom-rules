@@ -79,6 +79,6 @@ proxy-providers*:
 
 ## 验证状态与来源
 
-已确认：历史141／148差异及7项清单、11月24日运行路径文件仍为与历史基线逐项同序一致的141条、只读工具本地测试、增量结构的YAML可解析及目标字段范围检查。尚未验证：核心内存一致性、新增量模块的真实OpenClash合并、目标应用／回退、完整控制器、procd及长期运行。本轮只交付方案并核对文件，没有写路由器配置。
+已确认：历史141／148差异及7项清单、11月24日运行路径文件仍为与历史基线逐项同序一致的141条、只读工具本地测试。用户随后要求的[真实OpenClash本地合并验证](INCREMENTAL_MERGE_VALIDATION.md)已通过：官方v0.48.002原实现，18个本地场景，变化仅在良心云允许字段；TikTok组、DNS、全部规则及141条直连原序保持。ISP节点字段在占位模板合成夹具中保持；私有历史日志缺提供商和ISP定义，提供商以占位补齐，不能称为真实凭据验证。缺失／重复目标与范围外变化由验证层拒绝，并非模块自身门禁。尚未验证：当前整份设备配置、核心内存、目标核心语法、真实模块顺序／应用／回退、完整控制器、procd及长期运行。本轮未接触路由器、未安装服务或生成可部署模块；运行落地仍须更高候选。
 
 依据：[官方覆写指南16.2.3条件更新、16.1模块顺序与重启](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)、[OpenClash v0.48.002运行路径及启动命令](https://github.com/vernesong/OpenClash/blob/v0.48.002/luci-app-openclash/root/etc/init.d/openclash#L3454)。

@@ -1,0 +1,119 @@
+{
+  "passed": true,
+  "mode": "local-official-overwrite-validation",
+  "rubyVersion": "3.3.8",
+  "openclashVersion": "0.48.002",
+  "upstreamCommit": "e553e82e01c697aefbe1555261a503f425e00ccd",
+  "officialSourceSha256": "1249abf411e1df9e8fe542fb3584f34a27e6e3a587942e5d9f759a32b1bd8261",
+  "draftSha256": "0b60c812bf7c8999ccf42331f5336a9d48e14d46b00405e319a36e17e4960cd5",
+  "cases": [
+    {
+      "case": "synthetic-stable-profile",
+      "passed": true,
+      "changedPaths": [
+        "/proxy-groups/良心云/proxies",
+        "/proxy-groups/良心云/default-selected",
+        "/proxy-groups/良心云/filter",
+        "/proxy-providers/liangxinyun/filter",
+        "/proxy-providers/liangxinyun/health-check"
+      ]
+    },
+    {
+      "case": "legacy-fields-and-similar-names",
+      "passed": true
+    },
+    {
+      "case": "arbitrary-direct-order-and-duplicates",
+      "passed": true
+    },
+    {
+      "case": "idempotent-remerge",
+      "passed": true
+    },
+    {
+      "case": "in-memory-backup-restore",
+      "passed": true
+    },
+    {
+      "case": "shared-target-alias-rejected",
+      "passed": true
+    },
+    {
+      "case": "missing-group-rejected",
+      "passed": true
+    },
+    {
+      "case": "duplicate-group-rejected",
+      "passed": true
+    },
+    {
+      "case": "missing-provider-rejected",
+      "passed": true
+    },
+    {
+      "case": "non-hash-provider-rejected",
+      "passed": true
+    },
+    {
+      "case": "bare-groups-rejected",
+      "passed": true
+    },
+    {
+      "case": "dns-patch-rejected",
+      "passed": true
+    },
+    {
+      "case": "tiktok-target-rejected",
+      "passed": true
+    },
+    {
+      "case": "other-provider-target-rejected",
+      "passed": true
+    },
+    {
+      "case": "dns-change-detected",
+      "passed": true
+    },
+    {
+      "case": "tiktok-change-detected",
+      "passed": true
+    },
+    {
+      "case": "direct-reorder-detected",
+      "passed": true
+    },
+    {
+      "case": "private-historical-config",
+      "passed": true,
+      "sourceDate": "2026-11-23",
+      "providerReconstructedWithSyntheticFields": true,
+      "ispNodePresentInHistoricalLog": false,
+      "directCount": 141,
+      "allOutsideScopePreserved": true,
+      "changedPaths": [
+        "/proxy-groups/良心云/proxies",
+        "/proxy-groups/良心云/default-selected",
+        "/proxy-groups/良心云/filter",
+        "/proxy-providers/liangxinyun/filter",
+        "/proxy-providers/liangxinyun/health-check"
+      ]
+    }
+  ],
+  "caseCount": 18,
+  "protectedData": {
+    "allRulesPreserved": true,
+    "allRuleProvidersPreserved": true,
+    "dnsPreserved": true,
+    "syntheticIspNodePreserved": true,
+    "tiktokGroupsPreserved": true,
+    "syntheticDirectCount": 141
+  },
+  "allOutsideScopePreserved": true,
+  "routerContacted": false,
+  "serviceInstalled": false,
+  "coreStarted": false,
+  "formalAcceptance": false,
+  "privateBaselineUsed": true,
+  "privateInputFileUnchanged": true,
+  "sourceUrl": "https://raw.githubusercontent.com/vernesong/OpenClash/e553e82e01c697aefbe1555261a503f425e00ccd/luci-app-openclash/root/usr/share/openclash/YAML.rb"
+}

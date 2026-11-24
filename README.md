@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
-当前已准备[仅调整良心云的应用与回退方案](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/APPLY_ROLLBACK_PLAN.md)：历史141／148条的7项差异已复核，11月24日运行路径文件也确认141条与历史基线逐项同序一致；核心内存一致性仍未验证。仅提供增量结构草案并核对文件，不应用、不安装服务，保持TikTok和当前直连。
+当前已准备[仅调整良心云的应用与回退方案](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/APPLY_ROLLBACK_PLAN.md)：历史141／148条的7项差异已复核，11月24日运行路径文件也确认141条与历史基线逐项同序一致；核心内存一致性仍未验证。仅提供增量结构草案并核对文件，不应用、不安装服务，保持TikTok和当前直连。[官方实现本地合并验证](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/INCREMENTAL_MERGE_VALIDATION.md)18场景通过，本次输入基线的变动限良心云；ISP和提供商缺失定义的夹具局限已单列，不代表真实凭据或实机应用通过。
 
 ## 版本索引
 
