@@ -528,6 +528,34 @@ def validate_profile_artifacts(profile_id, profile, modules):
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
         additional_direct_rules_path = entry.get("additionalDirectRulesPath")
+        runtime = entry.get("controllerRuntime", "ruby")
+        require(runtime in {"ruby", "lua5.1"}, f"{profile_id} v{version}: invalid controller runtime")
+        extension = "lua" if runtime == "lua5.1" else "rb"
+        artifacts = [("controller", f"liangxinyun-controller.{extension}"),
+                     ("controllerService", "liangxinyun-controller.init")]
+        if runtime == "lua5.1":
+            artifacts.append(("controllerSupervisor", "liangxinyun-controller.run"))
+            require(all(entry.get(field + "Path") for field, _ in artifacts),
+                    f"{profile_id} v{version}: Lua controller artifacts are required")
+        for field, filename in artifacts:
+            path = entry.get(field + "Path")
+            if path:
+                require(path == directory + "/" + filename,
+                        f"{profile_id} v{version}: invalid {field} path")
+                require(entry.get(field + "Sha256") == sha(read(path)),
+                        f"{profile_id} v{version}: {field} hash mismatch")
+        if entry.get("incrementalModulePath"):
+            for field, filename in (("incrementalModule", "liangxinyun-incremental.conf"),
+                                    ("scopeGuard", "scope_guard.py"),
+                                    ("mergeHelper", "merge_official.rb"),
+                                    ("bundleManifest", "BUNDLE.json")):
+                path = directory + "/" + filename
+                require(entry.get(field + "Path") == path and entry.get(field + "Sha256") == sha(read(path)),
+                        f"{profile_id} v{version}: invalid {field} artifact")
+            require(entry.get("moduleUsage") == "reference-only",
+                    f"{profile_id} v{version}: scoped companion must identify the full module as reference-only")
+            require(entry["incrementalModulePath"] in modules,
+                    f"{profile_id} v{version}: incremental module missing")
         if additional_direct_rules_path:
             read(additional_direct_rules_path)
 
@@ -755,7 +783,7 @@ def main():
         if profile["status"] == "stable":
             expected_modules.add(profile["latestModulePath"])
         for version_entry in profile["versions"].values():
-            expected_modules.update(version_entry[key] for key in ("modulePath", "localModuleTemplatePath")
+            expected_modules.update(version_entry[key] for key in ("modulePath", "localModuleTemplatePath", "incrementalModulePath")
                                     if key in version_entry)
     require(set(modules) == expected_modules, "module files must match the version catalog")
     for profile_id, profile in catalog["profiles"].items():

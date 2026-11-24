@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.3",
+  "verificationSource": "commit-specific-github-actions",
+  "ciResultPredeclared": false,
+  "localComputerOperated": false,
+  "routerContacted": false,
+  "serviceInstalled": false,
+  "targetRouterTested": false,
+  "actualDashboardTested": false,
+  "formalAcceptance": false,
+  "requiredReports": [
+    "v183-scope.json",
+    "v183-core.json"
+  ],
+  "functionalVerification": {
+    "sourceCommit": "2c881165c1fa5d966328d0d89ece8c98ae7d81ac",
+    "scopeCases": 48,
+    "luaAssertions": 600,
+    "httpCases": 21,
+    "realCoreCases": 13,
+    "pythonUnitTests": 67,
+    "repositoryValidationPassed": true,
+    "diffCheckPassed": true,
+    "workflowOverallConclusion": "success"
+  },
+  "ciPassed": true,
+  "ciCommit": "2c881165c1fa5d966328d0d89ece8c98ae7d81ac",
+  "ciRunId": 45360687367,
+  "ciUrl": "https://github.com/yang137197/openclash-custom-rules/actions/runs/45360687367"
+}

@@ -10,6 +10,65 @@
 - [标签固定覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.5.0/openclash-overwrite.conf)
 - [滚动远程覆写](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf)
 
+## 当前候选（candidate）
+
+[v1.8.3 面板自动候选](versions/v1.8.3/REQUIREMENTS.md)：外层良心云为可见的URLTest，唯一引用内部严格控制组；控制器保持四档严格顺序。新增原模块缓存与运行快照的一致性检查，避免重启隐式带入直连差异。CI #90已全部通过；按用户要求统一同步GitHub并写好仓库。直连以唯一源为准，保留用户手动新增的全部规则，当前148条；141只是历史临时验证，不再作为部署要求。服务未安装，实际面板、持续控制及回退待用户验证，正式版仍v1.5.0。
+
+- [v1.8.3 设置与回退](versions/v1.8.3/SETUP.md)
+- [v1.8.3 CI与实机边界](versions/v1.8.3/VALIDATION.md)
+- [v1.8.3 文件清单](versions/v1.8.3/BUNDLE.json)
+- [v1.8.3 环境记录](versions/v1.8.3/ENVIRONMENT.json)
+
+v1.8.2后续回传：预检通过，一次控制选中日本专线02/157ms；用户报告应用测试正常。其后已按固定云方案恢复141条，回传内容／顺序一致、良心云允许字段之外全树一致；持续运行、面板自动、全套故障及回退尚未验收。下列v1.8.2“未部署”等说明保留为此前本地准备阶段记录。
+
+## 先前 v1.8.2 候选准备记录
+
+[v1.8.2 完整候选](versions/v1.8.2/REQUIREMENTS.md)整合四档严格自动选择、配套增量、可执行离线范围检查与备份／回退副本。运行文件沿用v1.8.1原字节；本次141条设备只用增量，不替换原完整云或凭据模块，148条完整参考不用于本次升级。
+
+- [v1.8.2 本地准备、设置与回退](versions/v1.8.2/SETUP.md)
+- [v1.8.2 验证与实机边界](versions/v1.8.2/VALIDATION.md)
+- [v1.8.2 候选文件清单](versions/v1.8.2/BUNDLE.json)
+- [v1.8.2 环境记录](versions/v1.8.2/ENVIRONMENT.json)
+
+本地验证已完成；未接触路由器、未安装／启用服务、未发布，正式滚动入口仍v1.5.0。以下为此前候选与已完成单项，不自动重测：
+
+[v1.8.1 权限兼容修正](versions/v1.8.1/REQUIREMENTS.md)：修正v1.8.0中nixio.open不合法的数值权限参数384，改为 `rw-------`。只改两处权限实参，选路和覆写有效YAML不变；旧运行文件保留，v1.8.0暂不部署。用户要求继续隔离状态文件写入与替换测试，该单次测试已成功回传，权限、正常替换、读回与清理通过，授权已结束；不接入API、不安装／启用服务。
+
+[停止监督脚本离线测试](../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)已于2026-11-24收到目标成功回传：仅运行原监督脚本与合成worker，immediate／delayed两项均正常停止、回收并清理，监督退出码0，未使用强制清理；API／测速请求0、选择未应用、正式验收false。该单项已完成，不重测；本地372项替代接口断言、8项实际Shell／Lua／源文件场景另行通过。TikTok、直连和正式入口不变，未安装或启用服务。
+
+[候选配置只读差异核对](../../scripts/LIANGXINYUN_CANDIDATE_READONLY.md)已收到2026-11-24目标回传：快照与来源检查通过，45节点中允许四档共21个、档外24个；REJECT非首项、组／提供商含档外节点、检测URL与预期状态码不符，共五项导致candidateCompatible=false。本项已完成，API请求4、测速0、未切换或写配置，不安装服务。完整控制器仍未运行；本地101项Lua断言及8项HTTP场景另行通过。
+
+- [v1.8.1 设置与单项验证](versions/v1.8.1/SETUP.md)
+- [v1.8.1 环境与证据边界](versions/v1.8.1/ENVIRONMENT.json)
+- [v1.8.1 本地验证](versions/v1.8.1/VALIDATION.md)
+
+[仅良心云的应用与回退方案](APPLY_ROLLBACK_PLAN.md)已准备，当前不应用、不安装服务。历史141／148条已复核为仅7条仓库新增、原序保留；增量结构只精确匹配良心云，避免带入直连更新和TikTok变化。11月24日运行路径文件已回传141条与历史基线逐项同序一致、差异仍为仓库7项；API／测速／文件写入0，核心内存一致性未验证，本项完成不自动重测。结构草案尚非可部署模块，未来须更高候选。[官方实现本地合并验证](INCREMENTAL_MERGE_VALIDATION.md)18场景通过，变动仅本次基线的良心云允许字段，完整规则、141条直连原序、DNS和TikTok组保持；ISP／提供商缺失定义仅以占位夹具验证，不代表真实凭据或实机应用通过。
+
+## v1.8.0 已知权限缺陷（candidate）
+
+[v1.8.0 Lua＋curl 完整控制器](versions/v1.8.0/REQUIREMENTS.md)：延续四档严格优先级，使用现有 Lua 5.1、LuCI JSON／UCI、nixio 和 curl；默认只读预检，另有 Shell 停止监督和 procd 模板。2026-11-24完整脚本基础只读预检已完成，当前02手选未变；随后获授权的一次[独立原生锁测试](../../scripts/LIANGXINYUN_NATIVE_LOCK.md)已成功回传，授权已完成；状态写入和服务启停仍待验证。不安装／启用路由器服务，不改TikTok或直连；完整候选未验收。
+
+- [v1.8.0 设置、只读预检与回退](versions/v1.8.0/SETUP.md)
+- [v1.8.0 环境与证据边界](versions/v1.8.0/ENVIRONMENT.json)
+- [v1.8.0 本地验证](versions/v1.8.0/VALIDATION.md)
+
+## 先前候选（candidate）
+
+[v1.7.0 独立控制器](versions/v1.7.0/REQUIREMENTS.md)：用户选择保持严格顺序，控制器直接按叶节点健康状态与延迟自动管理良心云。Ruby 实现完成本地策略与真实核心夹具验证，但目标所需库加载失败，暂不部署。Lua＋curl 只读预检和两个单次步骤已完成：01 超时、02 对同目标检测成功且为 159 ms，历史读回及 02 手选保持已验证。完整 Lua 控制器尚待实现，自动选优及长期运行未验收。
+
+- [v1.7.0 设置、预检与回退](versions/v1.7.0/SETUP.md)
+- [v1.7.0 环境记录](versions/v1.7.0/ENVIRONMENT.json)
+- [v1.7.0 本地验证](versions/v1.7.0/VALIDATION.md)
+- [Lua 基础预检记录](versions/v1.7.0/READ_ONLY_PREFLIGHT.md)
+- [单次 Lua 只读模拟工具](../../scripts/LIANGXINYUN_READONLY.md)
+- [单节点诊断记录（01 超时，02 为 159 ms，两项均完成）](../../scripts/LIANGXINYUN_PROBE_ONE.md)
+
+[v1.6.0 分层自动选择](versions/v1.6.0/REQUIREMENTS.md)：四个 url-test 配合 fallback 的候选组合。本地已复现同档部分故障时短暂提前降级，尚未严格满足需求，暂不部署；稳定入口仍为 v1.5.0。
+
+- [候选部署、设置与回退](versions/v1.6.0/SETUP.md)
+- [候选环境记录](versions/v1.6.0/ENVIRONMENT.json)
+- [候选验证与已知问题](versions/v1.6.0/VALIDATION.md)
+
 ## 历史候选（candidate）
 
 [v1.0.0 历史候选](versions/v1.0.0/REQUIREMENTS.md)仅分流 YouTube 和 Telegram。

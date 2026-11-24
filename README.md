@@ -29,8 +29,17 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
+当前开发为[良心云v1.8.3面板自动候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/SETUP.md)：外层URLTest唯一引用内部严格控制组；维持四档顺序，并新增缓存与运行快照一致性检查。本轮由GitHub候选分支和CI准备，不操作用户电脑或路由器、不安装服务。CI #90全部通过。按用户最新澄清，直连以唯一源为准，保留其手动新增的全部规则，当前源148条；141仅是历史临时验证，不再作为部署要求。v1.8.3面板和持续控制仍待实机验收，正式入口仍v1.5.0。
+
 ## 版本索引
 
+- [良心云方案 v1.8.3 面板自动候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/REQUIREMENTS.md)：外层单一内部成员、严格四档控制与缓存一致性门禁；[CI及实机边界](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/VALIDATION.md)。
+
+- [良心云方案 v1.8.2 完整候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/REQUIREMENTS.md)：整合严格四档控制、配套增量、离线范围检查和备份／回退副本；[本地验证](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/VALIDATION.md)。历史准备阶段以141条为临时基线；后续用户明确按仓库源保留全部直连，见v1.8.3设置。TikTok保持，服务未安装，正式入口仍v1.5.0。
+- [良心云方案 v1.8.1 权限修正候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/REQUIREMENTS.md)：按上游nixio接口将两处384改为 `rw-------`，补充旧值拒绝回归；[隔离状态文件单次测试](scripts/LIANGXINYUN_NATIVE_STATE.md)已成功回传。用户已授权[停止监督离线测试](scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)，本地通过，2026-11-24目标两个合成正常停止场景亦通过，回收与清理成功、未使用强制清理，单项已完成；不接入API、不安装服务，完整控制器仍未部署或验收。[只读配置差异核对](scripts/LIANGXINYUN_CANDIDATE_READONLY.md)已完成：快照和来源通过，21个允许节点、24个档外节点；REJECT首项、节点过滤及检测URL／状态码共五项不符，未测速、切换或写配置，完整控制器仍未运行。
+- [良心云方案 v1.8.0 Lua＋curl 控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/REQUIREMENTS.md)：使用目标已有组件，默认只读；严格四档选择、Shell 停止监督及本地验证见[记录](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/VALIDATION.md)。完整脚本基础只读预检及一次独立原生锁测试已完成，状态写入和服务启停等仍待验证；尚未部署，正式入口仍是 v1.5.0。
+- [良心云方案 v1.7.0 独立控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.7.0/REQUIREMENTS.md)：Ruby 运行实现本地验证通过，但目标依赖未通过，暂不部署。Lua＋curl [只读预检与单节点诊断](scripts/LIANGXINYUN_READONLY.md)已完成；实机已读回 01 超时、02 同目标 159 ms 的记录，选择未变。完整 Lua 控制器尚待实现，自动选优及长期运行未验收。
+- [良心云方案 v1.6.0 候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.6.0/REQUIREMENTS.md)：四档嵌套组合已复现短暂提前降级，未严格满足需求，暂不部署；正式滚动入口仍使用 v1.5.0。
 - [良心云方案 v1.5.0 正式发布](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0)，TikTok 手选 iKuuu 日本首跳，其他代理流量使用良心云。
 
 v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手动直连规则的生成与滚动覆写同步自动化，保留规则有效性校验，并允许规则清单随时增删而不固定条数。v1.0.6 及更早已发布目录、标签和 Release 保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。

@@ -332,3 +332,227 @@ class LiangxinyunProfileTests(unittest.TestCase):
                 snapshot = entry["versions"][entry["currentVersion"]]["modulePath"]
                 self.assertEqual((root / snapshot).read_text(encoding="utf-8"), read(snapshot))
             self.assertFalse(synchronize(root, write=False))
+
+    def automatic_candidate(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.6.0"]
+        return entry, load_yaml(read(entry["modulePath"]), module=True)
+
+    def test_automatic_candidate_preserves_tiktok_dns_rules_and_direct_snapshot(self):
+        entry, module = self.automatic_candidate()
+        rolling_path = self.catalog["profiles"][PROFILE]["latestModulePath"]
+        # A candidate is a snapshot; later daily source updates must remain free
+        # to change the rolling module without rewriting this historical input.
+        baseline = load_yaml(git("show", f"3372eb5:{rolling_path}"), module=True)
+        for key in baseline:
+            if key != "proxy-groups!":
+                self.assertEqual(module[key], baseline[key], key)
+        self.assertEqual(set(module), set(baseline) | {"proxy-providers"})
+        self.assertEqual(module["proxy-groups!"][:2], baseline["proxy-groups!"][:2])
+        self.assertEqual(read(entry["localModuleTemplatePath"]),
+                         read(self.catalog["profiles"][PROFILE]["versions"]["1.5.0"]["localModuleTemplatePath"]))
+        self.assertEqual(self.catalog["profiles"][PROFILE]["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+
+    def test_automatic_candidate_accepts_numbered_categories_and_excludes_other_nodes(self):
+        _, module = self.automatic_candidate()
+        groups = {g["name"]: g for g in module["proxy-groups!"]}
+        provider_filter = module["proxy-providers"]["liangxinyun"]["filter"]
+        cases = {
+            "日本专线": ("🇯🇵日本专线01|BGP|流媒体", "日本专线12|BGP|流媒体"),
+            "日本高速": ("🇯🇵日本高速04|BGP|CUCM", "日本高速11|BGP|CUCM"),
+            "美国流媒体": ("🇺🇸美国05|流媒体|0.1x", "美国流媒体12|BGP", "流媒体|美国09"),
+            "美国高速": ("🇺🇸美国高速05|CTCU|0.1x", "美国高速12|BGP"),
+        }
+        for category, names in cases.items():
+            for raw in names:
+                name = "LXY: " + raw
+                self.assertIsNotNone(re.search(provider_filter, name), name)
+                matched = [key for key in cases if re.search(groups["良心云-" + key]["filter"], name)]
+                self.assertEqual(matched, [category], name)
+        for name in ("LXY: 🇭🇰香港专线01|BGP|流媒体", "LXY: 🇸🇬新加坡专线01|BGP|流媒体",
+                     "LXY: 美国普通01|BGP", "LXY: 日本普通01|BGP", "TikTok-ISP-Local", "REJECT"):
+            self.assertIsNone(re.search(provider_filter, name), name)
+
+    def test_automatic_candidate_priority_is_separate_from_latency_and_fails_closed(self):
+        _, module = self.automatic_candidate()
+        _, _, total, *tiers = module["proxy-groups!"]
+        expected_names = ["良心云-" + c for c in ("日本专线", "日本高速", "美国流媒体", "美国高速")]
+        self.assertEqual(total["name"], "良心云")
+        self.assertEqual(total["type"], "fallback")
+        self.assertEqual(total["proxies"], expected_names)
+        self.assertNotIn("use", total)
+        self.assertEqual([tier["name"] for tier in tiers], expected_names)
+        for tier in tiers:
+            self.assertEqual(tier["type"], "url-test")
+            self.assertEqual(tier["use"], ["liangxinyun"])
+            self.assertEqual(tier["tolerance"], 0)
+            for forbidden in ("proxies", "include-all", "include-all-providers", "include-all-proxies", "default-selected"):
+                self.assertNotIn(forbidden, tier)
+        for group in (total, *tiers):
+            self.assertEqual(group["empty-fallback"], "REJECT")
+            self.assertIs(group["lazy"], False)
+            self.assertEqual((group["interval"], group["timeout"], group["expected-status"]), (60, 5000, 204))
+            self.assertEqual(group["url"], "https://www.gstatic.com/generate_204")
+
+    def test_automatic_candidate_checks_provider_nodes_without_overwriting_credentials(self):
+        _, module = self.automatic_candidate()
+        provider = module["proxy-providers"]["liangxinyun"]
+        self.assertEqual(set(module["proxy-providers"]), {"liangxinyun"})
+        self.assertEqual(set(provider), {"filter", "health-check"})
+        self.assertEqual(provider["health-check"], {
+            "enable": True, "url": "https://www.gstatic.com/generate_204", "expected-status": 204,
+            "interval": 60, "timeout": 5000, "lazy": False,
+        })
+
+    def test_strict_controller_candidate_preserves_stable_routing_and_local_credentials_template(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.7.0"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        baseline = load_yaml(git("show", f"3372eb5:{profile['latestModulePath']}"), module=True)
+        for key in baseline:
+            if key != "proxy-groups!":
+                self.assertEqual(module[key], baseline[key], key)
+        self.assertEqual(module["proxy-groups!"][:2], baseline["proxy-groups!"][:2])
+        self.assertEqual(set(module), set(baseline) | {"proxy-providers"})
+        self.assertEqual(read(entry["localModuleTemplatePath"]),
+                         read(profile["versions"]["1.5.0"]["localModuleTemplatePath"]))
+
+    def test_strict_controller_candidate_exposes_only_a_guarded_leaf_selector(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.7.0"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        _, _, group = module["proxy-groups!"]
+        pattern = module["proxy-providers"]["liangxinyun"]["filter"]
+        self.assertEqual(group, {
+            "name": "良心云", "type": "select", "proxies": ["REJECT"], "default-selected": "REJECT",
+            "use": ["liangxinyun"], "filter": pattern, "empty-fallback": "REJECT",
+        })
+        _, automatic = self.automatic_candidate()
+        self.assertEqual(module["proxy-providers"], automatic["proxy-providers"])
+
+    def test_strict_controller_artifacts_are_hashed_and_runtime_acceptance_is_pending(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.7.0"]
+        directory = entry["versionDirectory"]
+        for field, filename in (("controller", "liangxinyun-controller.rb"),
+                                ("controllerService", "liangxinyun-controller.init")):
+            self.assertEqual(entry[field + "Path"], directory + "/" + filename)
+            self.assertEqual(entry[field + "Sha256"], sha(read(entry[field + "Path"])))
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+        environment = json.loads(read(entry["environmentPath"]))
+        self.assertEqual(environment["status"], "pending")
+        self.assertEqual(environment["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(environment["evidence"]["userConfirmed"])
+
+    def test_lua_candidate_keeps_routing_dns_tiktok_and_local_template(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.8.0"]
+        before = profile["versions"]["1.7.0"]
+        self.assertEqual(load_yaml(read(entry["modulePath"]), module=True),
+                         load_yaml(read(before["modulePath"]), module=True))
+        self.assertEqual(read(entry["localModuleTemplatePath"]), read(before["localModuleTemplatePath"]))
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+
+    def test_lua_candidate_has_complete_hashed_artifacts_and_pending_acceptance(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.8.0"]
+        self.assertEqual(entry["controllerRuntime"], "lua5.1")
+        for field, filename in (("controller", "liangxinyun-controller.lua"),
+                                ("controllerService", "liangxinyun-controller.init"),
+                                ("controllerSupervisor", "liangxinyun-controller.run")):
+            self.assertEqual(entry[field + "Path"], entry["versionDirectory"] + "/" + filename)
+            self.assertEqual(entry[field + "Sha256"], sha(read(entry[field + "Path"])))
+        env = json.loads(read(entry["environmentPath"]))
+        self.assertEqual(env["status"], "pending")
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(env["evidence"]["userConfirmed"])
+
+    def test_lua_permission_fix_changes_only_two_open_modes_and_preserves_routing(self):
+        profile = self.catalog["profiles"][PROFILE]
+        before, after = (profile["versions"][v] for v in ("1.8.0", "1.8.1"))
+        self.assertEqual(read(before["controllerPath"]).count(', 384)'), 2)
+        self.assertEqual(read(after["controllerPath"]),
+                         read(before["controllerPath"]).replace(', 384)', ', "rw-------")'))
+        self.assertEqual(load_yaml(read(before["modulePath"]), module=True),
+                         load_yaml(read(after["modulePath"]), module=True))
+        for field in ("localModuleTemplatePath", "controllerServicePath", "controllerSupervisorPath"):
+            self.assertEqual(read(before[field]), read(after[field]))
+
+    def test_lua_permission_fix_candidate_keeps_pending_runtime_acceptance(self):
+        profile = self.catalog["profiles"][PROFILE]
+        entry = profile["versions"]["1.8.1"]
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(entry["status"], "candidate")
+        for key in ("module", "controller", "controllerService", "controllerSupervisor"):
+            self.assertEqual(entry[key + "Sha256"], sha(read(entry[key + "Path"])))
+        env = json.loads(read(entry["environmentPath"]))
+        self.assertEqual(env["status"], "pending")
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(env["evidence"]["userConfirmed"])
+
+    def test_v182_complete_candidate_preserves_runtime_and_is_not_published(self):
+        profile = self.catalog["profiles"][PROFILE]
+        before, after = (profile["versions"][v] for v in ("1.8.1", "1.8.2"))
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(after["status"], "candidate")
+        self.assertEqual(after["moduleUsage"], "reference-only")
+        for field in ("controllerPath", "controllerServicePath", "controllerSupervisorPath", "localModuleTemplatePath"):
+            self.assertEqual(read(before[field]), read(after[field]))
+        self.assertEqual(load_yaml(read(before["modulePath"]), module=True), load_yaml(read(after["modulePath"]), module=True))
+        env = json.loads(read(after["environmentPath"]))
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(env["evidence"]["userConfirmed"])
+
+    def test_v182_public_manifest_and_scope_contract(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.8.2"]
+        manifest = json.loads(read(entry["bundleManifestPath"]))
+        self.assertEqual(manifest["version"], "1.8.2")
+        self.assertFalse(manifest["targetRouterTested"])
+        for filename, checksum in manifest["files"].items():
+            self.assertEqual(checksum, sha(read(entry["versionDirectory"] + "/" + filename)))
+        for field in ("incrementalModule", "scopeGuard", "mergeHelper", "bundleManifest"):
+            self.assertEqual(entry[field + "Sha256"], sha(read(entry[field + "Path"])))
+        patch = load_yaml(read(entry["incrementalModulePath"]), module=True)
+        self.assertEqual(set(patch), {"proxy-groups*", "proxy-providers*"})
+        self.assertEqual(patch["proxy-groups*"]["where"], {"name": "良心云"})
+        self.assertEqual(patch["proxy-providers*"]["where"], {"key": "liangxinyun"})
+        self.assertEqual(patch["proxy-groups*"]["set"]["proxies!"], ["REJECT"])
+        self.assertEqual(patch["proxy-providers*"]["set"]["health-check!"]["expected-status"], 204)
+
+
+    def test_v183_native_auto_wrapper_has_one_guarded_internal_selector(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.8.3"]
+        module = load_yaml(read(entry["modulePath"]), module=True)
+        groups = {g["name"]: g for g in module["proxy-groups!"]}
+        outer, inner = groups["良心云"], groups["良心云-严格控制"]
+        self.assertEqual(outer["type"], "url-test")
+        self.assertEqual(outer["proxies"], ["良心云-严格控制"])
+        self.assertNotIn("use", outer)
+        self.assertFalse(outer["hidden"])
+        self.assertEqual(outer["empty-fallback"], "REJECT")
+        self.assertEqual(inner["type"], "select")
+        self.assertEqual(inner["proxies"], ["REJECT"])
+        self.assertEqual(inner["use"], ["liangxinyun"])
+        self.assertTrue(inner["hidden"])
+        self.assertEqual(inner["default-selected"], "REJECT")
+        self.assertEqual(self.catalog["profiles"][PROFILE]["currentVersion"], "1.5.0")
+
+    def test_v183_keeps_policy_bytes_and_public_artifact_integrity(self):
+        versions = self.catalog["profiles"][PROFILE]["versions"]
+        prior, entry = versions["1.8.2"], versions["1.8.3"]
+        before, after = read(prior["controllerPath"]), read(entry["controllerPath"])
+        policy = lambda s: s[s.index("local function finite"):s.index("local function names")]
+        self.assertEqual(policy(before), policy(after))
+        for field in ("controllerServicePath", "controllerSupervisorPath", "localModuleTemplatePath"):
+            self.assertEqual(read(prior[field]), read(entry[field]))
+        manifest = json.loads(read(entry["bundleManifestPath"]))
+        self.assertEqual(manifest["version"], "1.8.3")
+        for name, checksum in manifest["files"].items():
+            self.assertEqual(checksum, sha(read(entry["versionDirectory"] + "/" + name)))
+        env = json.loads(read(entry["environmentPath"]))
+        self.assertFalse(env["evidence"]["userConfirmed"])
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        patch = load_yaml(read(entry["incrementalModulePath"]), module=True)
+        self.assertEqual(set(patch), {"proxy-groups*", "proxy-groups+", "proxy-providers*"})
+        self.assertEqual(patch["proxy-groups*"]["where"], {"name": "良心云"})
+        self.assertEqual(patch["proxy-groups+"][0]["name"], "良心云-严格控制")

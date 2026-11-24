@@ -1,0 +1,75 @@
+# 良心云单节点检测
+
+2026-11-23，用户先允许良心云日本专线 01 单次 HTTPS 204 检测，结果为超时；随后另行允许当前手选的日本专线 02 同条件对照，已成功读回 159 ms。**两项已授权步骤均完成，本阶段不再安排执行检测命令。** 两项授权均不包含节点切换、安装依赖、启用服务或修改 TikTok／直连规则。本工具属于 L20–L22 的独立诊断准备，不是 v1.7.0 控制器的部署或验收。
+
+工具：[liangxinyun_probe_one.lua](liangxinyun_probe_one.lua)。与[只读模拟工具](LIANGXINYUN_READONLY.md)分开；原只读程序没有加入检测接口。
+
+## 固定范围
+
+- 只连接 UCI 现有端口的 `127.0.0.1`；凭据由子 Lua 读取后经管道交给 curl，不进入参数或输出。
+- 核心须仍为 `alpha-gbc76c13`。`--probe-once` 固定绑定精确 01；`--probe-node-02-once` 固定绑定精确 02，不能从当前选择自动改用其他节点。选定目标须同时在良心云组和 `liangxinyun` provider 中；检测前两次读取之间选择或成员变化时停止。
+- 固定目标 `https://www.gstatic.com/generate_204`，请求参数 `timeout=5000&expected=204`。每次运行只调用 provider 下明确选定节点的 `/healthcheck` 一次，不调用整个 provider 的检测或更新接口，不请求 TikTok 组。
+- 若该 URL 已存在状态或历史，停止并报告 `existing-test-history-no-repeat` 或 `existing-test-state-no-repeat`，不再发起检测。每次运行内也有单次请求限制，curl 禁用重试与重定向；失败后只尝试普通读回。
+- 不 PUT／PATCH／POST／DELETE，不删除连接，不写选择、规则、DNS、插件选项、服务或状态文件。检测会产生代理流量并写入核心的内存历史。单次 API 调用内部的 HEAD 请求行为由核心已有 `unified-delay` 设置决定，本工具不改它。
+
+现有 URL 记录防止正常重复执行，不是跨核心／订阅重载的持久锁；重载清空记录后再次手工运行仍可能再检测。因此本次只执行一次，不因失败自行重跑或清空记录。
+
+## 执行与结果
+
+以下是已执行的 02 对照入口，供复核代码，不作为追加检测指令：
+
+```sh
+lua liangxinyun_probe_one.lua --probe-node-02-once
+```
+
+无需保存脚本的远程执行方式由维护者提供固定提交 URL。省略参数会停止，不发起 API 查询。此参数只是显式执行模式，不是再次请求用户授权。
+
+`--probe-once` 是 01 的入口，两个单次步骤均已完成；不重跑、不清除既有记录绕过保护。新增实机检测需要相应范围的另行授权。
+
+首次设备执行被 `current-selection-not-authorized-node` 拦截，`probeRequests=0`，没有发起检测。此错误同时涵盖“当前未选中精确目标名”和“目标不在组成员中”；原输出的 `node` 是程序预设目标，不是实际选择值，不能据此判断具体差异。
+
+此前排查选择差异使用了只读模式；它不重跑检测：
+
+```sh
+lua liangxinyun_probe_one.lua --inspect-only
+```
+
+此模式只 GET `/version` 和良心云组，输出 `currentSelection`（实际选择）、`authorizedNodeSelected`、`authorizedNodeInGroup`，以及两个名称的 UTF-8 十六进制以核对空格／不可见字符。即使目标恰好匹配，也会在检测条件前返回，`probeRequests` 始终为 0。不会把其他当前节点当成新授权对象，不切换节点。
+
+用户已完成只读查看：实际选中 02，精确 01 仍在组内，UTF-8 差异仅为编号。旧工具要求先选中 01 是开发者多加的前置条件；官方 provider 单节点路由直接按节点名查找，不依赖策略组当前选择。工具已移除此多余条件，仍仅向固定 01 发一次检测请求，检测前后核对原手选值不变。此前授权的对象、URL、超时和调用次数均未扩大，无需重新索取同一项授权。
+
+01 实机结果：API HTTP 504、指定 URL 状态 false／delay 0、产生一条新历史；当前选择、组成员和 provider 更新时间均未变化。504 来自核心检测 deadline，不是目标网站返回的 HTTP 504；它证明该次 5 秒检测失败，不证明节点完全断网或其他节点同样失败。
+
+02 同条件对照已完成：API 200，指定 URL 状态 true，API 延迟与逐 URL 历史均为 159 ms，新历史一条，当前 02 选择、成员与 provider 更新时间均未变。检测 API 和成功／失败状态读取在当前设备已验证；尚不能判断 02 是全档最快、01 永久失效或控制器长期稳定。
+
+正常输出为一行 JSON；回传摘要即可，不分享 API secret、订阅或原始 provider 响应。
+
+| 字段／结果 | 含义 |
+| --- | --- |
+| `node`、`currentSelection` | 本次明确选定的授权目标和实际选择，不能把前者当作后者；前置错误也附带实际值 |
+| `authorizedNodeSelected`、`authorizedNodeInGroup` | 是否精确选中本次目标、组中是否存在精确目标名；前者是信息项，测 01 且保持 02 时为 false 属正常，后者须为 true |
+| `mode:selection-inspection`、`readOnly:true` | 只读查看模式，仅两个普通 GET，没有检测请求 |
+| `probeRequestAttempted`、`probeRequests` | 是否尝试检测 API，请求数最多 1；不保证超时或拒绝的请求实际完成检测 |
+| `probeHttpStatus` | 本机 API 响应码，不是测试网站的状态码 |
+| `recordAppearedAfterProbe` | 检测前无该 URL 状态，读回后出现带时间戳的记录；不声称原子快照或排除外部并发检测 |
+| `urlAlive`、`urlDelayMs` | 指定 URL 的检测状态与延迟，不能用全局 alive／history 替代 |
+| `currentSelectionUnchanged`、`groupMembersUnchanged` | 读取前后手选和成员是否一致；工具没有写入选择 |
+| `providerUpdatedAtUnchanged` | 提供商更新时间是否可比较且未变化；不证明对象身份或原子读取 |
+| `healthy-for-requested-204` | API 200、读回新 URL 状态为健康且正整数延迟与 API 相同，并通过上述快照一致性核对 |
+| `failed-for-requested-204` | API 200／503／504，读回新 URL 状态明确失败且延迟 0；只说明这一个节点对此目标的结果，不能直接归因为节点故障 |
+| `unknown` 或 `error` | 数据不完整、API 异常、检测前条件变化或检测后快照不一致；不重试、不扩展至其他节点 |
+| `selectionApplied:false`、`formalAcceptance:false` | 没有自动选节点，也不表示完整控制器已验收 |
+
+目标核心的延迟 API 可能返回 200，而 URL 的期望状态未满足；本工具必须同时核对 `extra[指定URL].alive/history`，不能凭 API 200 宣称 204 通过。检测失败也可能写入一条延迟 0 的记录；记录出现和线路可用是两件事。
+
+## 验证边界
+
+本地以真实 Lua 5.1.5、curl 和合成本机 HTTP 夹具通过 27 个场景：原 23 项加上 02 成功／超时、02 已有记录时停止、02 缺失时停止。02 夹具保留 01 的既有失败记录，确认只有 02 的检测路径，不回退或重测 01。四项只读查看仍只有两个 GET、零检测。认证检查与命令行脱敏沿用只读夹具，所有捕获请求均为固定 GET，每次检测最多一个明确节点路径。
+
+```sh
+python3 scripts/verify_liangxinyun_probe_one.py --lua /absolute/path/to/lua5.1
+```
+
+UCI、JSON 模块和时间为夹具替身；没有真实机场、路由器或完整 Mihomo 参与本组测试。只读工具原有 336 项 Lua 策略断言与 16 个 HTTP 场景在前次准备中通过，本次未修改该程序。另有独立实机证据：01 超时、02 对指定 204 地址成功且为 159 ms，均读回历史并保持选择。**单节点诊断已完成，完整控制器尚未验收。**
+
+接口依据：[OpenClash 官方 API 指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/15-api.md)、[目标核心 provider 单节点路由](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/provider.go)、[参数与 HTTP 响应](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/hub/route/proxies.go)、[逐 URL 历史写入](https://github.com/MetaCubeX/mihomo/blob/bc76c1398c6e70089367a30169d0df7c7f77c42d/adapter/adapter.go)。
