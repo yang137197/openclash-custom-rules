@@ -1,8 +1,10 @@
 # v1.8.3 验证边界
 
-最终CI结果以本PR最新提交的 **Validate repository** 运行及其v1.8.3报告附件为准。
+提交2c881165的[CI #90](https://github.com/yang137197/openclash-custom-rules/actions/runs/45360687367)已经全部通过：48个官方合并／范围／缓存／回退场景、600项Lua断言、21个HTTP/CLI场景、13个真实核心出口场景、67项Python单测、仓库校验和diff检查。[报告附件](https://github.com/yang137197/openclash-custom-rules/actions/runs/45360687367/artifacts/14904811444)。后续文档澄清不改变这次已验证运行文件的字节。
 
-已完成的功能验证：提交799ba333的[运行#89](https://github.com/yang137197/openclash-custom-rules/actions/runs/45360249651)中，官方合并／范围／缓存／回退48场景、600项Lua断言、21个HTTP/CLI场景、13个真实核心出口场景、67项Python单测及仓库校验通过；该次工作流最终因SETUP.md末尾多一空行失败，后续已修正。缓存差异夹具也改为独立合成148条，不依赖长期可变的滚动源。修正后的完整工作流结果另见最新提交，不把旧工作流写成整体成功。助手未在用户电脑执行测试，未连接路由器；原生服务、面板显示与本候选实机验收均待用户后续验证。
+141/148属于历史测试与源更新差异的记录；合成回归验证任意原规则的保护能力，不限制用户维护的源。当前仓库源148条全部保留，未来正常增删不受该数量约束。
+
+助手未在用户电脑执行测试，未连接路由器；原生服务、面板显示与本候选实机验收均待用户后续验证。
 
 CI包含：固定官方YAML.overwrite合并、缓存148/运行141不一致拒绝、范围越界与内部组冲突拒绝、幂等、原直连原序、备份/回退原字节和漂移拒绝；实际Lua5.1完整策略/状态机与HTTP边界；下载并校验官方v1.19.34核心进行回环新连接出口测试，覆盖部分失败留档、全部失败逐档降级、恢复、订阅增删、全失败、单实例及正常停止，并逐次核对URLTest唯一内部成员与TikTok手选保持。
 
@@ -14,4 +16,4 @@ CI包含：固定官方YAML.overwrite合并、缓存148/运行141不一致拒绝
 - [MetaCubeXD类型翻译](https://github.com/MetaCubeX/metacubexd/blob/main/packages/ui/i18n/locales/zh.json)：Selector为手动选择，URLTest为自动选择。实际使用的面板版本未知，必须用户核验。
 - [OpenClash固定合并源码](https://github.com/vernesong/OpenClash/blob/e553e82e01c697aefbe1555261a503f425e00ccd/luci-app-openclash/root/usr/share/openclash/YAML.rb)
 
-原141/148差异已由用户回传定位并修复；不把这些既有回传写作v1.8.3验收。
+此前141条恢复与范围比对保留为临时测试历史；用户已澄清保留仓库手动新增规则、以唯一源为准，不把这些历史回传写作v1.8.3验收。

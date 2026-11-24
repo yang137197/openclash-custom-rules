@@ -1,57 +1,50 @@
-# v1.8.3 candidate：面板自动、设置与回退
+# v1.8.3 candidate：部署、设置与回退
 
-本候选由 GitHub 分支和 CI 准备，用户电脑与路由器未由助手操作。未安装／启用服务，尚无 v1.8.3 实机结果。正式版本仍 v1.5.0。
+本候选的GitHub CI已经通过，验证依据见[VALIDATION.md](VALIDATION.md)。本轮按用户要求统一交付代码和仓库说明，停止逐步引导路由器操作。实际面板、CatWrt持续运行及回退尚未完成验证，服务未安装，正式稳定版仍v1.5.0。
 
-## 当前已核对的基线
+## 直连以仓库唯一源为准
 
-用户回传 v1.8.2 的预检通过及一次控制成功：选中日本专线02、157ms。随后发现原云模块缓存148条、备份运行配置141条；缓存前后哈希相同，重启后148条生效。按临时固定v1.5.0快照的恢复步骤后，用户回传运行条数141、直连内容及原序一致、良心云允许字段之外全树一致。修改后的完整云缓存哈希未单独回传，下一轮需由缓存重放门禁核对。没有把 v1.8.2 的单次结果当作持续自动、面板或 v1.8.3 验收。
+`rules/manual-direct.yaml`是唯一维护源，保留用户手动添加的全部规则。当前源为148条，仅表示本次快照；未来可按永久流程A任意增删有效条目，不锁定141或148，也不删除用户新增的7条。
 
-## 文件与结构
+正常规则维护仍为：修改源 → main上的同步工作流生成滚动模块及哈希 → 用户更新同一个远程完整云模块并重启OpenClash。规则数据维护不创建候选或Release，不要求重复做代理链路验收。良心云滚动地址：
 
-`良心云 (URLTest，唯一成员)` → `良心云-严格控制 (Selector，hidden)` → 控制器选出的最高健康档最低延迟叶节点。
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/overwrite/openclash-overwrite.conf
 
-规则和 DNS 仍引用原名良心云；TikTok名称及链路不动。外层没有其他候选，不能自行跨档切到其他出口。hidden是否生效、当前叶节点如何展示依赖实际面板，须实测；不要求用户更新面板。自动类型标签不证明控制器正在运行。
+此前141条固定快照、缓存／运行比对及备份是该次临时验证的历史记录，不是发布限制、长期部署地址或本轮新增工作要求。缓存已更新、运行尚未重启的直连差异，应先核对是否属于维护者已授权的源更新，并按正常流程使预期规则生效；不要默认恢复141条或删改源。
 
-- 升级只使用配套远程 `liangxinyun-incremental.conf`，替代v1.8.2增量；它精确更新原良心云并追加一个保留名内部组。
-- `liangxinyun-controller.lua` 默认只读。监督脚本沿用旧字节，`.init`仅模板，不复制或安装到设备。
-- `openclash-overwrite.conf`为148条完整参考，不用于本轮141条升级；本地模板保留旧字节，不覆盖已填凭据的模块。
-- `BUNDLE.json`校验运行文件；`scope_guard.py`／`merge_official.rb`在开发电脑离线使用，不是新路由器依赖。
+## 自动选择结构与文件
 
-## 离线应用门禁
+公开`良心云`为URLTest，只引用内部`良心云-严格控制`Selector。控制器在内部执行日本专线 → 日本高速 → 美国流媒体 → 美国高速严格顺序，档内最低有效延迟；未知高档阻止降级，全失败REJECT。TikTok仍为手选iKuuu日本Z01–Z04 → 原Loongproxy美国SOCKS5，其他规则、DNS与凭据模块沿用。
 
-工具需要电脑现有 Python／PyYAML 与 Ruby，CatWrt不安装这些依赖。固定官方YAML.rb来自提交e553e82e01c697aefbe1555261a503f425e00ccd，SHA-256为1249abf411e1df9e8fe542fb3584f34a27e6e3a587942e5d9f759a32b1bd8261。
+| 文件 | 用途 |
+| --- | --- |
+| liangxinyun-incremental.conf | 现有配置的远程配套增量，仅修改良心云并追加一个内部组 |
+| liangxinyun-controller.lua | 默认只读预检；--once单次、--run持续控制 |
+| liangxinyun-controller.run | 持续模式的停止监督脚本 |
+| liangxinyun-controller.init | procd模板，未安装或启用 |
+| openclash-overwrite.conf | 依据当前源的148条完整参考快照；现有配置升级使用增量 |
+| local-tiktok-proxy.conf | 唯一的本地凭据占位模板，保留已填好的原模块 |
+| scope_guard.py／merge_official.rb／BUNDLE.json | 离线范围、备份回退与文件完整性检查 |
 
-输入必须是当前完整运行YAML、所有相关原模块缓存及真实开关／order／完整路径绑定的清单，放在仓库外私有目录。清单格式、原字节备份与权限说明继承[v1.8.2设置](../v1.8.2/SETUP.md)。新增门禁会重放清单中启用的缓存，再与快照的受保护树比较；任何不一致先停止，不允许拿已过时的141条运行文件配上148条云缓存。示例路径仅供电脑离线操作：
+面板hidden支持及当前出口的展示方式依实际前端，仍需实测。URLTest的“自动”类型标签不证明控制器正在持续运行；--once结束后不会继续自动切换。持续控制需要控制器常驻，不把本候选代码交付当作已安装服务。
 
-```sh
-python scope_guard.py prepare --baseline /private/current.yaml --module-state /private/modules.json --output /private/v183-bundle --openclash-yaml /private/YAML.rb --ruby-command '["ruby"]'
-python scope_guard.py verify-bundle --bundle /private/v183-bundle
-python scope_guard.py compare --baseline /private/current.yaml --candidate /private/v183-bundle/candidate.yaml
-```
+## 部署说明
 
-工具不联网或自动写设备；原输入、原模块和已有输出不覆盖，私有包含凭据不能上传。它不证明模块清单完整、实际插件顺序或核心内存一致。Windows需使用当前用户专用ACL目录。
+现有配置只替换对应增量与控制器；原完整云继续使用上面的滚动地址，本地凭据模块保留。新旧增量不能并用。按[官方模块指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)添加远程增量，绑定同一配置的完整路径；增量放在完整云上方，内建脚本仍第一项。模块更改须统一重启OpenClash。
 
-## 后续由用户手动应用（本轮不执行）
+候选配套增量地址（随候选目录维护；正式发布后以标签固定链接为准）：
 
-1. 确认该提交CI通过，保留当前已核对的141条完整云、本地凭据模块、v1.8.2增量及元数据的私有备份；保存当前手选。完整云在本轮使用v1.5.0固定快照，避免重启带入仓库7项。临时固定仅为本轮测试，不改永久流程A/B。
-2. 先下载并校验v1.8.3运行文件到隔离临时目录，不安装服务。覆写入口为运行状态页的覆写模块；新建远程增量时绑定同一配置完整路径，初始关闭。旧增量关闭、新增量开启，保留原完整云及已填本地模块；新增量在完整云之上、内建脚本仍第一项。两个增量不能并用。
-3. 统一重启OpenClash后先保存新的运行副本，按scope_guard compare核对原规则、DNS、TikTok与凭据。只读预检为 `lua /private-test/liangxinyun-controller.lua --preflight`。必须candidateCompatible:true，外层URLTest且唯一内部成员；不符则撤增量回退。
-4. 后续有限测试先执行一次 `--once`，成功后再按用户安排通过 `sh liangxinyun-controller.run lua liangxinyun-controller.lua --run --lock-file ... --state-file ...` 监督运行。前台Ctrl+C要求正常停止并读回内部REJECT；不后台脱管、不安装自启。没有运行控制器时，面板类型仍可能显示自动，不能据此称持续自动已启用。
-5. 实测面板自动标签／当前出口可查看、四档内选优／全部失败才降级／恢复／全失败REJECT，TikTok播放、原直连、普通代理新连接及回退。真实延迟和播放由用户提供，不从合成测试推断。v1.8.3脱敏日志与用户验收之前保持candidate。
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/liangxinyun-incremental.conf
 
-完整云固定地址（当前141条基线，模块哈希c85392a352914b988e879d12d3dc12ee20f87a6442c5c2abed5070345fbc88b1）：
+应用前保存当时有效配置、模块、顺序和原手选。核对BUNDLE的SHA-256；准备包工具仅在电脑离线使用，CatWrt不安装Python/Ruby依赖。官方合并实现固定至e553e82e01c697aefbe1555261a503f425e00ccd，哈希1249abf411e1df9e8fe542fb3584f34a27e6e3a587942e5d9f759a32b1bd8261。工具输入为当前完整运行副本与启用模块缓存及元数据；保留任意合法直连数量、原序和重复项，先核对已授权的源更新，再以一致的预期基线检查代理增量范围。工具不会验证清单完整性或核心内存，也不会自动写路由器。
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-liangxinyun-v1.5.0/profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.5.0/openclash-overwrite.conf
+应用后的--preflight必须candidateCompatible:true，随后单次控制与有限持续测试按一次完整维护窗口安排。既有Lua、curl、锁、状态文件及停止监督单项已经完成，不重复要求安装依赖、单节点授权或碎片化验收。正式版仍需本候选面板、四档故障／恢复、正常停止／回退、TikTok播放、直连与普通代理的对应实机证据；已有CI和v1.8.2结果不冒充v1.8.3实机记录。
 
 ## 回退
 
-先由原监督脚本正常停止控制器并确认进程已退出、内部组回到REJECT；当前没有服务可停用。关闭v1.8.3增量，恢复已备份的v1.8.2增量开关／顺序／绑定，保留141条固定云及原本地模块，重启OpenClash后恢复原良心云手选。若使用离线备份包，restore-copy只在候选未漂移时生成原字节副本：
+由监督脚本正常停止控制器并确认退出，撤掉本次增量，恢复操作前备份的模块开关／顺序／绑定与控制器版本，重启OpenClash并恢复原手选。直连按操作前已确认的预期规则集恢复；源更新不回滚，141不是固定恢复目标。离线restore-copy只生成原字节副本，当前候选漂移时停止；不能将较早备份中的云缓存内容误认为当时实际生效规则。
 
-```sh
-python scope_guard.py restore-copy --bundle /private/v183-bundle --current /private/current-v183.yaml --output /private/restored.yaml
-```
-
-原最早before.tgz里的云缓存是148条，因此**不能整包还原该缓存后重启来恢复141条**。回退须用修复后的141条完整云基线。不要刷新main替代回退，也不删除仓库源中的那7项。
+真实订阅、代理凭据与完整备份只在用户本地，不能上传GitHub。API不可用、强杀、掉电或核心重载竞争窗口可能保留旧选择，正常停止清理属于尽力行为；不承诺瞬时失败关闭或旧连接迁移。
 
 ## OpenClash 独立手工设置
 
