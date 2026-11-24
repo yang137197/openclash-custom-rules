@@ -18,8 +18,28 @@
     "DOMAIN-SUFFIX,mede.cn"
   ],
   "deviceSnapshotOnlyCount": 0,
-  "currentRouterVerified": false,
+  "currentRuntimeFileVerified": true,
+  "activeCoreConfigurationVerified": false,
+  "currentFileEvidence": {
+    "source": "user-terminal-output",
+    "capturedAt": "2026-11-24",
+    "scriptCommit": "3a0e71685975a6fb50da93fe1ce6cb18ba3bbede",
+    "inspectionComplete": true,
+    "fileReadTwiceSame": true,
+    "currentCount": 141,
+    "matchesNov23Snapshot": true,
+    "matchesReferenceOrder": false,
+    "referenceOnlyMatchesHistoricalDifference": true,
+    "currentOnlyCount": 0,
+    "runtimeFileSnapshotOnly": true,
+    "apiRequests": 0,
+    "probeRequests": 0,
+    "fileWrites": 0,
+    "selectionApplied": false,
+    "configurationWritten": false,
+    "formalAcceptance": false
+  },
   "rawDebugLogCommitted": false,
   "applied": false,
-  "note": "Historical evidence only. The current runtime-path file audit is pending; it cannot prove the core's in-memory configuration. Counts and lists here do not constrain future manual-direct source maintenance."
+  "note": "The Nov 24 runtime-path file matches the Nov 23 payload exactly, including order; only the seven public reference entries are absent. This does not prove the core's in-memory configuration. Counts and lists here do not constrain future manual-direct source maintenance."
 }

@@ -14,17 +14,17 @@
 - `DOMAIN-SUFFIX,mede.vip`
 - `DOMAIN-SUFFIX,mede.cn`
 
-脱敏结果见[对比记录](DIRECT_DIFF_AUDIT.json)。这是11月23日快照的比较，**不是今天核心内存状态的证明**。本轮不增删任何直连规则，也不刷新现用完整云模块；直接替换v1.8.1完整覆写会带入上述7条，不符合本次保持现状的要求。永久流程A继续保留，今后直连维护仍可正常增删源文件，不受本次历史清单或条数限制。
+脱敏结果见[对比记录](DIRECT_DIFF_AUDIT.json)。11月24日已取得下述当前运行路径文件回传，确认仍为与该历史快照逐项同序相同的141条；**不是核心内存状态的证明**。本轮不增删任何直连规则，也不刷新现用完整云模块；直接替换v1.8.1完整覆写会带入上述7条，不符合本次保持现状的要求。永久流程A继续保留，今后直连维护仍可正常增删源文件，不受本次历史清单或条数限制。
 
-## 当前唯一设备步骤：只读核对运行路径文件
+## 只读运行路径文件核对已完成
 
-工具为[liangxinyun_direct_readonly.lua](../../scripts/liangxinyun_direct_readonly.lua)，不带参数。交付时使用固定提交下载并以 `lua -` 执行一次。它只读现有UCI的config_path及运行时覆写config_path，按已核对的OpenClash v0.48.002源码推导 `/etc/openclash/<配置文件名>`，两次读取并比对该文件。路径歧义、特殊YAML、文件变化或缺失时停止，不改用猜测路径。
+工具为[liangxinyun_direct_readonly.lua](../../scripts/liangxinyun_direct_readonly.lua)，不带参数。用户已于2026-11-24回传固定提交 `3a0e71685975a6fb50da93fe1ce6cb18ba3bbede` 单次结果，本项完成，不自动重测。工具只读现有UCI的config_path及运行时覆写config_path，按已核对的OpenClash v0.48.002源码推导 `/etc/openclash/<配置文件名>`，两次读取并比对该文件。路径歧义、特殊YAML、文件变化或缺失时停止，不改用猜测路径。
 
 工具只接受OpenClash已dump的inline／classical Manual-Direct块；这是窄范围文本读取器，不是通用YAML解析器。不输出配置路径、完整规则清单、节点、订阅或凭据；对照结果仅输出固定公开仓库快照中缺少的项，额外的本地规则仅计数。`referenceOnly`表示对照仓库有而文件没有的规则，**不是要求补入**。重复项和原顺序保留比较。
 
-预期有inspectionComplete=true、fileReadTwiceSame=true、readOnly=true；fileWrites／apiRequests／probeRequests均0、selectionApplied和configurationWritten均false。matchesNov23Snapshot=true表示文件payload与11月23日已核实基线逐项同序相同；若false，仅报告差异，不修改或自动重试。runtimeFileSnapshotOnly=true、activeCoreConfigurationVerified=false：它只核对运行路径文件，不能单凭此证明核心内存与文件同步。目标结果待回传。
+实际回传：inspectionComplete=true、fileReadTwiceSame=true、readOnly=true，currentCount=141、matchesNov23Snapshot=true、currentOnlyCount=0；referenceOnly与上述7项完全相同。fileWrites／apiRequests／probeRequests均0，selectionApplied、configurationWritten、formalAcceptance均false。matchesReferenceOrder=false仅表示不等于完整148条对照序列，不能解释为原141条乱序；matchesNov23Snapshot=true已确认与11月23日基线逐项同序相同。runtimeFileSnapshotOnly=true、activeCoreConfigurationVerified=false：只证明本次运行路径文件，核心内存与文件是否同步仍未验证。
 
-该诊断内嵌的是上述固定提交的148条公开对照快照；这是诊断参考，不是对动态源的永久条数／清单／哈希门禁。本地132项实际Lua替代接口断言通过，覆盖重复／引号／顺序／额外规则脱敏、非法路径、文件变化及拒绝写入参数；另用真实Lua读取原私有日志，确认141条、仅7条对照差异和原序一致。目标原生UCI／JSON及当前文件结果尚未验证。不需要安装依赖。
+该诊断内嵌的是上述固定提交的148条公开对照快照；这是诊断参考，不是对动态源的永久条数／清单／哈希门禁。本地132项实际Lua替代接口断言通过，覆盖重复／引号／顺序／额外规则脱敏、非法路径、文件变化及拒绝写入参数；另用真实Lua读取原私有日志，确认141条、仅7条对照差异和原序一致。目标回传另行确认本次UCI路径定位、JSON输出、窄范围规则读取和文件稳定性通过；不扩大为完整控制器或所有原生接口已验收。本次没有安装依赖。
 
 ## 增量设计草案（仅供后续候选实现）
 
@@ -79,6 +79,6 @@ proxy-providers*:
 
 ## 验证状态与来源
 
-已确认：历史141／148差异及7项清单、旧顺序保留、只读工具本地测试、增量结构的YAML可解析及目标字段范围检查。尚未验证：今天运行路径文件输出、核心内存一致性、新增量模块的真实OpenClash合并、目标应用／回退、完整控制器、procd及长期运行。本轮只交付方案和只读工具，没有写路由器配置。
+已确认：历史141／148差异及7项清单、11月24日运行路径文件仍为与历史基线逐项同序一致的141条、只读工具本地测试、增量结构的YAML可解析及目标字段范围检查。尚未验证：核心内存一致性、新增量模块的真实OpenClash合并、目标应用／回退、完整控制器、procd及长期运行。本轮只交付方案并核对文件，没有写路由器配置。
 
 依据：[官方覆写指南16.2.3条件更新、16.1模块顺序与重启](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)、[OpenClash v0.48.002运行路径及启动命令](https://github.com/vernesong/OpenClash/blob/v0.48.002/luci-app-openclash/root/etc/init.d/openclash#L3454)。

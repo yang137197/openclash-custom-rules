@@ -45,4 +45,4 @@ git diff --check
 
 结论限于当前运行配置不满足候选合同，不能据此认定CatWrt不兼容。用户现已要求准备[仅良心云的应用与回退方案](../../APPLY_ROLLBACK_PLAN.md)，并先核对直连差异；本轮不执行配置变更、安装或服务启动。
 
-已直接复核11月23日实机日志的141条与固定仓库／v1.8.1的148条：仅7条仓库新增，无删除，旧payload是仓库payload的同序子序列，详见[脱敏差异](../../DIRECT_DIFF_AUDIT.json)。新增只读运行路径文件工具132项实际Lua／替代接口断言通过；真实Lua读取原私有日志也确认141条、仅7条对照差异和原序一致。结构草案YAML解析、精确目标与字段范围检查通过，但没有执行新增量的真实OpenClash合并，不称为目标应用或回退通过。最新文件输出和核心内存一致性仍未验证。没有可部署新模块、运行版本、服务或路由器写入，原始日志未公开。
+已直接复核11月23日实机日志的141条与固定仓库／v1.8.1的148条：仅7条仓库新增，无删除，旧payload是仓库payload的同序子序列，详见[脱敏差异](../../DIRECT_DIFF_AUDIT.json)。新增只读运行路径文件工具132项实际Lua／替代接口断言通过；真实Lua读取原私有日志也确认141条、仅7条对照差异和原序一致。结构草案YAML解析、精确目标与字段范围检查通过，但没有执行新增量的真实OpenClash合并，不称为目标应用或回退通过。11月24日用户回传固定提交3a0e71685975a6fb50da93fe1ce6cb18ba3bbede核对完成：inspectionComplete、fileReadTwiceSame、matchesNov23Snapshot均true，currentCount=141、currentOnlyCount=0，referenceOnly与原7项相同；API／测速／文件写入均0，未应用选择或写配置、formalAcceptance=false。本项完成、不自动重测；runtimeFileSnapshotOnly=true、activeCoreConfigurationVerified=false，核心内存一致性仍未验证。没有可部署新模块、运行版本、服务或路由器写入，原始日志未公开。
