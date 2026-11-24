@@ -2,11 +2,17 @@
 
 **candidate；本轮仅本地开发，不安装路由器服务或应用覆写。** 当前设备仍为 v1.5.0 手选方案，良心云日本专线02保持；正式滚动地址不变。
 
-## 当前下一步：完整脚本只读预检
+## 完整脚本只读预检已完成
+
+2026-11-24 用户回传固定提交 `bb28b5bad20fd25dc2e2888f16d57e1cb22814b0` 的 `--preflight` 结果：Lua 5.1、核心 alpha-gbc76c13、readOnly=true、selectionApplied=false，当前良心云日本专线02，candidateCompatible=false、nativeLockTested=false、formalAcceptance=false。已证实完整脚本能完成基础读取；旧手选方案上的false与预期一致，但本摘要不含具体合同不匹配原因。没有应用候选或验收自动运行。
 
 运行本目录 `liangxinyun-controller.lua --preflight`，也可不传模式参数。读取已有 UCI 中的 API 端口和 secret，只连接 `127.0.0.1`；检查 Lua／JSON／nixio 接口、时钟和版本、组与 provider 的一致性。无测速、PUT、锁／状态文件写入或服务操作。输出 `candidateCompatible: false` 在当前旧手选方案上是预期结果，不需要为了预检切换配置；`nativeLockTested: false` 表示只检查接口存在，未实际加锁。
 
 `--dry-run` 也不测速、不写文件或选择，但要求严格候选形状；旧方案应拒绝模拟接管。`--once` 和 `--run` 有检测与切换副作用，当前不在路由器执行。
+
+## 当前下一步：已授权的独立原生锁单次测试
+
+用户在上述回传后明确允许“仅原生锁测试”。使用[独立诊断](../../../../scripts/LIANGXINYUN_NATIVE_LOCK.md)的 `--test-once`，只在 `/tmp` 随机创建随即解除文件名的临时文件，最多两个短暂子进程验证占用互斥与释放后重新获取，最后关闭描述符；不访问API、不测速、不切换节点、不安装／启用服务。此一次授权不涵盖状态文件写入、更名、控制器启停或完整自动运行。尚未取得目标结果，不将本地替代模块测试算作原生通过。
 
 ## 后续部署草案（本轮不执行）
 

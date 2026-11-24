@@ -24,4 +24,8 @@ git diff --check
 
 ## 待目标验证
 
-完整新脚本的只读预检；CatWrt 原生文件锁、原子状态写入、Shell／procd 启停与有限重启；核心重启／订阅竞争；默认参数下的检测耗时与长期稳定性；应用候选后的 TikTok 播放、普通代理、直连与用户确认。设备当前02手选不变，141／148条直连差异不在本轮应用。没有发布或合并正式方案。
+完整新脚本只读预检的用户回传已于2026-11-24确认：固定提交bb28b5b，Lua5.1／alpha-gbc76c13，readOnly=true、selectionApplied=false，当前日本专线02；candidateCompatible=false、nativeLockTested=false、formalAcceptance=false。false与仍使用旧手选方案相符，不能从这个布尔量独断具体不匹配项；既不代表Lua启动失败，也不等于自动控制通过。
+
+用户随后允许仅一次[独立原生锁测试](../../../../scripts/LIANGXINYUN_NATIVE_LOCK.md)，目标尚未执行／回传；独立诊断70项实际Lua／替代nixio判定断言通过，含预期错误码、占用与释放、失败和超时清理逻辑，不算原生锁证明。原控制器、覆写、本地模板及其catalog哈希均未改动。
+
+仍待验证：CatWrt 原生文件锁、原子状态写入、Shell／procd 启停与有限重启；核心重启／订阅竞争；默认参数下的检测耗时与长期稳定性；应用候选后的 TikTok 播放、普通代理、直连与用户确认。当前授权只涵盖上述独立锁测试，不涵盖其他待验证项目。141／148条直连差异不在本轮应用，没有发布或合并正式方案。

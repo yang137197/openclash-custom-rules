@@ -12,7 +12,7 @@
 
 ## 当前候选（candidate）
 
-[v1.8.0 Lua＋curl 完整控制器](versions/v1.8.0/REQUIREMENTS.md)：延续四档严格优先级，使用现有 Lua 5.1、LuCI JSON／UCI、nixio 和 curl；默认只读预检，另有 Shell 停止监督和 procd 模板。本轮仅本地准备，不安装／启用路由器服务，不改变02手选、TikTok或直连；实机完整候选未验收。
+[v1.8.0 Lua＋curl 完整控制器](versions/v1.8.0/REQUIREMENTS.md)：延续四档严格优先级，使用现有 Lua 5.1、LuCI JSON／UCI、nixio 和 curl；默认只读预检，另有 Shell 停止监督和 procd 模板。2026-11-24完整脚本基础只读预检已完成，当前02手选未变；下一步为用户已授权的一次[独立原生锁测试](../../scripts/LIANGXINYUN_NATIVE_LOCK.md)。不安装／启用路由器服务，不改TikTok或直连；完整候选未验收。
 
 - [v1.8.0 设置、只读预检与回退](versions/v1.8.0/SETUP.md)
 - [v1.8.0 环境与证据边界](versions/v1.8.0/ENVIRONMENT.json)
