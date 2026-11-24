@@ -448,7 +448,8 @@
           "localTemplateSha256": "71379bfe031c43953029336dd6e177bfa075b2aa33d1609559f114aa718af7a2",
           "requirements": [
             "L28",
-            "L29"
+            "L29",
+            "L30"
           ],
           "manualRulesPath": "rules/manual-direct.yaml",
           "controllerPath": "profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/liangxinyun-controller.lua",

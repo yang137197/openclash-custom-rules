@@ -8,11 +8,11 @@
 
 原生锁的既有单次授权已完成，不重测；本次“下一步”不扩大为真实状态路径、服务启停或完整控制模式授权。
 
-## 当前步骤：停止监督脚本离线测试
+## 停止监督脚本离线单次测试已通过
 
-用户已明确授权本项，见[独立诊断说明](../../../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)。脚本内嵌与候选逐字节一致的监督Shell，只运行合成worker；两个场景分别在收到停止后立即退出、延迟约200ms清理后退出。不安装服务、不接入OpenClash API、不加载完整控制器；目标结果待回传。
+2026-11-24用户已回传固定提交 `7c1119cd6a962d2cfd21975a0f7f80a97c84e3b9` 的本项成功结果，见[独立诊断说明](../../../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)。内嵌监督Shell与候选逐字节一致，只运行合成worker；立即退出、延迟约200ms清理后退出两种场景均passed。监督退出码均0、子进程已回收、worker已退出，工作文件和停止标记已清理；supervisorTestPassed、cleanupComplete均true，forcedCleanupUsed=false，API／测速请求0、未应用选择、formalAcceptance=false。这次单项已完成，不重测。
 
-从交付的固定提交下载 `scripts/liangxinyun_supervisor_offline.lua`，以 `lua - --test-once` 执行一次。它创建私有 `/tmp/liangxinyun-supervisor-<随机后缀>` 和原监督脚本需要的两个 `/tmp/liangxinyun-stop.<测试进程PID>` 标记，结束清理。仅向自己尚未回收的直接测试子进程发停止信号，不碰既有服务。成功要求 `supervisorTestPassed:true`、`cleanupComplete:true`、`forcedCleanupUsed:false`，两个case均通过；API／测速请求0、选择未应用、正式验收false。失败时回传完整输出，不重试。详情及清理边界见上述说明。
+本次仅使用私有 `/tmp/liangxinyun-supervisor-<随机后缀>` 和原监督脚本需要的 `/tmp/liangxinyun-stop.<测试进程PID>` 标记，均已清理。不安装服务、不接入OpenClash API、不加载完整控制器，不代表procd或完整控制器API清理已验证；详情及边界见上述说明。
 
 ## 权限修正与旧候选
 
@@ -24,7 +24,7 @@
 
 完整控制器仍有Lua、Shell停止监督和procd模板三个文件，未来部署路径分别为 `/usr/share/openclash/liangxinyun-controller.lua`、`/usr/share/openclash/liangxinyun-controller.run`、`/etc/init.d/liangxinyun-controller`。本次不安装、不enable、不更新正式滚动模块，也不调用--once／--run。
 
-隔离临时状态写入已单项通过；生产路径权限、完整控制器状态发布、监督退出、procd启停／重启、默认检测参数及完整轮询仍须验证。以后另行安排候选应用时，远程完整模块仍在原本地凭据模块上方，匹配同一iKuuu配置完整路径，更新后重启OpenClash。核心组、检测合同和状态全部验收前不发布。
+隔离临时状态写入和合成worker的停止监督已单项通过；生产路径权限、完整控制器状态发布及停止时的API清理、procd启停／重启、默认检测参数及完整轮询仍须验证。以后另行安排候选应用时，远程完整模块仍在原本地凭据模块上方，匹配同一iKuuu配置完整路径，更新后重启OpenClash。核心组、检测合同和状态全部验收前不发布。
 
 回退原则沿用v1.8.0：先恢复正式滚动覆写并重启，确认控制器不接管旧手选组，再停止／禁用独立服务，最后恢复良心云原手选。正常停止仍只尽力REJECT，强杀或API不可用不保证清理；不迁移旧连接。当前并未部署，不执行回退操作。
 

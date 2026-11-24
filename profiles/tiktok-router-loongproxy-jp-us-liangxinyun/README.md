@@ -14,7 +14,7 @@
 
 [v1.8.1 权限兼容修正](versions/v1.8.1/REQUIREMENTS.md)：修正v1.8.0中nixio.open不合法的数值权限参数384，改为 `rw-------`。只改两处权限实参，选路和覆写有效YAML不变；旧运行文件保留，v1.8.0暂不部署。用户要求继续隔离状态文件写入与替换测试，该单次测试已成功回传，权限、正常替换、读回与清理通过，授权已结束；不接入API、不安装／启用服务。
 
-当前已明确授权[停止监督脚本离线测试](../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)，仅运行原监督脚本与合成worker。本地372项替代接口断言、8项实际Shell／Lua／源文件场景通过；目标结果待回传。TikTok、直连和正式入口不变，未安装或启用服务。
+[停止监督脚本离线测试](../../scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)已于2026-11-24收到目标成功回传：仅运行原监督脚本与合成worker，immediate／delayed两项均正常停止、回收并清理，监督退出码0，未使用强制清理；API／测速请求0、选择未应用、正式验收false。该单项已完成，不重测；本地372项替代接口断言、8项实际Shell／Lua／源文件场景另行通过。TikTok、直连和正式入口不变，未安装或启用服务。
 
 - [v1.8.1 设置与单项验证](versions/v1.8.1/SETUP.md)
 - [v1.8.1 环境与证据边界](versions/v1.8.1/ENVIRONMENT.json)
