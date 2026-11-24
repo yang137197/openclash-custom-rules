@@ -61,7 +61,8 @@ def main():
         stable = PROFILE/'versions/v1.5.0'
         local_raw = (stable/'local-tiktok-proxy.conf').read_bytes()
         full_raw = (stable/'openclash-overwrite.conf').read_bytes()
-        baseline = merge(merge({}, guard.parse(local_raw, True)), guard.parse(full_raw, True))
+        baseline = merge(merge({'dns': {}}, guard.parse(local_raw, True)), guard.parse(full_raw, True))
+        assert not any(k.endswith(('!', '+', '-', '*')) for k in baseline['dns'])
         reference = re.findall(r'^ "(DOMAIN[^"\n]+)",$', (ROOT/'scripts/liangxinyun_direct_readonly.lua').read_text(), re.M)
         audit = json.loads((PROFILE/'DIRECT_DIFF_AUDIT.json').read_text())
         direct = [v for v in reference if v not in audit['repositoryOnly']]
@@ -75,7 +76,7 @@ def main():
         passed('official-merge-only-liangxinyun-full-tree-preserved')
         assert direct == after['rule-providers']['Manual-Direct']['payload']
         passed('141-direct-content-order-preserved-no-seven-additions')
-        full_reference = merge(merge({}, guard.parse(local_raw, True)),
+        full_reference = merge(merge({'dns': {}}, guard.parse(local_raw, True)),
                                guard.parse((CANDIDATE/'openclash-overwrite.conf').read_bytes(), True))
         for a, b, fields in zip(guard.targets(after), guard.targets(full_reference),
                                 (guard.GROUP_FIELDS, ('filter', 'health-check'))):
