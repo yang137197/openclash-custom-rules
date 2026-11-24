@@ -22,10 +22,10 @@ git diff --check
 
 夹具为快速故障验证，检测间隔1秒、单节点超时300ms、有效期3秒；不等于默认60秒／5秒／130秒的目标性能或长时间测试。此前 Ruby 夹具通过不替代本次 Lua 结果，当前目标核心是 alpha-gbc76c13，也不能用本地v1.19.34证明其运行兼容。
 
-## 待目标验证
+## 目标实机记录与未完成项目
 
 完整新脚本只读预检的用户回传已于2026-11-24确认：固定提交bb28b5b，Lua5.1／alpha-gbc76c13，readOnly=true、selectionApplied=false，当前日本专线02；candidateCompatible=false、nativeLockTested=false、formalAcceptance=false。false与仍使用旧手选方案相符，不能从这个布尔量独断具体不匹配项；既不代表Lua启动失败，也不等于自动控制通过。
 
-用户随后允许仅一次[独立原生锁测试](../../../../scripts/LIANGXINYUN_NATIVE_LOCK.md)，目标尚未执行／回传；独立诊断70项实际Lua／替代nixio判定断言通过，含预期错误码、占用与释放、失败和超时清理逻辑，不算原生锁证明。原控制器、覆写、本地模板及其catalog哈希均未改动。
+用户随后允许仅一次[独立原生锁测试](../../../../scripts/LIANGXINYUN_NATIVE_LOCK.md)，2026-11-24已回传成功：parentLockAcquired、competingChildBlocked、childAcquiredAfterUnlock、descriptorClosed、nativeLockTested均true；API／测速请求均0，selectionApplied=false、formalAcceptance=false。本次隔离临时文件的原生锁占用互斥与释放后获取已验证，单次授权结束，不重测。它与既有70项替代nixio判定断言分别记录；不据此证明生产锁文件路径权限或完整控制器已启动。原控制器、覆写、本地模板及其catalog哈希均未改动。
 
-仍待验证：CatWrt 原生文件锁、原子状态写入、Shell／procd 启停与有限重启；核心重启／订阅竞争；默认参数下的检测耗时与长期稳定性；应用候选后的 TikTok 播放、普通代理、直连与用户确认。当前授权只涵盖上述独立锁测试，不涵盖其他待验证项目。141／148条直连差异不在本轮应用，没有发布或合并正式方案。
+仍待验证：生产路径权限、原子状态写入、Shell／procd 启停与有限重启；核心重启／订阅竞争；默认参数下的检测耗时与长期稳定性；应用候选后的 TikTok 播放、普通代理、直连与用户确认。建议下一项仅验证隔离临时目录内的状态文件写入与原子替换，不接入OpenClash API；尚未授权或执行。141／148条直连差异不在本轮应用，没有发布或合并正式方案。

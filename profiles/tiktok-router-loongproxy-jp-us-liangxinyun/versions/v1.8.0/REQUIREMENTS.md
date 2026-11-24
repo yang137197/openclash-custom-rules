@@ -1,6 +1,6 @@
 # 良心云 Lua 严格自动选择 v1.8.0
 
-**candidate，仅完成本地准备，待 CatWrt 实机验收。** 方案为 `tiktok-router-loongproxy-jp-us-liangxinyun`。继承 [v1.5.0 已验收链路](../v1.5.0/REQUIREMENTS.md)及 [v1.7.0 的 L19–L22 业务边界](../v1.7.0/REQUIREMENTS.md)，将完整运行实现改为目标已有的 Lua＋curl；旧 Ruby 候选保留，不覆写版本。
+**candidate，基础只读预检和原生锁单项已完成，完整控制器待 CatWrt 实机验收。** 方案为 `tiktok-router-loongproxy-jp-us-liangxinyun`。继承 [v1.5.0 已验收链路](../v1.5.0/REQUIREMENTS.md)及 [v1.7.0 的 L19–L22 业务边界](../v1.7.0/REQUIREMENTS.md)，将完整运行实现改为目标已有的 Lua＋curl；旧 Ruby 候选保留，不覆写版本。
 
 - L23：只从 `liangxinyun` provider 的 `LXY: ` 具体节点中，依次选择日本专线、日本高速、美国流媒体、美国高速；美国流媒体匹配同时含“美国”和“流媒体”的名称，不固定编号或数量。最高有健康节点的档内选最低延迟，同延迟保留当前节点。上档全部最近检测失败或该档为空才进入下档；上档无健康节点且仍有 unknown 则选 REJECT。
 - L24：使用 Lua 5.1、已有 `luci.jsonc`／`luci.model.uci`／`nixio`、curl 和系统 Shell，不安装 Ruby／Python 或新依赖。统一 `https://www.gstatic.com/generate_204`，期望 204、单节点 5 秒超时；provider 自检及控制器完整检测默认 60 秒，每 2 秒核对。只信任该 URL 的逐节点 `extra`、时间戳与延迟，超过 130 秒、超前超过 5 秒、无记录或矛盾状态视为 unknown。周期从 `/proc/uptime` 计时，记录年龄用系统时间；不把全局历史当作该 URL 的结果。
