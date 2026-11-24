@@ -1,6 +1,10 @@
 # 候选配置的只读差异核对
 
-2026-11-24停止监督单项完成后，用户要求“下一步”。当前先核对旧手选配置与v1.8.1控制器合同的具体差异，解释此前只有 `candidateCompatible:false` 的结果；不安装服务、不运行完整控制模式、不部署候选。本次目标输出待回传；已完成的锁、状态和停止监督单项不重测。
+**2026-11-24只读核对已完成，当前配置不兼容候选控制合同。** 用户回传交付提交 `01ee585cab50c31e016a6e9a0b4a40caeb11f7fb` 的结果：inspectionComplete=true、snapshotConsistent=true、contractChecksAgree=true，核心alpha-gbc76c13；API请求4、测速请求0、selectionApplied=false、configurationWritten=false、formalAcceptance=false。本次未切换或写配置，不自动重测。
+
+确认组和提供商各45个节点，其中四档共21个（日本专线4、日本高速5、美国流媒体7、美国高速5），各有24个档外节点。当前选择在两次读取间一致，节点来源检查通过、wrongSourceNodes=0。五项不符为：REJECT不在首项、组含档外节点、提供商含档外节点、testUrl不符、expectedStatus不符；expectedStatusType为string，不能据此知道实际字符串内容。首个拒绝原因为candidate-selector-required。此结果说明运行配置不满足候选条件，不证明CatWrt不兼容，也未检测节点健康或自动切换。
+
+停止监督单项完成后，用户要求“下一步”，本工具用于解释此前只有candidateCompatible=false的结果。已完成的锁、状态、停止监督及本次差异核对均不自动重测；服务与完整控制模式仍未运行。
 
 `liangxinyun_candidate_readonly.lua` 不带参数执行。它从现有UCI只读取得本机端口和认证，由单独Lua子进程将认证送到curl标准输入，不输出密钥、不放进curl参数。curl禁用curlrc、环境代理和重定向，仅访问 `127.0.0.1`。没有临时文件、锁、状态发布、安装或自启行为。
 

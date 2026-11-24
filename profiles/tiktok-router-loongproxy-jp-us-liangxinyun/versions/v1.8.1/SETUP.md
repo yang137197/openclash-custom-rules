@@ -14,11 +14,13 @@
 
 本次仅使用私有 `/tmp/liangxinyun-supervisor-<随机后缀>` 和原监督脚本需要的 `/tmp/liangxinyun-stop.<测试进程PID>` 标记，均已清理。不安装服务、不接入OpenClash API、不加载完整控制器，不代表procd或完整控制器API清理已验证；详情及边界见上述说明。
 
-## 当前步骤：只读核对配置差异
+## 只读配置差异核对已完成
 
 用户要求下一步后，先使用[独立只读差异工具](../../../../scripts/LIANGXINYUN_CANDIDATE_READONLY.md)解释此前candidateCompatible=false。脚本不带参数，仅对本机版本、良心云组和提供商发出四次GET，核对REJECT首项、四类节点过滤、提供商来源和HTTPS204检测合同。不调用健康检测、不切换、不写配置、不安装服务；不输出订阅或密钥。已完成的锁、状态和停止监督不重测。
 
-以交付的固定提交执行一次 `scripts/liangxinyun_candidate_readonly.lua`，回传JSON。完成应有inspectionComplete=true、apiRequests=4、probeRequests=0、selectionApplied=false、configurationWritten=false。candidateCompatible=false时先依据blockingReasons核对差异，不接管旧手选组。此工具只读当前接口，不把结果当作节点可用性或完整候选验收，目标结果待回传。
+2026-11-24已收到交付提交 `01ee585cab50c31e016a6e9a0b4a40caeb11f7fb` 的结果：inspectionComplete=true、apiRequests=4、probeRequests=0、selectionApplied=false、configurationWritten=false；快照及来源核对通过，组和提供商各45节点，允许四档共21个（4／5／7／5），各24个档外节点。REJECT非首项、组及提供商含档外节点、检测URL和预期状态码不符，共五项导致candidateCompatible=false。状态码字段是string，具体内容未输出，不猜填。这次只读核对已完成，不自动重测；不接管旧手选组，完整控制器仍未运行。
+
+下一步建议先准备仅调整良心云组／提供商的应用与回退方案；按本次快照，需保留21个允许节点、REJECT放首项并对齐HTTPS204检测合同。应用前还须核对设备141条与候选148条直连差异，避免完整覆写带入既有规则变动。这只是后续建议，不是已执行或新增的安装／启用授权；当前TikTok、直连、正式入口不变。
 
 ## 权限修正与旧候选
 
