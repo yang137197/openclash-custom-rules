@@ -30,6 +30,8 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 ## 部署说明
 
+完整维护窗口见[一次实机验证](REAL_DEVICE_TEST.md)：复用已校验文件和备份，范围核对、前台持续运行、正常停止与回退集中进行，不重复原生单项。只读Ruby核对工具仅使用现有YAML库；它以仓库授权直连源作为预期，不冻结历史条数。
+
 现有配置只替换对应增量与控制器；原完整云继续使用上面的滚动地址，本地凭据模块保留。新旧增量不能并用。按[官方模块指南](https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/16-overwrite-module-format.md)添加远程增量，绑定同一配置的完整路径；增量放在完整云上方，内建脚本仍第一项。模块更改须统一重启OpenClash。
 
 候选配套增量地址（随候选目录维护；正式发布后以标签固定链接为准）：
