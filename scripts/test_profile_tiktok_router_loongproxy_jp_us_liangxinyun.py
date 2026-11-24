@@ -489,3 +489,32 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(env["status"], "pending")
         self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
         self.assertFalse(env["evidence"]["userConfirmed"])
+
+    def test_v182_complete_candidate_preserves_runtime_and_is_not_published(self):
+        profile = self.catalog["profiles"][PROFILE]
+        before, after = (profile["versions"][v] for v in ("1.8.1", "1.8.2"))
+        self.assertEqual(profile["currentVersion"], "1.5.0")
+        self.assertEqual(after["status"], "candidate")
+        self.assertEqual(after["moduleUsage"], "reference-only")
+        for field in ("controllerPath", "controllerServicePath", "controllerSupervisorPath", "localModuleTemplatePath"):
+            self.assertEqual(read(before[field]), read(after[field]))
+        self.assertEqual(load_yaml(read(before["modulePath"]), module=True), load_yaml(read(after["modulePath"]), module=True))
+        env = json.loads(read(after["environmentPath"]))
+        self.assertEqual(env["evidence"]["runtimeAcceptance"], "not-run")
+        self.assertFalse(env["evidence"]["userConfirmed"])
+
+    def test_v182_public_manifest_and_scope_contract(self):
+        entry = self.catalog["profiles"][PROFILE]["versions"]["1.8.2"]
+        manifest = json.loads(read(entry["bundleManifestPath"]))
+        self.assertEqual(manifest["version"], "1.8.2")
+        self.assertFalse(manifest["targetRouterTested"])
+        for filename, checksum in manifest["files"].items():
+            self.assertEqual(checksum, sha(read(entry["versionDirectory"] + "/" + filename)))
+        for field in ("incrementalModule", "scopeGuard", "mergeHelper", "bundleManifest"):
+            self.assertEqual(entry[field + "Sha256"], sha(read(entry[field + "Path"])))
+        patch = load_yaml(read(entry["incrementalModulePath"]), module=True)
+        self.assertEqual(set(patch), {"proxy-groups*", "proxy-providers*"})
+        self.assertEqual(patch["proxy-groups*"]["where"], {"name": "良心云"})
+        self.assertEqual(patch["proxy-providers*"]["where"], {"key": "liangxinyun"})
+        self.assertEqual(patch["proxy-groups*"]["set"]["proxies!"], ["REJECT"])
+        self.assertEqual(patch["proxy-providers*"]["set"]["health-check!"]["expected-status"], 204)

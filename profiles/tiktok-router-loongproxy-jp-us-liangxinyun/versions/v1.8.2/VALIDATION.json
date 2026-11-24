@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.2",
+  "status": "candidate",
+  "date": "2026-11-24",
+  "scopeAndRollback": {
+    "passed": true,
+    "candidateVersion": "1.8.2",
+    "caseCount": 41,
+    "cases": [
+      {
+        "case": "official-merge-only-liangxinyun-full-tree-preserved",
+        "passed": true
+      },
+      {
+        "case": "141-direct-content-order-preserved-no-seven-additions",
+        "passed": true
+      },
+      {
+        "case": "incremental-and-full-reference-controller-contract-agree",
+        "passed": true
+      },
+      {
+        "case": "incremental-idempotent",
+        "passed": true
+      },
+      {
+        "case": "dns-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "tiktok-hop-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "isp-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "direct-reorder-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "rules-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "subscription-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "health-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "provider-credential-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "missing-group-rejected",
+        "passed": true
+      },
+      {
+        "case": "duplicate-group-rejected",
+        "passed": true
+      },
+      {
+        "case": "missing-provider-rejected",
+        "passed": true
+      },
+      {
+        "case": "missing-isp-rejected",
+        "passed": true
+      },
+      {
+        "case": "duplicate-yaml-rejected",
+        "passed": true
+      },
+      {
+        "case": "shared-yaml-alias-rejected",
+        "passed": true
+      },
+      {
+        "case": "non-string-key-rejected",
+        "passed": true
+      },
+      {
+        "case": "nan-rejected",
+        "passed": true
+      },
+      {
+        "case": "arbitrary-direct-count-order-duplicates-preserved",
+        "passed": true
+      },
+      {
+        "case": "compare-cli",
+        "passed": true
+      },
+      {
+        "case": "verify-bundle-cli",
+        "passed": true
+      },
+      {
+        "case": "restore-copy-cli",
+        "passed": true
+      },
+      {
+        "case": "invalid-private-cli-input-fails-without-details",
+        "passed": true
+      },
+      {
+        "case": "private-bundle-preserves-module-bytes-metadata-and-original-inputs",
+        "passed": true
+      },
+      {
+        "case": "private-directory-and-file-permissions",
+        "passed": true
+      },
+      {
+        "case": "rollback-copy-byte-exact-including-comments-and-crlf",
+        "passed": true
+      },
+      {
+        "case": "rollback-existing-output-never-overwritten",
+        "passed": true
+      },
+      {
+        "case": "rollback-output-inside-backup-refused",
+        "passed": true
+      },
+      {
+        "case": "prepare-existing-directory-refused",
+        "passed": true
+      },
+      {
+        "case": "rollback-current-drift-refused",
+        "passed": true
+      },
+      {
+        "case": "private-output-in-repository-refused",
+        "passed": true
+      },
+      {
+        "case": "before.yaml-tamper-refused",
+        "passed": true
+      },
+      {
+        "case": "candidate.yaml-tamper-refused",
+        "passed": true
+      },
+      {
+        "case": "module-state.json-tamper-refused",
+        "passed": true
+      },
+      {
+        "case": "module-000.conf-tamper-refused",
+        "passed": true
+      },
+      {
+        "case": "incomplete-bundle-refused",
+        "passed": true
+      },
+      {
+        "case": "modified-official-source-refused",
+        "passed": true
+      },
+      {
+        "case": "boolean-integer-outside-scope-change-refused",
+        "passed": true
+      },
+      {
+        "case": "real-core-synthetic-scoped-selector-syntax",
+        "passed": true
+      }
+    ],
+    "officialSourceSha256": "1249abf411e1df9e8fe542fb3584f34a27e6e3a587942e5d9f759a32b1bd8261",
+    "sourceUrl": "https://raw.githubusercontent.com/vernesong/OpenClash/e553e82e01c697aefbe1555261a503f425e00ccd/luci-app-openclash/root/usr/share/openclash/YAML.rb",
+    "routerContacted": false,
+    "serviceInstalled": false,
+    "privateBaselineUsed": false,
+    "formalAcceptance": false,
+    "targetRouterTested": false
+  },
+  "realCoreController": {
+    "passed": true,
+    "version": "1.8.2",
+    "coreVersion": "Mihomo Meta v1.19.34 linux amd64 with go1.26.11 Wed Nov 11 06:48:49 UTC 2026\nUse tags: with_gvisor",
+    "runtimeVersion": "Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio",
+    "luaNativeModulesSubstituted": true,
+    "fixture": {
+      "loopbackOnly": true,
+      "intervalSeconds": 1,
+      "timeoutMs": 300,
+      "targetRouterTested": false,
+      "productionTimingsTested": false
+    },
+    "cases": [
+      {
+        "case": "preflight-read-only-no-selection-or-file-write",
+        "passed": true
+      },
+      {
+        "case": "highest-tier-lowest-delay",
+        "passed": true,
+        "settledSeconds": 1.08,
+        "node": "LXY: 🇯🇵日本专线02|BGP|流媒体"
+      },
+      {
+        "case": "single-instance-and-secret-out-of-argv",
+        "passed": true
+      },
+      {
+        "case": "partial-failure-stays-in-highest-tier",
+        "passed": true,
+        "settledSeconds": 0.73,
+        "node": "LXY: 🇯🇵日本专线01|BGP|流媒体",
+        "observedNodesDuringFailure": [
+          "LXY: 🇯🇵日本专线01|BGP|流媒体",
+          "LXY: 🇯🇵日本专线02|BGP|流媒体"
+        ]
+      },
+      {
+        "case": "whole-tier-1-downgrade",
+        "passed": true,
+        "settledSeconds": 2.51,
+        "node": "LXY: 🇯🇵日本高速02|BGP|CUCM"
+      },
+      {
+        "case": "whole-tier-2-downgrade",
+        "passed": true,
+        "settledSeconds": 1.65,
+        "node": "LXY: 🇺🇸美国06|流媒体|0.1x"
+      },
+      {
+        "case": "whole-tier-3-downgrade",
+        "passed": true,
+        "settledSeconds": 1.77,
+        "node": "LXY: 🇺🇸美国高速06|CTCU|0.1x"
+      },
+      {
+        "case": "all-tiers-failed-reject",
+        "passed": true,
+        "settledSeconds": 2.13,
+        "node": "REJECT"
+      },
+      {
+        "case": "automatic-top-tier-recovery",
+        "passed": true,
+        "settledSeconds": 1.56,
+        "node": "LXY: 🇯🇵日本专线02|BGP|流媒体"
+      },
+      {
+        "case": "same-tier-new-lowest-delay",
+        "passed": true,
+        "settledSeconds": 1.16,
+        "node": "LXY: 🇯🇵日本专线01|BGP|流媒体"
+      },
+      {
+        "case": "empty-top-tier-skipped",
+        "passed": true,
+        "settledSeconds": 2.27,
+        "node": "LXY: 🇯🇵日本高速02|BGP|CUCM"
+      },
+      {
+        "case": "subscription-new-node-return",
+        "passed": true,
+        "settledSeconds": 1.65,
+        "node": "LXY: 🇯🇵日本专线12|BGP|流媒体"
+      },
+      {
+        "case": "graceful-stop-reject-no-tiktok-mutation-or-secret-log",
+        "passed": true
+      }
+    ],
+    "luaVersion": "Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio"
+  },
+  "luaPolicy": {
+    "passed": true,
+    "assertions": 358,
+    "nativeModulesSubstituted": true
+  },
+  "luaHttp": {
+    "passed": true,
+    "cases": 19,
+    "loopbackOnly": true,
+    "nativeModulesSubstituted": true
+  },
+  "repositoryUnitTests": {
+    "passed": true,
+    "tests": 65
+  },
+  "shellSyntax": {
+    "passed": true,
+    "serviceInstalled": false
+  },
+  "routerContacted": false,
+  "serviceInstalled": false,
+  "formalAcceptance": false,
+  "sourceAndRollingModulesChanged": false,
+  "ciStatus": "configured-not-run-this-turn"
+}

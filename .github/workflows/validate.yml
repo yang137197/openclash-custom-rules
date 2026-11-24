@@ -28,6 +28,8 @@ jobs:
         run: ruby scripts/test_liangxinyun_controller.rb
       - name: Verify incremental draft with official OpenClash merge implementation
         run: python3 scripts/verify_liangxinyun_incremental_merge.py
+      - name: Verify v1.8.2 scope guard and rollback bundle with official merge
+        run: python3 scripts/verify_liangxinyun_v182.py
       - name: Install local CI Lua interpreter (no router installation)
         run: sudo apt-get update && sudo apt-get install -y lua5.1
       - name: Test Lua strict controller policy and HTTP boundaries
@@ -41,6 +43,10 @@ jobs:
           python3 scripts/verify_liangxinyun_lua_controller.py --lua /usr/bin/lua5.1
           sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/liangxinyun-controller.run
           sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/liangxinyun-controller.init
+          lua5.1 scripts/test_liangxinyun_lua_controller.lua profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/liangxinyun-controller.lua
+          python3 scripts/verify_liangxinyun_lua_controller.py --lua /usr/bin/lua5.1 --candidate-directory profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2
+          sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/liangxinyun-controller.run
+          sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/liangxinyun-controller.init
       - name: Regenerate rolling Manual-Direct payload from source
         run: python3 scripts/sync_manual_direct.py --write
       - name: Test YAML regression guards

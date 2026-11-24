@@ -30,9 +30,13 @@ def main():
     runtime.add_argument('--ruby-command', help='JSON array, e.g. ["ruby"]')
     runtime.add_argument('--lua', type=Path, help='Lua 5.1 executable; local LuCI/nixio substitutes are used')
     parser.add_argument('--report', type=Path)
+    parser.add_argument('--candidate-directory', type=Path, help='local Lua candidate directory')
     args = parser.parse_args()
     ruby = json.loads(args.ruby_command) if args.ruby_command else [str(args.lua.resolve(strict=True))]
     directory = DIRECTORY if not args.lua else DIRECTORY.parent / 'v1.8.1'
+    if args.candidate_directory:
+        assert args.lua, 'candidate-directory is for the Lua fixture'
+        directory = args.candidate_directory.resolve(strict=True)
     core = args.core.resolve(strict=True)
     module = load_yaml((directory / 'openclash-overwrite.conf').read_text(encoding='utf-8'), module=True)
     local = load_yaml((directory / 'local-tiktok-proxy.conf').read_text(encoding='utf-8'), module=True)
@@ -239,7 +243,7 @@ def main():
             server.shutdown()
             server.server_close()
 
-    report = {'passed': True, 'version': '1.8.1' if args.lua else '1.7.0', 'coreVersion': core_version,
+    report = {'passed': True, 'version': directory.name.removeprefix('v'), 'coreVersion': core_version,
               'runtimeVersion': ruby_version, 'luaNativeModulesSubstituted': bool(args.lua),
               'fixture': {'loopbackOnly': True, 'intervalSeconds': 1, 'timeoutMs': 300,
                           'targetRouterTested': False, 'productionTimingsTested': False}, 'cases': results}

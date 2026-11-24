@@ -29,10 +29,11 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
-当前已准备[仅调整良心云的应用与回退方案](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/APPLY_ROLLBACK_PLAN.md)：历史141／148条的7项差异已复核，11月24日运行路径文件也确认141条与历史基线逐项同序一致；核心内存一致性仍未验证。仅提供增量结构草案并核对文件，不应用、不安装服务，保持TikTok和当前直连。[官方实现本地合并验证](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/INCREMENTAL_MERGE_VALIDATION.md)18场景通过，本次输入基线的变动限良心云；ISP和提供商缺失定义的夹具局限已单列，不代表真实凭据或实机应用通过。
+当前开发为[良心云v1.8.2完整候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/SETUP.md)：整合原增量草案、控制器、离线范围检查和备份／回退副本，完成本地验证。保留TikTok及当前141条直连，本次只用配套增量，不刷新原完整模块或带入仓库另7条；未接触路由器、未安装服务。完整当前配置、核心内存、实际模块顺序与应用／回退仍待实机验证，正式入口仍v1.5.0。
 
 ## 版本索引
 
+- [良心云方案 v1.8.2 完整候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/REQUIREMENTS.md)：整合严格四档控制、配套增量、离线范围检查和备份／回退副本；[本地验证](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.2/VALIDATION.md)。保留设备141条和TikTok，148条完整参考不用于升级；未接触路由器、不安装服务，正式入口仍v1.5.0。
 - [良心云方案 v1.8.1 权限修正候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.1/REQUIREMENTS.md)：按上游nixio接口将两处384改为 `rw-------`，补充旧值拒绝回归；[隔离状态文件单次测试](scripts/LIANGXINYUN_NATIVE_STATE.md)已成功回传。用户已授权[停止监督离线测试](scripts/LIANGXINYUN_SUPERVISOR_OFFLINE.md)，本地通过，2026-11-24目标两个合成正常停止场景亦通过，回收与清理成功、未使用强制清理，单项已完成；不接入API、不安装服务，完整控制器仍未部署或验收。[只读配置差异核对](scripts/LIANGXINYUN_CANDIDATE_READONLY.md)已完成：快照和来源通过，21个允许节点、24个档外节点；REJECT首项、节点过滤及检测URL／状态码共五项不符，未测速、切换或写配置，完整控制器仍未运行。
 - [良心云方案 v1.8.0 Lua＋curl 控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/REQUIREMENTS.md)：使用目标已有组件，默认只读；严格四档选择、Shell 停止监督及本地验证见[记录](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.0/VALIDATION.md)。完整脚本基础只读预检及一次独立原生锁测试已完成，状态写入和服务启停等仍待验证；尚未部署，正式入口仍是 v1.5.0。
 - [良心云方案 v1.7.0 独立控制器候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.7.0/REQUIREMENTS.md)：Ruby 运行实现本地验证通过，但目标依赖未通过，暂不部署。Lua＋curl [只读预检与单节点诊断](scripts/LIANGXINYUN_READONLY.md)已完成；实机已读回 01 超时、02 同目标 159 ms 的记录，选择未变。完整 Lua 控制器尚待实现，自动选优及长期运行未验收。

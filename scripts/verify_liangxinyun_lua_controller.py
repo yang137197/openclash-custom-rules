@@ -111,9 +111,12 @@ def run(lua, case, *, mode='--once', mutate=None, fault=None, args=(), expected=
 
 
 def main():
+    global DIRECTORY
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--lua', type=Path, required=True)
+    parser.add_argument('--candidate-directory', type=Path, default=DIRECTORY)
     a = parser.parse_args()
+    DIRECTORY = a.candidate_directory.resolve(strict=True)
     lua = a.lua.resolve(strict=True)
     out, _, _ = run(lua, 'compatible-preflight-readonly', mode='--preflight')
     assert out['candidateCompatible'] and not out['selectionApplied']
