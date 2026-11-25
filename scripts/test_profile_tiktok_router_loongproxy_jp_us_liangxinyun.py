@@ -556,3 +556,36 @@ class LiangxinyunProfileTests(unittest.TestCase):
         self.assertEqual(set(patch), {"proxy-groups*", "proxy-groups+", "proxy-providers*"})
         self.assertEqual(patch["proxy-groups*"]["where"], {"name": "良心云"})
         self.assertEqual(patch["proxy-groups+"][0]["name"], "良心云-严格控制")
+
+    def test_v184_visible_nodes_and_native_probes_preserve_manual_tiktok_and_strict_routes(self):
+        versions = self.catalog['profiles'][PROFILE]['versions']
+        old, new = versions['1.8.3'], versions['1.8.4']
+        before = load_yaml(read(old['modulePath']), module=True)
+        after = load_yaml(read(new['modulePath']), module=True)
+        groups = {g['name']: g for g in after['proxy-groups!']}
+        probe = {'url': 'https://www.gstatic.com/generate_204', 'interval': 60,
+                 'timeout': 5000, 'lazy': False, 'expected-status': 204}
+        for group in groups.values():
+            self.assertEqual({k: group[k] for k in probe}, probe)
+        self.assertFalse(groups['良心云-严格控制']['hidden'])
+        self.assertEqual(groups['良心云']['proxies'], ['良心云-严格控制'])
+        self.assertEqual(groups['良心云-严格控制']['use'], ['liangxinyun'])
+        for group in groups.values():
+            if group['name'] != '良心云':
+                self.assertEqual(group['type'], 'select')
+        old_groups = {g['name']: g for g in before['proxy-groups!']}
+        for name in ('TikTok首跳', 'TikTok测速'):
+            self.assertEqual({k:v for k,v in groups[name].items() if k not in probe}, old_groups[name])
+        self.assertEqual({k:v for k,v in after.items() if k != 'proxy-groups!'},
+                         {k:v for k,v in before.items() if k != 'proxy-groups!'})
+        for field in ('controllerPath', 'controllerSupervisorPath', 'controllerServicePath',
+                      'localModuleTemplatePath', 'mergeHelperPath'):
+            self.assertEqual(read(new[field]), read(old[field]))
+        manifest = json.loads(read(new['bundleManifestPath']))
+        self.assertFalse(manifest['targetRouterTested'])
+        self.assertEqual(manifest['version'], '1.8.4')
+        for name, checksum in manifest['files'].items():
+            self.assertEqual(checksum, sha(read(new['versionDirectory'] + '/' + name)))
+        env = json.loads(read(new['environmentPath']))
+        self.assertEqual(env['evidence']['runtimeAcceptance'], 'not-run')
+        self.assertFalse(env['evidence']['userConfirmed'])
