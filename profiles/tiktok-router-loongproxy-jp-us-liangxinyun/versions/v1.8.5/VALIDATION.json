@@ -1,0 +1,9 @@
+{
+  "candidateVersion": "1.8.5",
+  "status": "pending-ci",
+  "targetRouterTested": false,
+  "formalAcceptance": false,
+  "serviceInstalled": false,
+  "userComputerOperated": false,
+  "globalScheduledProbe": false
+}

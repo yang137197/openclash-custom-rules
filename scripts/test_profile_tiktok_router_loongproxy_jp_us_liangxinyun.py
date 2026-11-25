@@ -589,3 +589,52 @@ class LiangxinyunProfileTests(unittest.TestCase):
         env = json.loads(read(new['environmentPath']))
         self.assertEqual(env['evidence']['runtimeAcceptance'], 'not-run')
         self.assertFalse(env['evidence']['userConfirmed'])
+
+    def test_v185_only_three_explicit_groups_with_default_global_no_probe(self):
+        entry = self.catalog['profiles'][PROFILE]['versions']['1.8.5']
+        module = load_yaml(read(entry['modulePath']), module=True)
+        names = ['TIKTOK首跳', 'TIKTOK访问检测', '良心云-按档位自动切换']
+        self.assertEqual([g['name'] for g in module['proxy-groups!']], names)
+        self.assertTrue(all(g['type'] == 'select' for g in module['proxy-groups!']))
+        self.assertNotIn('GLOBAL', names)
+        probe = {'url':'https://www.gstatic.com/generate_204','interval':60,
+                 'timeout':5000,'lazy':False,'expected-status':204}
+        for g in module['proxy-groups!']:
+            self.assertEqual({k:g[k] for k in probe},probe)
+        self.assertEqual(module['proxy-groups!'][2]['proxies'],['REJECT'])
+        self.assertEqual(module['proxy-groups!'][2]['use'],['liangxinyun'])
+        self.assertFalse(module['proxy-groups!'][2]['hidden'])
+        local = load_yaml(read(entry['localModuleTemplatePath']), module=True)
+        self.assertEqual(local['proxies+'][0]['dialer-proxy'],'TIKTOK首跳')
+        self.assertFalse(local['proxies+'][0]['udp'])
+        self.assertEqual(self.catalog['profiles'][PROFILE]['currentVersion'],'1.5.0')
+
+    def test_v185_preserves_pure_strict_policy_and_original_runtime_support(self):
+        versions = self.catalog['profiles'][PROFILE]['versions']
+        prior, entry = versions['1.8.4'], versions['1.8.5']
+        policy = lambda s:s[s.index('local function finite'):s.index('local function names')]
+        self.assertEqual(policy(read(prior['controllerPath'])),policy(read(entry['controllerPath'])))
+        for field in ('controllerSupervisorPath','controllerServicePath','mergeHelperPath'):
+            self.assertEqual(read(entry[field]),read(prior[field]))
+        script=read(entry['controllerPath'])
+        self.assertNotIn('PUBLIC_GROUP',script)
+        self.assertIn('M.GROUP = "良心云-按档位自动切换"',script)
+        manifest=json.loads(read(entry['bundleManifestPath']))
+        for name,checksum in manifest['files'].items():
+            self.assertEqual(checksum,sha(read(entry['versionDirectory']+'/'+name)))
+        helper=manifest['routerScopeHelper']
+        self.assertEqual(helper['sha256'],sha(read(helper['path'])))
+        self.assertFalse(manifest['targetRouterTested'])
+        env=json.loads(read(entry['environmentPath']))
+        self.assertEqual(env['evidence']['runtimeAcceptance'],'not-run')
+        self.assertFalse(env['evidence']['userConfirmed'])
+
+    def test_v185_version_documents_preserve_explicit_development_contract(self):
+        entry=self.catalog['profiles'][PROFILE]['versions']['1.8.5']
+        req=read(entry['requirementsPath'])
+        rules=read(entry['versionDirectory']+'/DEVELOPMENT_RULES.md')
+        for token in ('GLOBAL','不做检测','自动测速不等于自动换节点','每60秒','5000',
+                      '日本专线→日本高速→美国流媒体→美国高速','未知','过期','L46','L51'):
+            self.assertIn(token,req)
+        for token in ('四组','GLOBAL','不检测','手选','四档','面板','回退','GitHub','流程A'):
+            self.assertIn(token,rules)

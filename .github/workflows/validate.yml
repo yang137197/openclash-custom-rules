@@ -88,6 +88,24 @@ jobs:
           path: |
             ${{ runner.temp }}/v184-scope.json
             ${{ runner.temp }}/v184-core.json
+      - name: Verify v1.8.5 single-group rename scope and rollback with official OpenClash
+        run: python3 scripts/verify_liangxinyun_v185.py --report "$RUNNER_TEMP/v185-scope.json"
+      - name: Test v1.8.5 strict policy and HTTP boundaries
+        run: |
+          lua5.1 scripts/test_liangxinyun_v185.lua profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/liangxinyun-controller.lua
+          python3 scripts/verify_liangxinyun_v185_http.py --lua /usr/bin/lua5.1
+          sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/liangxinyun-controller.run
+          sh -n profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/liangxinyun-controller.init
+      - name: Test v1.8.5 real Mihomo four groups three timers and no GLOBAL probe
+        run: python3 scripts/check_liangxinyun_v185.py --core "$RUNNER_TEMP/mihomo-v183" --lua /usr/bin/lua5.1 --report "$RUNNER_TEMP/v185-core.json"
+      - name: Upload v1.8.5 synthetic validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: liangxinyun-v185-validation
+          path: |
+            ${{ runner.temp }}/v185-scope.json
+            ${{ runner.temp }}/v185-core.json
       - name: Regenerate rolling Manual-Direct payload from source
         run: python3 scripts/sync_manual_direct.py --write
       - name: Test YAML regression guards

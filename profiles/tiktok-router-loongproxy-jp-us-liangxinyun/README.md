@@ -94,3 +94,7 @@ v1.8.2后续回传：预检通过，一次控制选中日本专线02/157ms；用
 [v1.3.0 历史候选](versions/v1.3.0/REQUIREMENTS.md)用于 iKuuu 美国与日本首跳对照。
 
 [v1.4.0 历史候选](versions/v1.4.0/REQUIREMENTS.md)用于良心云首跳对照，未通过实机验收。
+
+## v1.8.5 candidate 本对话开发要求
+
+仅保留TIKTOK首跳、TIKTOK访问检测、良心云-按档位自动切换和默认GLOBAL。前三组定时检测，GLOBAL不检测；TikTok首跳仍手选，良心云单组严格四档。详见[需求合同](versions/v1.8.5/REQUIREMENTS.md)、[版本开发规则](versions/v1.8.5/DEVELOPMENT_RULES.md)、[部署与回退](versions/v1.8.5/SETUP.md)、[CI及实机边界](versions/v1.8.5/VALIDATION.md)。正式稳定入口保持v1.5.0，手动直连唯一源不改。
