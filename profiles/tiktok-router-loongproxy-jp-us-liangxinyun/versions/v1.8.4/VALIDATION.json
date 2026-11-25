@@ -17,5 +17,18 @@
     "privacy-and-immutable-snapshots"
   ],
   "workflow": ".github/workflows/validate.yml",
-  "ciEvidenceUrl": "https://github.com/yang137197/openclash-custom-rules/pull/25/checks"
+  "ciEvidenceUrl": "https://github.com/yang137197/openclash-custom-rules/pull/25/checks",
+  "functionalEvidence": {
+    "commit": "a35ed57920ac6208ed74771bcffe22428ad27d56",
+    "runNumber": 96,
+    "runId": 45532140984,
+    "functionalChecksPassed": true,
+    "overallRunConclusion": "failure",
+    "finalFailure": "setup-document-extra-blank-line-at-eof",
+    "officialMergeScopeRollbackCases": 51,
+    "luaAssertions": 600,
+    "httpCliCases": 21,
+    "realCoreLoopbackCases": 15,
+    "repositoryUnitTests": 80
+  }
 }
