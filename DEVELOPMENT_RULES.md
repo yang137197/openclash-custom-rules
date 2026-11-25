@@ -90,3 +90,9 @@ git diff --check
 ```
 
 若没有可用 Git 比较基线，可省略 `--base-ref`，但需说明历史快照保护未被该次校验覆盖。每个方案都必须有针对自己规则合同的静态回归验证；不得以日本链路的专用检查代替其他方案的验证。
+
+## 良心云 v1.8.5 本版本开发合同
+
+2026-11-25本对话最新授权：准备良心云v1.8.5四组候选，仅TIKTOK首跳、TIKTOK访问检测、良心云-按档位自动切换三个显式组，保留默认GLOBAL且不做检测。前三组60秒/5000毫秒/204定时检测；TikTok仍手选iKuuu日本Z01–Z04并经原Loongproxy美国出口，良心云单组严格四档，未知不当失败，不定制面板。详细本版本开发要求见profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/DEVELOPMENT_RULES.md及REQUIREMENTS.md。仅GitHub准备和CI，未接触电脑/路由器、未安装服务、未执行旧v1.8.4停止/回退；正式入口与全部手动直连源保持。v1.8.4已有范围和持续控制回传，不能记成本版验收。
+
+用户最新明确GLOBAL不做检测，覆盖上一轮“所有组测速”的建议。不得将本版本要求泛化为所有其他方案的设置；具体执行以[v1.8.5版本开发规则](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/DEVELOPMENT_RULES.md)和[需求合同](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/REQUIREMENTS.md)为准。永久流程A/B不变。

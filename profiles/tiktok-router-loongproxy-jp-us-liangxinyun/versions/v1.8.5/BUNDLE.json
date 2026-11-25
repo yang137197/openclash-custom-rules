@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.5",
+  "status": "candidate",
+  "targetRouterTested": false,
+  "globalScheduledProbe": false,
+  "files": {
+    "openclash-overwrite.conf": "d8d9fa177e4080c6274bcf6664c821c78f928d03a3167313924511f1b912e623",
+    "local-tiktok-proxy.conf": "aa6b3846ea1dbcf97d4b541cb14027f08c2bae9c02f1b534ac9787aae1c84ca2",
+    "liangxinyun-incremental.conf": "0327dcf362e6b0adffefd2bb0f8f9bf245a43c97fdac891bc71a553df58c0108",
+    "liangxinyun-controller.lua": "4ac20905b2872444b545a890324dab69104c87bda35f41621d902a11c8afdba6",
+    "liangxinyun-controller.run": "2570469d2a32f70054feb2cbd73cd05811a727eec1fce1efacd348b23a59ec58",
+    "liangxinyun-controller.init": "d104187629dd297f4da14056a5a956e96941ee19fc4a0bb6fde4068349c75a81",
+    "scope_guard.py": "cc5351bb20e273385d0eff43ca8c7424434f46e782c92dc6ff31a5b750c3660d",
+    "merge_official.rb": "8d898e93fca14bf68eb0f66b41dfe814d92fbadadca38d10bed26733e86e44f1"
+  },
+  "routerScopeHelper": {
+    "path": "scripts/liangxinyun_v185_runtime_scope.rb",
+    "sha256": "ffe262a02cf496ab9a79df982e9552f8c6e18b3ecc874ab0ecd99e6d5ebd588c"
+  }
+}

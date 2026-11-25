@@ -12,13 +12,18 @@
 
 ## 当前候选（candidate）
 
-[v1.8.4 节点显示与定时测速](versions/v1.8.4/REQUIREMENTS.md)：开放内部组显示四档叶节点，四个显式组配置定时测速；TikTok仍手选，链路/DNS/直连不变，控制器和监督原字节沿用。范围检查仅额外允许TikTok五项检测字段，新增原生定时历史刷新和手选保持的真实核心回归。当前未实机应用、未安装服务，正式版仍v1.5.0。
+[v1.8.5 四组与三组定时检测](versions/v1.8.5/REQUIREMENTS.md)：TIKTOK首跳、TIKTOK访问检测、良心云-按档位自动切换和默认GLOBAL。前三组定时检测，GLOBAL不检测。TikTok首跳仍手选，良心云单组严格四档；同步名称引用且保护真实链路、DNS及全部手动直连。原版面板不定制，标签限制详见合同。CI #99通过，实机待验证，正式版仍v1.5.0。
 
-- [v1.8.4 设置与回退](versions/v1.8.4/SETUP.md)
-- [v1.8.4 验证状态](versions/v1.8.4/VALIDATION.md)
-- [v1.8.4 文件清单](versions/v1.8.4/BUNDLE.json)
-- [v1.8.4 环境记录](versions/v1.8.4/ENVIRONMENT.json)
-- [v1.8.3 实机回传摘要](V183_REAL_DEVICE_RESULT.md)：用户已确认业务正常、外层自动；内部隐藏及停止后恢复体验待改进，当前普通代理已恢复。没有完整停止退出或全档故障验收，不发布。
+- [v1.8.5 本对话开发规则](versions/v1.8.5/DEVELOPMENT_RULES.md)
+- [v1.8.5 设置与回退](versions/v1.8.5/SETUP.md)
+- [v1.8.5 验证状态](versions/v1.8.5/VALIDATION.md)
+- [v1.8.5 文件清单](versions/v1.8.5/BUNDLE.json)
+- [v1.8.5 环境记录](versions/v1.8.5/ENVIRONMENT.json)
+
+### 历史候选 v1.8.4
+
+[v1.8.4 节点显示与定时测速](versions/v1.8.4/REQUIREMENTS.md)保留原两层结构。已有范围检查和持续控制回传；用户明确尚未执行停止/恢复，不视为本版或完整停止回退验收。历史文件保持。
+
 
 ## v1.8.3 历史候选准备记录
 
@@ -94,3 +99,7 @@ v1.8.2后续回传：预检通过，一次控制选中日本专线02/157ms；用
 [v1.3.0 历史候选](versions/v1.3.0/REQUIREMENTS.md)用于 iKuuu 美国与日本首跳对照。
 
 [v1.4.0 历史候选](versions/v1.4.0/REQUIREMENTS.md)用于良心云首跳对照，未通过实机验收。
+
+## v1.8.5 candidate 本对话开发要求
+
+仅保留TIKTOK首跳、TIKTOK访问检测、良心云-按档位自动切换和默认GLOBAL。前三组定时检测，GLOBAL不检测；TikTok首跳仍手选，良心云单组严格四档。详见[需求合同](versions/v1.8.5/REQUIREMENTS.md)、[版本开发规则](versions/v1.8.5/DEVELOPMENT_RULES.md)、[部署与回退](versions/v1.8.5/SETUP.md)、[CI及实机边界](versions/v1.8.5/VALIDATION.md)。正式稳定入口保持v1.5.0，手动直连唯一源不改。

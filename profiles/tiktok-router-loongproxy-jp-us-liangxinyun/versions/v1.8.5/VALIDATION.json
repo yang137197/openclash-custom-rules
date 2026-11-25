@@ -1,0 +1,256 @@
+{
+  "candidateVersion": "1.8.5",
+  "status": "ci-passed-runtime-pending",
+  "testedCommit": "8ac65bdf7a378a99f6bb6453cf0f0135a458bf05",
+  "workflowRun": 99,
+  "workflowUrl": "https://github.com/yang137197/openclash-custom-rules/actions/runs/45539734005",
+  "officialMergeScopeRollbackCases": 57,
+  "luaAssertions": 553,
+  "httpCliScenarios": 19,
+  "realMihomoLoopbackCases": 16,
+  "repositoryUnitTests": 90,
+  "strictPolicyBytesPreservedFrom": "1.8.4",
+  "targetRouterTested": false,
+  "formalAcceptance": false,
+  "serviceInstalled": false,
+  "userComputerOperated": false,
+  "globalScheduledProbe": false,
+  "manualDirectSourceChanged": false,
+  "rollingModuleChanged": false,
+  "limitations": [
+    "CI uses synthetic loopback proxies and LuCI/nixio substitutes",
+    "Real core fixture uses 1-second/300ms timings, not production 60-second/5000ms timings",
+    "Does not prove CatWrt native runtime, actual TikTok playback, dashboard refresh or long-term stability",
+    "v1.8.4 supervisor has not been confirmed stopped or rolled back"
+  ],
+  "scopeCases": [
+    {
+      "case": "official-merge-three-explicit-groups-and-reference-only-renames",
+      "passed": true
+    },
+    {
+      "case": "all-current-direct-content-order-and-duplicates-preserved",
+      "passed": true
+    },
+    {
+      "case": "candidate-incremental-is-idempotent",
+      "passed": true
+    },
+    {
+      "case": "official-upgrade-from-1.8.3-removes-both-old-liangxinyun-groups",
+      "passed": true
+    },
+    {
+      "case": "official-upgrade-from-1.8.4-removes-both-old-liangxinyun-groups",
+      "passed": true
+    },
+    {
+      "case": "full-reference-incremental-and-local-template-name-contracts-agree",
+      "passed": true
+    },
+    {
+      "case": "direct-count-is-not-frozen-0",
+      "passed": true
+    },
+    {
+      "case": "direct-count-is-not-frozen-3",
+      "passed": true
+    },
+    {
+      "case": "direct-count-is-not-frozen-141",
+      "passed": true
+    },
+    {
+      "case": "direct-count-is-not-frozen-149",
+      "passed": true
+    },
+    {
+      "case": "dns-address-refused",
+      "passed": true
+    },
+    {
+      "case": "dns-type-refused",
+      "passed": true
+    },
+    {
+      "case": "rule-order-refused",
+      "passed": true
+    },
+    {
+      "case": "extra-rule-refused",
+      "passed": true
+    },
+    {
+      "case": "direct-order-refused",
+      "passed": true
+    },
+    {
+      "case": "isp-password-refused",
+      "passed": true
+    },
+    {
+      "case": "isp-server-refused",
+      "passed": true
+    },
+    {
+      "case": "isp-udp-refused",
+      "passed": true
+    },
+    {
+      "case": "isp-reference-refused",
+      "passed": true
+    },
+    {
+      "case": "subscription-refused",
+      "passed": true
+    },
+    {
+      "case": "provider-private-header-refused",
+      "passed": true
+    },
+    {
+      "case": "first-hop-auto-refused",
+      "passed": true
+    },
+    {
+      "case": "first-hop-filter-refused",
+      "passed": true
+    },
+    {
+      "case": "probe-disabled-refused",
+      "passed": true
+    },
+    {
+      "case": "probe-status-refused",
+      "passed": true
+    },
+    {
+      "case": "lxy-auto-bypass-refused",
+      "passed": true
+    },
+    {
+      "case": "lxy-direct-route-refused",
+      "passed": true
+    },
+    {
+      "case": "lxy-hidden-refused",
+      "passed": true
+    },
+    {
+      "case": "extra-global-timer-refused",
+      "passed": true
+    },
+    {
+      "case": "extra-group-refused",
+      "passed": true
+    },
+    {
+      "case": "dangling-old-rule-name-refused",
+      "passed": true
+    },
+    {
+      "case": "dangling-old-dns-name-refused",
+      "passed": true
+    },
+    {
+      "case": "old-dns-tag-refused",
+      "passed": true
+    },
+    {
+      "case": "health-status-refused",
+      "passed": true
+    },
+    {
+      "case": "extra-custom-group-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "extra-custom-rule-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "custom-dns-policy-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "custom-hop-filter-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "missing-provider-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "missing-isp-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "duplicate-group-baseline-rejected-before-private-output",
+      "passed": true
+    },
+    {
+      "case": "duplicate-yaml-refused",
+      "passed": true
+    },
+    {
+      "case": "yaml-alias-refused",
+      "passed": true
+    },
+    {
+      "case": "non-string-key-refused",
+      "passed": true
+    },
+    {
+      "case": "nan-refused",
+      "passed": true
+    },
+    {
+      "case": "private-preparation-replays-cached-modules-and-checks-before-writing",
+      "passed": true
+    },
+    {
+      "case": "rollback-copy-restores-original-bytes-comments-crlf-and-module-backups",
+      "passed": true
+    },
+    {
+      "case": "existing-rollback-never-overwritten",
+      "passed": true
+    },
+    {
+      "case": "existing-private-bundle-never-overwritten",
+      "passed": true
+    },
+    {
+      "case": "backup-tamper-before.yaml",
+      "passed": true
+    },
+    {
+      "case": "backup-tamper-candidate.yaml",
+      "passed": true
+    },
+    {
+      "case": "backup-tamper-module-state.json",
+      "passed": true
+    },
+    {
+      "case": "backup-tamper-module-000.conf",
+      "passed": true
+    },
+    {
+      "case": "cached-direct-drift-refused",
+      "passed": true
+    },
+    {
+      "case": "ruby-plan-agrees-readonly",
+      "passed": true
+    },
+    {
+      "case": "ruby-actual-official-merge-agrees-readonly",
+      "passed": true
+    },
+    {
+      "case": "private-bundle-directory-and-files-permissions",
+      "passed": true
+    }
+  ]
+}

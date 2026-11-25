@@ -2,7 +2,7 @@
 
 本仓库按需求维护独立的 OpenClash 方案。当前正式方案为 **tiktok-router-loongproxy-jp-us v1.0.7 / stable**。TikTok 必须经用户手选的 iKuuu 日本节点作为第一跳，再由路由器本地 Loongproxy 美国 SOCKS5 出口；缺少日本首跳时失败关闭。
 
-当前良心云开发候选为 [v1.8.4：节点显示与定时测速](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.4/REQUIREMENTS.md)（candidate）：内部节点可见，TikTok保持手选并增加定时检测；尚未实机验收，正式版仍v1.5.0。前版业务与回退回传见[实机摘要](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/V183_REAL_DEVICE_RESULT.md)。
+当前良心云开发候选为 [v1.8.5：四组与三组定时检测](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/REQUIREMENTS.md)（candidate）：GLOBAL不检测，TikTok仍手选，良心云单组严格四档；[本版本开发规则](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/DEVELOPMENT_RULES.md)详细记录本对话要求。尚未实机验收，正式版仍v1.5.0。
 
 ## 方案目录
 
@@ -31,9 +31,12 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
 
-当前开发为[良心云v1.8.3面板自动候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/SETUP.md)：外层URLTest唯一引用内部严格控制组；维持四档顺序，并新增缓存与运行快照一致性检查。本轮由GitHub候选分支和CI准备，不操作用户电脑或路由器、不安装服务。CI #90全部通过。按用户最新澄清，直连以唯一源为准，保留其手动新增的全部规则，当前源148条；141仅是历史临时验证，不再作为部署要求。v1.8.3面板和持续控制仍待实机验收，正式入口仍v1.5.0。
+历史候选v1.8.3/v1.8.4的两层良心云结构保留快照；最新开发按上述v1.8.5合同合并单组。直连以唯一源保留全部手动规则，不恢复历史141条。
 
 ## 版本索引
+
+- [良心云方案 v1.8.5 四组候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/REQUIREMENTS.md)：三个业务组检测、GLOBAL不检测、严格四档单组；[开发规则](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/DEVELOPMENT_RULES.md)、[验证与边界](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.5/VALIDATION.md)。
+- [良心云方案 v1.8.4 节点显示候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.4/REQUIREMENTS.md)：保留两层历史结构；已有部分实机回传，未完成正式验收。
 
 - [良心云方案 v1.8.3 面板自动候选](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/REQUIREMENTS.md)：外层单一内部成员、严格四档控制与缓存一致性门禁；[CI及实机边界](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.3/VALIDATION.md)。
 

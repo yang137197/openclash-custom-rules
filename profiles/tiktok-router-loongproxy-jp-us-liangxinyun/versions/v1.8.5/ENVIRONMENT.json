@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.5",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX - QEMU Virtual CPU version 2.5+ : 2C2T"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "iKuuu",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "debug-log",
+    "capturedAt": "2026-11-25",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "目标版本来自2026-11-25 v1.8.3调试日志，不是v1.8.5实测。后续v1.8.4回传文件范围检查通过、当前直连148条，约6分钟14条已读回良心云选择；用户明确尚未停止/回退。本版新增四组精确名称、良心云单组及引用迁移，三业务组检测、GLOBAL不检测。仅GitHub候选准备，未接触用户电脑/路由器，未安装服务；运行模块顺序和本版实机结果仍待补。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

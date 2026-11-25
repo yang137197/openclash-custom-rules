@@ -1,5 +1,13 @@
 # 版本记录
 
+## tiktok-router-loongproxy-jp-us-liangxinyun v1.8.5 candidate — 2026-11-25
+
+- 按本对话明确需求只保留TIKTOK首跳、TIKTOK访问检测、良心云-按档位自动切换与默认GLOBAL，移除两层良心云结构，直接显示允许的实际节点。
+- 三个业务组定时检测，GLOBAL不检测；TikTok仍手选iKuuu日本首跳并使用原美国ISP出口，良心云单组控制器严格四档，纯判定算法保持。
+- 同步规则、DNS、ISP dialer-proxy及控制器名称引用；新只读计划/实机文件检查拒绝悬空引用和越界差异，全部手动直连源、凭据、真实链路与规则优先级保持。
+- 在对应版本REQUIREMENTS.md和DEVELOPMENT_RULES.md详细记录需求、GLOBAL检测例外、原版面板标签限制、应用/回退及验证边界。不适配面板、不安装服务，实机待验收，正式入口仍v1.5.0。
+
+
 ## tiktok-router-loongproxy-jp-us-liangxinyun v1.8.4 — 2026-11-25
 
 - 状态candidate，需求L42–L45。内部良心云-严格控制可见，保留外层唯一子组和严格四档；精确移除前版隐藏内部组以支持无重复升级。
