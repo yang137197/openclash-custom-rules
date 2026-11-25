@@ -138,7 +138,9 @@ def main():
         for group_name, node_name in expected.items():
             value = group(group_name)
             assert value['type'] == 'Selector' and value['now'] == node_name
-            assert value['testUrl'] == TEST_URL and value['expectedStatus'] == '204'
+            assert value['testUrl'] == TEST_URL
+            configured = next(item for item in groups if item['name'] == group_name)
+            assert configured['expected-status'] == 204
             initial[node_name] = None
         deadline = time.monotonic() + 10
         complete = set()
