@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.4",
+  "status": "pending-ci",
+  "targetRouterTested": false,
+  "formalAcceptance": false,
+  "productionTimingsTested": false,
+  "controllerUnchangedFrom": "1.8.3",
+  "cases": [
+    "official-merge",
+    "scoped-tiktok-probe-fields",
+    "visible-internal-selector",
+    "native-periodic-history-with-manual-selection",
+    "strict-tier-regression",
+    "byte-exact-rollback",
+    "privacy-and-immutable-snapshots"
+  ]
+}

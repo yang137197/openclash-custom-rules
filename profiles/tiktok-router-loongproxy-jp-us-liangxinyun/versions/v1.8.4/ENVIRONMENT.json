@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us-liangxinyun",
+  "version": "1.8.4",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in the debug log",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "24.10.2 r7492-3fda82b52",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX - QEMU Virtual CPU version 2.5+ : 2C2T"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "iKuuu",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "debug-log",
+    "capturedAt": "2026-11-25",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "目标环境来自2026-11-25 09:57的v1.8.3调试日志，并非v1.8.4实测。前版范围检查通过、自动组URLTest及持续严格选择已记录；用户确认TikTok首跳/播放、普通代理、直连正常。前版截图只显示外层唯一控制组，内部hidden:true。停止/回退后曾无法连接，用户随后明确关闭v1.8.3并重启已恢复；未收到正常退出码。用户新增内部节点显示和所有组定时测速，本版仅在GitHub准备，未接触路由器或安装服务。模块启用顺序无法由该日志的空覆写设置节确认，保持未知。rawDebugLogCommitted=false；源规则不改。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

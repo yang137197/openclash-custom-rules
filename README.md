@@ -2,6 +2,8 @@
 
 本仓库按需求维护独立的 OpenClash 方案。当前正式方案为 **tiktok-router-loongproxy-jp-us v1.0.7 / stable**。TikTok 必须经用户手选的 iKuuu 日本节点作为第一跳，再由路由器本地 Loongproxy 美国 SOCKS5 出口；缺少日本首跳时失败关闭。
 
+当前良心云开发候选为 [v1.8.4：节点显示与定时测速](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/versions/v1.8.4/REQUIREMENTS.md)（candidate）：内部节点可见，TikTok保持手选并增加定时检测；尚未实机验收，正式版仍v1.5.0。前版业务与回退回传见[实机摘要](profiles/tiktok-router-loongproxy-jp-us-liangxinyun/V183_REAL_DEVICE_RESULT.md)。
+
 ## 方案目录
 
 | 方案 | 适用需求 | 稳定版本 | Release | 固定覆写链接 | 部署与设置 |
