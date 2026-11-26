@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "caseCount": 35,
+  "caseCount": 36,
   "cases": [
     "official-merge-replaces-groups-keeps-plugin-base",
     "official-merge-retains-entire-current-direct-source",
@@ -36,7 +36,8 @@
     "route-dedicated-github-download",
     "manual-direct-remains-direct",
     "china-domain-remains-direct",
-    "tiktok-full-chain-includes-fixed-ISP"
+    "tiktok-full-chain-includes-fixed-ISP",
+    "tiktok-ISP-connection-actually-traverses-selected-first-hop"
   ],
   "coreVersion": "Mihomo Meta v1.19.34 windows amd64 with go1.26.11 Wed Nov 11 06:53:02 UTC 2026",
   "officialMergeSource": "vernesong/OpenClash@e553e82",

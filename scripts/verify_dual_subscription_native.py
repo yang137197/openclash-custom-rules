@@ -188,7 +188,7 @@ def main():
                 servers.append(start(server))
                 return server
             jp_fast, jp_slow = proxy("IK-fast", .01), proxy("IK-slow", .12)
-            a, b, c = proxy("A"), proxy("B"), proxy("C")
+            a, b, c = proxy("A", .15), proxy("B", .03), proxy("C", .005)
             isp = proxy("ISP", kind="socks")
             for server in (jp_fast, jp_slow):
                 server.allowed_ports.add(isp.server_address[1])
@@ -216,7 +216,9 @@ def main():
                   not any(key.endswith(("!", "+", "-", "*")) for key in merged["dns"]))
             def node(name, server):
                 return dict(name=name, type="http", server="127.0.0.1", port=server.server_address[1])
-            ik_nodes = [node(f"🇯🇵 日本Z{n:02d} | IEPL", jp_fast if n == 12 else jp_slow) for n in range(12, 0, -1)]
+            # The fastest node is deliberately last, so choosing the first
+            # unknown node cannot masquerade as minimum-delay selection.
+            ik_nodes = [node(f"🇯🇵 日本Z{n:02d} | IEPL", jp_fast if n == 12 else jp_slow) for n in range(1, 13)]
             ik_nodes += [node("🇺🇸 美国Z01 | IEPL", jp_fast), node("日本专线01|BGP|流媒体", jp_fast)]
             lxy_nodes = [node(f"🇯🇵日本高速{n:02d}|BGP|CUCM", c) for n in range(6, 0, -1)]
             lxy_nodes += [node(f"🇯🇵日本专线{n:02d}|BGP|流媒体", a if n == 1 else b) for n in range(5, 0, -1)]
@@ -329,7 +331,10 @@ def main():
             check("route-dedicated-github-download", route("objects.githubusercontent.com") == ["A"])
             check("manual-direct-remains-direct", route("pve.yangnas.cn") == [])
             check("china-domain-remains-direct", route("china.example.test") == [])
+            before = len(TRAIL)
             check("tiktok-full-chain-includes-fixed-ISP", route("tiktok.example.test") == ["ISP"])
+            check("tiktok-ISP-connection-actually-traverses-selected-first-hop",
+                  any(label == "IK-fast" and port == isp.server_address[1] for label, _, port in TRAIL[before:]))
             report = dict(passed=True, caseCount=len(cases), cases=cases,
                           coreVersion=subprocess.check_output([args.core, "-v"], text=True).splitlines()[0],
                           officialMergeSource="vernesong/OpenClash@e553e82", fixturesOnly=True,
