@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-dual-subscription-jp",
+  "version": "1.0.0",
+  "status": "pending",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "unknown",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "CatWrt.v25.8.amd64 / LEDE R25.7.7",
+    "deviceArchitecture": "amd64 (user report)",
+    "deviceModel": "unknown"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "unknown",
+    "enabledModulesInOrder": [],
+    "settingsBaseline": "unknown",
+    "settingsDeviations": []
+  },
+  "evidence": {
+    "source": "user-report",
+    "capturedAt": "2026-11-26",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "not-run",
+    "userConfirmed": false,
+    "summary": "用户提供插件v0.48.002、alpha-gbc76c13、CatWrt.v25.8.amd64 / LEDE R25.7.7 / LuCI Master (git-25.193.28761-d26f9e0)、内核6.12.38。没有本候选调试日志或实机结果；设备型号、实际模块顺序和设置待核。桌面验证使用单独的v1.19.34，不能视为目标alpha已实测兼容。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md"
+}

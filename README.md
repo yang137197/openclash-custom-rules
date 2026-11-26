@@ -33,3 +33,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-route
 v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手动直连规则的生成与滚动覆写同步自动化，保留规则有效性校验，并允许规则清单随时增删而不固定条数。v1.0.6 及更早已发布目录、标签和 Release 保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。
 
 开发规则、候选信息门禁、日志隐私与跨工具接续要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。更换 AI 开发工具或开启新对话时，在已打开仓库的工具中说“请你先读取仓库，我们继续开发”，再按规则恢复当前状态。
+
+## 新需求候选
+
+[tiktok-router-dual-subscription-jp v1.0.0 / candidate](profiles/tiktok-router-dual-subscription-jp/README.md)：iKuuu日本自动低延迟首跳和默认代理、固定Loongproxy美国TikTok出口、良心云日本专线/高速单层顺序回退。原生实现，无独立控制器。尚未实机验收，不替换上面的v1.0.7正式入口。候选应用、私有模板和完整回退见[SETUP](profiles/tiktok-router-dual-subscription-jp/versions/v1.0.0/SETUP.md)。

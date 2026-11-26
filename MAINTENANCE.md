@@ -57,3 +57,7 @@ git diff --check
 ```
 
 若没有可用 Git 比较基线，可省略 `--base-ref`，但不得声称历史保护校验已执行。静态检查、桌面核心夹具与真实设备验收必须分开记录。新版本的 OpenClash 环境记录和日志门禁按 `DEVELOPMENT_RULES.md` 执行；原始调试日志不得提交到公共仓库。
+
+## 2026-11-26 新需求候选
+
+`tiktok-router-dual-subscription-jp v1.0.0 / candidate` 按用户明确授权独立开发：四组为TikTok首跳、Tiktok美国出口测速、良心云-日本专线流媒体、ikuuu-默认代理；首跳及默认改原生最低延迟自动选择，ISP仍固定Loongproxy美国出口，良心云单层固定编号顺序回退。Claude/AI并入新默认代理，GLOBAL不定时检测。新需求覆盖旧手选/其他流量美国的限制仅限此候选，不修改原正式版合同和入口。详细需求见[新方案合同](profiles/tiktok-router-dual-subscription-jp/versions/v1.0.0/REQUIREMENTS.md)。不恢复控制器、不安装服务、不操作路由器；当前正式默认仍v1.0.7。用户授权候选实机验收通过后完成正式发布及GitHub同步，尚无新候选实机验收证据。
