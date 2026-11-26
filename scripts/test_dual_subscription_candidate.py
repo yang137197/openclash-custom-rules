@@ -6,58 +6,27 @@ import unittest
 from build_dual_subscription import (DIRECTORY, ROOT, PROFILE, VERSION, FIRST, EXIT, MEDIA, DEFAULT,
                                      IK_FILTER, LXY_FILTER, LXY_MEMBER_FILTER, TEST_URL)
 from strict_yaml import load_yaml
+from dual_subscription_contract import validate
 
 
-def validate(cloud, local, payload):
-    groups = {g["name"]: g for g in cloud["proxy-groups!"]}
-    assert list(groups) == [FIRST, EXIT, MEDIA, DEFAULT], "four public groups"
-    assert groups[FIRST]["use"] == groups[DEFAULT]["use"] == ["dual-ikuuu"], "iKuuu isolated"
-    assert groups[MEDIA]["use"] == ["dual-liangxinyun"], "media isolated"
-    assert groups[FIRST]["type"] == groups[DEFAULT]["type"] == "url-test", "minimum delay"
-    assert groups[MEDIA]["type"] == "fallback", "fixed priority"
-    assert groups[MEDIA]["filter"] == LXY_FILTER, "ordered priority filters"
-    for group in groups.values():
-        assert group["url"] == TEST_URL and group["interval"] == 60 and group["timeout"] == 5000
-        assert group["lazy"] is False and group["expected-status"] == "204"
-        assert group["empty-fallback"] == "REJECT"
-        assert not group.get("include-all") and not group.get("include-all-providers")
-        assert not group.get("hidden")
-    assert groups[EXIT]["type"] == "select" and groups[EXIT]["filter"] == "^TikTok-ISP-Local$"
-    assert not groups[EXIT].get("use") and not groups[EXIT].get("proxies")
-    assert len(local["proxies+"]) == 1
-    isp = local["proxies+"][0]
-    assert (isp["name"], isp["type"], isp["udp"], isp["dialer-proxy"]) == ("TikTok-ISP-Local", "socks5", False, FIRST)
-    assert set(local["proxy-providers"]) == {"dual-ikuuu", "dual-liangxinyun"}
-    assert local["proxy-providers"]["dual-liangxinyun"]["filter"] == LXY_MEMBER_FILTER
-    for provider in local["proxy-providers"].values():
-        health = provider["health-check"]
-        assert health == dict(enable=True, url=TEST_URL, interval=60, timeout=5000, lazy=False, **{"expected-status": "204"})
-        assert provider["url"].startswith("FILL_ME_")
-    assert cloud["rule-providers"]["Manual-Direct"]["payload"] == payload, "manual list/order/duplicates"
-    rules = cloud["rules!"]
-    tiktok = rules.index("GEOSITE,tiktok," + EXIT)
-    assert rules[tiktok + 1] == "GEOSITE,tiktok,REJECT"
-    assert rules[-1] == "MATCH," + DEFAULT
-    for rule in rules:
-        if rule.endswith("," + MEDIA):
-            assert rules.index(rule) > tiktok + 1
-            assert "(NOT,((RULE-SET,Manual-Direct)))" in rule
-            assert "(NOT,((RULE-SET,oc-cn-domain)))" in rule
-            assert "(NOT,((GEOIP,CN,no-resolve)))" in rule
-        if rule.endswith("," + EXIT):
-            assert rule == "GEOSITE,tiktok," + EXIT, "only TikTok uses ISP"
-    assert not any("#TikTok-ISP" in str(value) or "#美国" in str(value)
-                   for value in cloud["dns"].values()), "no obsolete DNS group references"
 
 
 class DualSubscriptionTests(unittest.TestCase):
     def setUp(self):
         self.cloud = load_yaml((DIRECTORY / "openclash-overwrite.conf").read_text(encoding="utf-8"), module=True)
         self.local = load_yaml((DIRECTORY / "local-tiktok-proxy.conf").read_text(encoding="utf-8"), module=True)
-        self.payload = load_yaml((ROOT / "rules/manual-direct.yaml").read_text(encoding="utf-8"))["payload"]
+        self.payload = self.cloud["rule-providers"]["Manual-Direct"]["payload"]
 
     def test_complete_contract(self):
         validate(self.cloud, self.local, self.payload)
+
+    def test_daily_rolling_payload_matches_source_without_changing_runtime_contract(self):
+        source = load_yaml((ROOT / "rules/manual-direct.yaml").read_text(encoding="utf-8"))["payload"]
+        rolling = load_yaml((ROOT / f"profiles/{PROFILE}/overwrite/openclash-overwrite.conf").read_text(encoding="utf-8"), module=True)
+        expected = copy.deepcopy(self.cloud)
+        expected["rule-providers"]["Manual-Direct"]["payload"] = source
+        self.assertEqual(rolling, expected)
+        validate(rolling, self.local, source)
 
     def test_candidate_extends_existing_version_line_and_keeps_stable_rolling(self):
         import validate_repository as validator
@@ -65,13 +34,49 @@ class DualSubscriptionTests(unittest.TestCase):
         self.assertEqual(set(catalog["profiles"]), {PROFILE})
         profile = catalog["profiles"][PROFILE]
         entry = profile["versions"][VERSION]
-        self.assertEqual(profile["currentVersion"], "1.0.7")
+        self.assertGreaterEqual(validator.compare_versions(profile["currentVersion"], VERSION), 0)
         self.assertEqual(VERSION, "1.0.8")
-        self.assertEqual(entry["status"], "candidate")
+        self.assertEqual(entry["status"], "stable")
         self.assertTrue(entry["localModuleTemplatePath"].endswith("/local-tiktok-proxy.conf"))
         self.assertEqual(profile["latestModulePath"], f"profiles/{PROFILE}/overwrite/openclash-overwrite.conf")
         self.assertEqual(entry["moduleSha256"], validator.sha(validator.read(entry["modulePath"])))
         self.assertEqual(entry["localTemplateSha256"], validator.sha(validator.read(entry["localModuleTemplatePath"])))
+
+    def test_native_direct_generation_is_byte_idempotent(self):
+        from sync_manual_direct import replace_provider
+        text = (DIRECTORY / "openclash-overwrite.conf").read_text(encoding="utf-8")
+        self.assertEqual(replace_provider(text, self.payload), text)
+
+    def test_native_direct_add_modify_delete_duplicates_and_empty(self):
+        from sync_manual_direct import replace_provider
+        text = (DIRECTORY / "openclash-overwrite.conf").read_text(encoding="utf-8")
+        for payload in (["DOMAIN,exact.example", "DOMAIN-SUFFIX,new.example", "DOMAIN,exact.example"], []):
+            generated = load_yaml(replace_provider(text, payload), module=True)
+            expected = copy.deepcopy(self.cloud)
+            expected["rule-providers"]["Manual-Direct"]["payload"] = payload
+            self.assertEqual(generated, expected)
+
+    def test_ambiguous_direct_provider_aliases_are_rejected(self):
+        from sync_manual_direct import replace_provider
+        text = "[YAML]\nrule-providers:\n  Manual-Direct!:\n    payload: []\n  Manual-Direct:\n    payload: []\nrules!: []\n"
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            replace_provider(text, [])
+
+    def test_native_stable_validator_rejects_non_direct_rolling_changes(self):
+        import validate_repository as validator
+        catalog = json.loads((ROOT / "profiles/catalog.json").read_text(encoding="utf-8"))
+        profile = catalog["profiles"][PROFILE]
+        entry = profile["versions"][VERSION]
+        modules = {entry["modulePath"]: self.cloud, entry["localModuleTemplatePath"]: self.local,
+                   profile["latestModulePath"]: copy.deepcopy(self.cloud)}
+        modules[profile["latestModulePath"]]["dns"]["prefer-h3"] = True
+        with self.assertRaisesRegex(ValueError, "only the generated"):
+            validator.validate_native_stable(PROFILE, profile, modules)
+
+    def test_generator_refuses_to_overwrite_published_snapshot(self):
+        from build_dual_subscription import build
+        with self.assertRaisesRegex(ValueError, "immutable"):
+            build()
 
     def test_ikuuu_accepts_new_numbers_prefixes_spaces_but_not_other_categories(self):
         for name in ("🇯🇵 日本Z01 | IEPL", "IK: 日本 Z12|IEPL|x1", "日本Z105 | IEPL"):
@@ -91,41 +96,41 @@ class DualSubscriptionTests(unittest.TestCase):
 
     def test_wrong_supplier_is_rejected(self):
         self.cloud["proxy-groups!"][0]["use"] = ["dual-liangxinyun"]
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             validate(self.cloud, self.local, self.payload)
 
     def test_media_minimum_delay_substitution_is_rejected(self):
         self.cloud["proxy-groups!"][2]["type"] = "url-test"
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             validate(self.cloud, self.local, self.payload)
 
     def test_isp_airport_fallback_is_rejected(self):
         self.cloud["proxy-groups!"][1]["proxies"] = [DEFAULT]
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             validate(self.cloud, self.local, self.payload)
 
     def test_direct_removal_and_reordering_are_rejected(self):
         for replacement in (self.payload[:-1], list(reversed(self.payload))):
             changed = copy.deepcopy(self.cloud)
             changed["rule-providers"]["Manual-Direct"]["payload"] = replacement
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(ValueError):
                 validate(changed, self.local, self.payload)
 
     def test_media_cannot_steal_direct_or_china(self):
         rules = self.cloud["rules!"]
         index = next(i for i, rule in enumerate(rules) if rule.endswith("," + MEDIA))
         rules[index] = "GEOSITE,youtube," + MEDIA
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             validate(self.cloud, self.local, self.payload)
 
     def test_tiktok_reject_guard_cannot_be_removed(self):
         self.cloud["rules!"].remove("GEOSITE,tiktok,REJECT")
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             validate(self.cloud, self.local, self.payload)
 
     def test_provider_health_must_not_depend_on_panel(self):
         self.local["proxy-providers"]["dual-ikuuu"]["health-check"]["lazy"] = True
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             validate(self.cloud, self.local, self.payload)
 
 

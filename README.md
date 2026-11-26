@@ -1,41 +1,44 @@
 # OpenClash 远程覆写规则
 
-本仓库按需求维护独立的 OpenClash 方案。当前正式方案为 **tiktok-router-loongproxy-jp-us v1.0.7 / stable**。TikTok 必须经用户手选的 iKuuu 日本节点作为第一跳，再由路由器本地 Loongproxy 美国 SOCKS5 出口；缺少日本首跳时失败关闭。
+当前正式方案为 **tiktok-router-loongproxy-jp-us v1.0.8 / stable**。用户于2026-11-26确认验收通过，原生双订阅方案沿原版本线迭代，无独立控制器或安装服务。
 
 ## 方案目录
 
 | 方案 | 适用需求 | 稳定版本 | Release | 固定覆写链接 | 部署与设置 |
-| --- | --- | --- | --- | --- | --- |
-| [tiktok-router-loongproxy-jp-us](profiles/tiktok-router-loongproxy-jp-us/README.md) | TikTok 与 Claude/Anthropic 经 Loongproxy 静态 ISP；GitHub、Google 和其他境外流量走美国组；中国大陆直连，含 Huzhou 后缀直连 | v1.0.7 | [Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.7) | [v1.0.7 YAML](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf) | [设置与验收](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/SETUP.md) |
+|---|---|---|---|---|---|
+| [tiktok-router-loongproxy-jp-us](profiles/tiktok-router-loongproxy-jp-us/README.md) | iKuuu日本自动首跳/默认代理、Loongproxy美国TikTok出口、良心云日本顺序流媒体、国内及手动直连 | v1.0.8 | [Release](https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.8) | [v1.0.8 YAML](https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.8/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/openclash-overwrite.conf) | [设置与回退](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/SETUP.md) |
 
-### 当前方案要点
+## 日常滚动覆写订阅
 
-- 私网/局域网优先直连；Claude/Anthropic 专项域名走 `TikTok-ISP`，GitHub 专项域名走美国组；二者位于通用 TikTok 规则之前。TikTok 保持紧邻拒绝规则；Google/Google Play 走美国组；`huzhou.host` 主域名及全部子域名走 DIRECT；Manual-Direct 规则按仓库流程动态维护；中国大陆域名/IP 直连；其余境外流量走美国组。
-- Loongproxy 美国 SOCKS5 必须通过 iKuuu 日本首跳，`dialer-proxy: 日本-入口`。不得改用美国或其他机场首跳，也不得在链路不可用时回退机场或 DIRECT。
-- 真实 ISP 地址、账号和密码只填写到路由器本地节点模块。v1.0.6 Release 提供 `.conf` 模板并在正文说明字段映射与虚构填写示例；v1.0.4 的历史附件名为 `.conf.example`，使用前先改名。
-- v1.0.6 新增 `DOMAIN-SUFFIX,huzhou.host,DIRECT`，覆盖主域名及其所有子域名。环境、验收证据和设置偏差见[环境记录](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6/ENVIRONMENT.json)。本地文件选择器本次未在路由器实测。
-- 用户于 2026-10-22 确认 v1.0.4 实机验收通过。日志确认 GitHub 分流规则和运行环境；未提供可复核的延迟/下载速度改善数据，因此不宣称性能已恢复。
-
-当前稳定版的滚动云覆写入口会随 `main` 更新：
+继续使用原地址，正式发布后包含v1.0.8；以后手动直连域名仍通过此地址更新：
 
 ```text
 https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
 ```
 
-`rules/manual-direct.yaml` 是手动直连域名的唯一维护入口。在 `payload` 中增删改有效规则后提交到 GitHub `main`；保留规则语法和同步一致性校验，但没有固定域名清单或固定条数。GitHub Actions 通过后自动生成滚动远程覆写并更新 catalog 哈希。先等待同步工作流成功及生成提交，再在路由器使用同一远程地址点击“更新”并重启 OpenClash。日常规则数据调整不创建 Release。唯一的本地覆写模块是 `tiktok-router-loongproxy`，完整云覆写使用远程模块。修改规则优先级、策略组、DNS、代理链路或其他运行逻辑属于大版本更新/重构，须走候选验证；用户验收后发布正式版本。
+已完成候选测试的用户保留配对本地模块，把云模块的候选固定提交URL改回上面main地址，更新并重启OpenClash。v1.0.8云、本地模块必须配套；不要混用旧的日本-入口引用。
 
-固定使用 v1.0.7 时，使用 Release 标签固定地址；该地址不会随 `main` 更新：
+## 四组分工
 
-https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.7/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7/openclash-overwrite.conf
+| 策略组 | 选择与用途 |
+|---|---|
+| TikTok首跳 | 仅iKuuu日本Z数字IEPL，自动检测并选最低延迟 |
+| Tiktok美国出口测速 | 固定原Loongproxy美国ISP，经TikTok首跳检测完整代理链 |
+| 良心云-日本专线流媒体 | 仅良心云日本专线流媒体/高速CUCM，按两位编号专线→高速顺序故障切换和恢复 |
+| ikuuu-默认代理 | 仅iKuuu日本节点，最低延迟；Google、AI/Claude、网页/API等默认代理 |
 
-## 版本索引
+四组及提供商60秒/5000毫秒/204检测；GLOBAL不定时检测。不改面板。指定流媒体、网盘、游戏平台和专用下载域名走良心云，国内/局域网和手动直连保留；TikTok不回退普通机场或DIRECT。完整平台名单、排序及限制见[合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/REQUIREMENTS.md)。
 
-v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手动直连规则的生成与滚动覆写同步自动化，保留规则有效性校验，并允许规则清单随时增删而不固定条数。v1.0.6 及更早已发布目录、标签和 Release 保持不变。v1.0.1–v1.0.3 仍是历史未验收候选。
+## 手动直连与版本维护
 
-开发规则、候选信息门禁、日志隐私与跨工具接续要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。更换 AI 开发工具或开启新对话时，在已打开仓库的工具中说“请你先读取仓库，我们继续开发”，再按规则恢复当前状态。
+rules/manual-direct.yaml是唯一手动直连源。payload中的合法DOMAIN/DOMAIN-SUFFIX可任意增删，不固定清单、数量或源哈希；保留语法和逐项同序同步校验及重复项。提交main后等待Sync manual direct rules工作流和生成提交成功，再更新同一滚动云模块并重启。日常数据维护不创建版本/Release，不改已发布快照。
 
-## v1.0.8 重构候选
+v1.0.8 是当前正式版；v1.0.7及更早发布快照、标签和Release保留且不可改写。大版本更新/重构创建递增候选，实机验收后同步原滚动地址。开发与发布门禁见[DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md)。更换工具时在已打开仓库中说“请你先读取仓库，我们继续开发”。
 
-本次按GitHub现有 `tiktok-router-loongproxy-jp-us v1.0.7` 继续迭代为 **v1.0.8 / candidate**，不另建方案或从v1.0.0重新编号。四组原生自动策略及测试见[需求合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/REQUIREMENTS.md)、[应用与完整回退](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/SETUP.md)。
+## 固定版本
 
-正式滚动覆写继续使用上面的同一个main地址，当前仍提供v1.0.7；v1.0.8实机验收并正式发布后，同步到原滚动文件与哈希。固定候选提交地址仅供本次测试，不替代日常滚动订阅。
+标签固定覆写不会随日常直连源更新：
+
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.8/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/openclash-overwrite.conf
+
+Release只附一个.conf本地占位模板；两个订阅和ISP真实值仅保存在用户本地，禁止提交Git/GitHub。字段说明和虚构示例写在Release正文。

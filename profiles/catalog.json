@@ -4,19 +4,20 @@
   "currentProfile": "tiktok-router-loongproxy-jp-us",
   "profiles": {
     "tiktok-router-loongproxy-jp-us": {
-      "title": "iKuuu 日本首跳 + 本地 Loongproxy 美国 SOCKS5 TikTok 正式方案",
+      "title": "iKuuu日本自动首跳/默认代理 + Loongproxy美国TikTok + 良心云日本顺序流媒体",
       "status": "stable",
-      "currentVersion": "1.0.7",
+      "currentVersion": "1.0.8",
       "profileReadmePath": "profiles/tiktok-router-loongproxy-jp-us/README.md",
       "validationTestPath": "scripts/test_profile_tiktok_router_loongproxy_jp_us.py",
       "latestModulePath": "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf",
-      "latestModuleSha256": "fd9e3504ddc65d5d90c0f328678df059686a103cee64aac092bce6ef29b166e9",
+      "latestModuleSha256": "b4cd3349c48c4df6a617bc500cd4e3a594b1c87b74d7aeb24b03d93bdc903fec",
       "immutableVersionDirectories": [
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.0",
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.4",
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.5",
         "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.6",
-        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7"
+        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.7",
+        "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8"
       ],
       "versions": {
         "1.0.0": {
@@ -222,7 +223,7 @@
           "localTemplateSha256": "d7639bd7ac733c2312103bcb8e73764b2b354b3ccb7bcb578f7ee5d3706da522"
         },
         "1.0.8": {
-          "status": "candidate",
+          "status": "stable",
           "kind": "native-dual-subscription-jp",
           "versionDirectory": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8",
           "modulePath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/openclash-overwrite.conf",
@@ -247,7 +248,16 @@
             "D12",
             "D13"
           ],
-          "manualRulesPath": "rules/manual-direct.yaml"
+          "manualRulesPath": "rules/manual-direct.yaml",
+          "releaseTag": "tiktok-router-loongproxy-jp-us-v1.0.8",
+          "releaseUrl": "https://github.com/yang137197/openclash-custom-rules/releases/tag/tiktok-router-loongproxy-jp-us-v1.0.8",
+          "versionedModuleUrl": "https://raw.githubusercontent.com/yang137197/openclash-custom-rules/tiktok-router-loongproxy-jp-us-v1.0.8/profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/openclash-overwrite.conf",
+          "releaseNotesPath": "profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/RELEASE_NOTES.md",
+          "localProxyName": "TikTok-ISP-Local",
+          "firstHopGroup": "TikTok首跳",
+          "firstHopProvider": "iKuuu",
+          "tiktokGroup": "Tiktok美国出口测速",
+          "foreignGroup": "ikuuu-默认代理"
         }
       },
       "manualRulesPath": "rules/manual-direct.yaml",

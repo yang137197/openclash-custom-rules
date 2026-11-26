@@ -17,6 +17,7 @@ ROLLING_PATH = "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-over
 CATALOG_PATH = "profiles/catalog.json"
 PROFILE_ID = "tiktok-router-loongproxy-jp-us"
 PROVIDER_HEADER = "  Manual-Direct!:\n"
+PLAIN_PROVIDER_HEADER = "  Manual-Direct:\n"
 
 
 def require(condition, message):
@@ -54,28 +55,33 @@ def parse_payload(source_text):
     return validate_payload(document.get("payload"))
 
 
-def render_provider(payload):
+def render_provider(payload, header=PROVIDER_HEADER):
+    plain = header == PLAIN_PROVIDER_HEADER
     lines = [
-        "  Manual-Direct!:",
+        header.rstrip("\n"),
         "    type: inline",
         "    behavior: classical",
     ]
     if payload:
         lines.append("    payload:")
-        lines.extend(f"      - {rule}" for rule in payload)
+        indentation = "    " if plain else "      "
+        lines.extend(f"{indentation}- {rule}" for rule in payload)
     else:
         lines.append("    payload: []")
-    return "\n".join(lines) + "\n\n"
+    return "\n".join(lines) + ("\n" if plain else "\n\n")
 
 
 def replace_provider(module_text, payload):
-    require(module_text.count(PROVIDER_HEADER) == 1,
+    headers = [header for header in (PROVIDER_HEADER, PLAIN_PROVIDER_HEADER)
+               for _ in range(module_text.count(header))]
+    require(len(headers) == 1,
             "rolling module must contain exactly one Manual-Direct inline provider")
-    start = module_text.index(PROVIDER_HEADER)
+    header = headers[0]
+    start = module_text.index(header)
     rules_match = re.search(r"(?m)^rules!:\s*$", module_text[start:])
     require(rules_match is not None, "rolling module is missing the root rules! section")
     end = start + rules_match.start()
-    generated = module_text[:start] + render_provider(payload) + module_text[end:]
+    generated = module_text[:start] + render_provider(payload, header) + module_text[end:]
 
     # v1.0.6 represented Huzhou as a separate rule. v1.0.7 moves it into the
     # canonical inline payload; remove that legacy standalone copy on every run.

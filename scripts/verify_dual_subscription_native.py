@@ -192,7 +192,11 @@ def main():
             isp = proxy("ISP", kind="socks")
             for server in (jp_fast, jp_slow):
                 server.allowed_ports.add(isp.server_address[1])
-            cloud = load_yaml((DIRECTORY / "openclash-overwrite.conf").read_text(encoding="utf-8"), module=True)
+            catalog = json.loads((ROOT / "profiles/catalog.json").read_text(encoding="utf-8"))
+            current_profile = catalog["profiles"][PROFILE]
+            cloud_path = (ROOT / current_profile["latestModulePath"] if current_profile["currentVersion"] == VERSION
+                          else DIRECTORY / "openclash-overwrite.conf")
+            cloud = load_yaml(cloud_path.read_text(encoding="utf-8"), module=True)
             local = load_yaml((DIRECTORY / "local-tiktok-proxy.conf").read_text(encoding="utf-8"), module=True)
             base = dict(**{"mixed-port": free_port(), "allow-lan": False, "mode": "rule",
                            "external-controller": "127.0.0.1:" + str(free_port()),
@@ -207,7 +211,7 @@ def main():
                 pd["url"] = "http://127.0.0.1:1/local-fixture-only"
             local_path.write_text("[YAML]\n" + yaml.safe_dump(local, allow_unicode=True), encoding="utf-8")
             merged = official_merge(args.ruby, args.official_yaml, base_path,
-                                    [local_path, DIRECTORY / "openclash-overwrite.conf"], home / "merged.yaml")
+                                    [local_path, cloud_path], home / "merged.yaml")
             check("official-merge-replaces-groups-keeps-plugin-base", merged["sentinel"] == base["sentinel"] and
                   [g["name"] for g in merged["proxy-groups"]] == [FIRST, EXIT, MEDIA, DEFAULT])
             check("official-merge-retains-entire-current-direct-source", merged["rule-providers"]["Manual-Direct"]["payload"] ==
