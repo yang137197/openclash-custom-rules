@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.8",
+  "status": "verified",
+  "behaviorChanged": true,
+  "environment": {
+    "openclashVersion": "0.48.002",
+    "openclashBuild": "not separately identified in debug log; plugin reports 0.48.002",
+    "mihomoVersion": "alpha",
+    "mihomoBuild": "gbc76c13",
+    "openwrtVersion": "OpenWrt 24.10.2 r7492-3fda82b52 (CatWrt.v25.8.amd64 per user)",
+    "deviceArchitecture": "x86_64",
+    "deviceModel": "QEMU Standard PC (i440FX + PIIX - QEMU Virtual CPU version 2.5+ : 2C2T"
+  },
+  "runtimeConfiguration": {
+    "activeConfigLabel": "ikuuu",
+    "enabledModulesInOrder": [
+      "完整云订阅模块（界面名称前缀 openclash-overwrit…）",
+      "本地双订阅/ISP模块（界面名称前缀 tiktok-loongproxy-j…）"
+    ],
+    "settingsBaseline": "deviations",
+    "settingsDeviations": [
+      "禁用QUIC：停用；SETUP保留原建议开启，但本轮沿用用户当前设置，不修改此开关。"
+    ]
+  },
+  "evidence": {
+    "source": "debug-log",
+    "capturedAt": "2026-11-26",
+    "rawDebugLogCommitted": false,
+    "runtimeAcceptance": "passed",
+    "userConfirmed": true,
+    "summary": "2026-11-26 15:28:14生成的本轮调试日志确认插件0.48.002、运行核心alpha-gbc76c13、系统/设备和ikuuu配置；四组字段与候选逐项一致，37条路由的差异仅为日志内IP脱敏，148条手动直连内容/顺序/重复项一致。模块设置段为空，用户随后截图补证云模块位于本地模块上方且两者启用，完整文件名被界面截断，记录其可见前缀。用户明确确认达到验收标准并授权正式发布。业务通过来自用户确认；日志采样窗口本身不证明所有平台播放、故障切换与回退均发生。原始日志及私有凭据不入仓。"
+  },
+  "reusedFromVersion": null,
+  "setupDocument": "SETUP.md",
+  "artifactEquivalence": {
+    "userTestedCommit": "57217e864e723f6d1599a5be44006e378d229c03",
+    "userTestedPath": "profiles/tiktok-router-dual-subscription-jp/versions/v1.0.0",
+    "releaseVersion": "1.0.8",
+    "reason": "候选归属/编号迁移时运行文件原字节未变；已对Git blob与当前文件逐字节核验。",
+    "cloudSha256": "b4cd3349c48c4df6a617bc500cd4e3a594b1c87b74d7aeb24b03d93bdc903fec",
+    "localTemplateSha256": "0860797f702ba8189e07324ba06b5fc956594199abdf36e0cd9e4f90deacedb0"
+  }
+}

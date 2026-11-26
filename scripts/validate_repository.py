@@ -525,12 +525,15 @@ def validate_profile_artifacts(profile_id, profile, modules):
         local_template_path = entry.get("localModuleTemplatePath")
         if local_template_path:
             expected_template = directory + "/local-tiktok-proxy.conf"
-            if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
+            if profile_id == JP and version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
                 expected_template += ".example"
             require(local_template_path == expected_template,
                     f"{profile_id} v{version}: invalid local credential template path")
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
+            if "localTemplateSha256" in entry and (profile_id != JP or compare_versions(version, "1.0.8") >= 0):
+                require(entry["localTemplateSha256"] == sha(read(local_template_path)),
+                        f"{profile_id} v{version}: local template hash mismatch")
         additional_direct_rules_path = entry.get("additionalDirectRulesPath")
         if additional_direct_rules_path:
             read(additional_direct_rules_path)
@@ -556,7 +559,31 @@ def validate_profile_artifacts(profile_id, profile, modules):
                 f"{profile_id}: rolling module hash mismatch")
 
 
+def validate_native_stable(profile_id, profile, modules):
+    from copy import deepcopy
+    from dual_subscription_contract import validate
+    entry = profile["versions"][profile["currentVersion"]]
+    fixed = modules[entry["modulePath"]]
+    local = modules[entry["localModuleTemplatePath"]]
+    payload = validate_manual_direct_payload(fixed["rule-providers"]["Manual-Direct"]["payload"])
+    validate(fixed, local, payload)
+    require(entry["localProxyName"] == "TikTok-ISP-Local" and
+            entry["firstHopGroup"] == "TikTok首跳" and entry["firstHopProvider"] == "iKuuu" and
+            entry["tiktokGroup"] == "Tiktok美国出口测速" and
+            entry["foreignGroup"] == "ikuuu-默认代理", "native stable group metadata mismatch")
+    current = parse_manual_direct_payload(read("rules/manual-direct.yaml"))
+    expected = deepcopy(fixed)
+    expected["rule-providers"]["Manual-Direct"]["payload"] = current
+    rolling = modules[profile["latestModulePath"]]
+    require(rolling == expected, "native rolling module may change only the generated Manual-Direct payload")
+    validate(rolling, local, current)
+    print(f"OK: {profile_id} v{profile['currentVersion']} stable; native dual subscriptions and generated direct payload")
+
+
 def validate_stable(profile_id, profile, modules, manual):
+    if profile["versions"][profile["currentVersion"]].get("kind") == "native-dual-subscription-jp":
+        validate_native_stable(profile_id, profile, modules)
+        return
     version = profile["currentVersion"]
     entry = profile["versions"][version]
     directory = f"profiles/{profile_id}/versions/v{version}"
@@ -656,13 +683,15 @@ def validate_manual_direct_sync(profile, modules):
     payload = parse_manual_direct_payload(read(source_path))
     rolling_path = profile["latestModulePath"]
     rolling = modules[rolling_path]
-    provider = rolling.get("rule-providers", {}).get("Manual-Direct!")
+    native = profile["versions"][profile["currentVersion"]].get("kind") == "native-dual-subscription-jp"
+    provider_key = "Manual-Direct" if native else "Manual-Direct!"
+    provider = rolling.get("rule-providers", {}).get(provider_key)
     require(provider == {"type": "inline", "behavior": "classical", "payload": payload},
             "rolling Manual-Direct inline payload must exactly match rules/manual-direct.yaml")
     rules = rolling.get("rules!", [])
     require(rules.count("RULE-SET,Manual-Direct,DIRECT") == 1,
             "rolling module must call the generated Manual-Direct provider exactly once")
-    google_index = rules.index("GEOSITE,google,美国")
+    google_index = rules.index("GEOSITE,google,ikuuu-默认代理" if native else "GEOSITE,google,美国")
     manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
     china_index = rules.index("RULE-SET,oc-cn-domain,DIRECT")
     require(google_index < manual_index < china_index,

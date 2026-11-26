@@ -145,7 +145,7 @@ class JapanFirstProfileTests(unittest.TestCase):
         profile = catalog["profiles"][validator.JP]
         release = profile["versions"]["1.0.5"]
         stable = profile["versions"]["1.0.4"]
-        self.assertEqual(profile["currentVersion"], "1.0.7")
+        self.assertGreaterEqual(validator.compare_versions(profile["currentVersion"], "1.0.7"), 0)
         self.assertEqual(release["status"], "stable")
         self.assertEqual(release["requirements"], ["J13", "J14", "J15", "J16"])
         self.assertTrue(release["localModuleTemplatePath"].endswith("/local-tiktok-proxy.conf"))
@@ -176,7 +176,7 @@ class JapanFirstProfileTests(unittest.TestCase):
         catalog = json.loads(validator.read("profiles/catalog.json"))
         profile = catalog["profiles"][validator.JP]
         release = profile["versions"]["1.0.6"]
-        self.assertEqual(profile["currentVersion"], "1.0.7")
+        self.assertGreaterEqual(validator.compare_versions(profile["currentVersion"], "1.0.7"), 0)
         self.assertEqual(release["status"], "stable")
         self.assertEqual(release["requirements"], ["J17"])
         self.assertEqual(release["manualRulesPath"], "rules/manual-direct-isp.yaml")
@@ -242,7 +242,7 @@ class JapanFirstProfileTests(unittest.TestCase):
 
         rolling = load_yaml(validator.read(profile["latestModulePath"]), module=True)
         source = parse_payload(validator.read(release["manualRulesPath"]))
-        self.assertEqual(rolling["rule-providers"]["Manual-Direct!"]["payload"], source)
+        self.assertEqual(rolling["rule-providers"].get("Manual-Direct!", rolling["rule-providers"].get("Manual-Direct"))["payload"], source)
         self.assertNotIn("DOMAIN-SUFFIX,huzhou.host,DIRECT", rolling["rules!"])
 
         environment = json.loads(validator.read(release["environmentPath"]))
