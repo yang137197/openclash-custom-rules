@@ -13,8 +13,10 @@ from strict_yaml import load_yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PATH = "rules/manual-direct.yaml"
+ROLLING_PATH = "profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf"
 CATALOG_PATH = "profiles/catalog.json"
-PROVIDER_HEADER = re.compile(r"(?m)^  (Manual-Direct!?):\n")
+PROFILE_ID = "tiktok-router-loongproxy-jp-us"
+PROVIDER_HEADER = "  Manual-Direct!:\n"
 
 
 def require(condition, message):
@@ -52,9 +54,9 @@ def parse_payload(source_text):
     return validate_payload(document.get("payload"))
 
 
-def render_provider(payload, name):
+def render_provider(payload):
     lines = [
-        f"  {name}:",
+        "  Manual-Direct!:",
         "    type: inline",
         "    behavior: classical",
     ]
@@ -67,15 +69,13 @@ def render_provider(payload, name):
 
 
 def replace_provider(module_text, payload):
-    headers = list(PROVIDER_HEADER.finditer(module_text))
-    require(len(headers) == 1,
+    require(module_text.count(PROVIDER_HEADER) == 1,
             "rolling module must contain exactly one Manual-Direct inline provider")
-    header = headers[0]
-    start = header.start()
+    start = module_text.index(PROVIDER_HEADER)
     rules_match = re.search(r"(?m)^rules!:\s*$", module_text[start:])
     require(rules_match is not None, "rolling module is missing the root rules! section")
     end = start + rules_match.start()
-    generated = module_text[:start] + render_provider(payload, header[1]) + module_text[end:]
+    generated = module_text[:start] + render_provider(payload) + module_text[end:]
 
     # v1.0.6 represented Huzhou as a separate rule. v1.0.7 moves it into the
     # canonical inline payload; remove that legacy standalone copy on every run.
@@ -96,36 +96,35 @@ def write_utf8(path, text):
 
 
 def synchronize(root=ROOT, write=False):
+    source_path = root / SOURCE_PATH
+    rolling_path = root / ROLLING_PATH
     catalog_path = root / CATALOG_PATH
-    payload = parse_payload((root / SOURCE_PATH).read_text(encoding="utf-8"))
+    payload = parse_payload(source_path.read_text(encoding="utf-8"))
+    current_module = rolling_path.read_text(encoding="utf-8")
+    generated_module = replace_provider(current_module, payload)
+
     catalog_text = catalog_path.read_text(encoding="utf-8")
     catalog = json.loads(catalog_text)
-    changes = {}
-    profiles = [(profile_id, profile) for profile_id, profile in catalog["profiles"].items()
-                if profile["status"] == "stable" and profile.get("manualRulesPath") == SOURCE_PATH]
-    require(profiles, "catalog must contain at least one stable manual-direct profile")
-    for profile_id, profile in profiles:
-        relative = f"profiles/{profile_id}/overwrite/openclash-overwrite.conf"
-        require(profile.get("latestModulePath") == relative,
-                f"{profile_id}: catalog rolling module path does not match the generator target")
-        rolling_path = root / relative
-        current = rolling_path.read_text(encoding="utf-8")
-        generated = replace_provider(current, payload)
-        profile["latestModuleSha256"] = sha256(generated)
-        if current != generated:
-            changes[rolling_path] = generated
+    profile = catalog["profiles"][PROFILE_ID]
+    require(profile.get("latestModulePath") == ROLLING_PATH,
+            "catalog rolling module path does not match the generator target")
+    generated_hash = sha256(generated_module)
+    profile["latestModuleSha256"] = generated_hash
     generated_catalog = json.dumps(catalog, ensure_ascii=False, indent=2) + "\n"
-    if catalog_text != generated_catalog:
-        changes[catalog_path] = generated_catalog
-    if write:
-        for path, content in changes.items():
-            write_utf8(path, content)
-        print(f"Synchronized {len(payload)} manual direct rules for {len(profiles)} profiles; {len(changes)} files changed")
-        return bool(changes)
 
-    stale = ", ".join(path.relative_to(root).as_posix() for path in changes)
-    require(not changes, f"manual direct synchronization needed: {stale}")
-    print(f"OK: {len(payload)} manual direct rules match {len(profiles)} rolling modules and catalog hashes")
+    module_changed = current_module != generated_module
+    catalog_changed = catalog_text != generated_catalog
+    if write:
+        if module_changed:
+            write_utf8(rolling_path, generated_module)
+        if catalog_changed:
+            write_utf8(catalog_path, generated_catalog)
+        print(f"Synchronized {len(payload)} manual direct rules; module changed={module_changed}, catalog changed={catalog_changed}")
+        return module_changed or catalog_changed
+
+    require(not module_changed, f"{ROLLING_PATH} is out of sync with {SOURCE_PATH}")
+    require(not catalog_changed, f"{CATALOG_PATH} rolling module hash is out of date")
+    print(f"OK: {len(payload)} manual direct rules match the rolling module and catalog hash")
     return False
 
 
