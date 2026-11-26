@@ -27,7 +27,11 @@ LEGACY_ENVIRONMENT_EXEMPTIONS = {(JP, "1.0.0")}
 LEGACY_EXAMPLE_TEMPLATE_VERSIONS = {"1.0.0", "1.0.1", "1.0.4"}
 # User-approved cleanup baseline. Only retired files/snapshots listed in this
 # baseline may be removed; published files that remain active cannot be edited.
-RETIREMENT_BASELINE = "dc39b92933164f71a4660321dfb5b62d7b172101"
+# Explicit user-approved retirements; active original snapshots remain protected.
+RETIREMENT_BASELINES = (
+    "dc39b92933164f71a4660321dfb5b62d7b172101",
+    "5385487e3cac084e58e23cd5154d3bf2ccbaf5c6",
+)
 GUIDE = "https://raw.githubusercontent.com/vernesong/OpenClash/dev/.github/skills/openclash-user-guide/SKILL.md"
 JAPAN_FILTER = "(?i)(🇯🇵|日本|japan|jp)"
 USA_FILTER = "(?i)(🇺🇸|美国|美國|(^|[ _-])United[ _-]?States($|[ _-]|[0-9])|(^|[ _-])USA($|[ _-]|[0-9])|(^|[ _-])US($|[ _-]|[0-9]))"
@@ -75,7 +79,7 @@ def validate_current_document_versions(catalog, documents):
             f"README.md: current profile table version must match catalog ({version})")
     claim("AGENTS.md", "current scheme", r"当前正式方案：`([^\s]+) v" + ver + r"`", (profile_id, version))
     claim("AGENTS.md", "current stable version", r"当前 `v" + ver + r"` 为正式稳定版本", version)
-    claim("MAINTENANCE.md", "current baseline", r"当前默认方案是 `([^\s]+) v" + ver + r"`",
+    claim("MAINTENANCE.md", "current baseline", r"当前唯一支持方案是 `([^\s]+) v" + ver + r"`",
           (profile_id, version))
     claim("MAINTENANCE.md", "current release", r"当前正式版 v" + ver, version)
     claim("MAINTENANCE.md", "current stable version", r"当前稳定版本为 `v" + ver + r"`", version)
@@ -521,41 +525,13 @@ def validate_profile_artifacts(profile_id, profile, modules):
         local_template_path = entry.get("localModuleTemplatePath")
         if local_template_path:
             expected_template = directory + "/local-tiktok-proxy.conf"
-            if profile_id == JP and version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
+            if version in LEGACY_EXAMPLE_TEMPLATE_VERSIONS:
                 expected_template += ".example"
             require(local_template_path == expected_template,
                     f"{profile_id} v{version}: invalid local credential template path")
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
         additional_direct_rules_path = entry.get("additionalDirectRulesPath")
-        runtime = entry.get("controllerRuntime", "ruby")
-        require(runtime in {"ruby", "lua5.1"}, f"{profile_id} v{version}: invalid controller runtime")
-        extension = "lua" if runtime == "lua5.1" else "rb"
-        artifacts = [("controller", f"liangxinyun-controller.{extension}"),
-                     ("controllerService", "liangxinyun-controller.init")]
-        if runtime == "lua5.1":
-            artifacts.append(("controllerSupervisor", "liangxinyun-controller.run"))
-            require(all(entry.get(field + "Path") for field, _ in artifacts),
-                    f"{profile_id} v{version}: Lua controller artifacts are required")
-        for field, filename in artifacts:
-            path = entry.get(field + "Path")
-            if path:
-                require(path == directory + "/" + filename,
-                        f"{profile_id} v{version}: invalid {field} path")
-                require(entry.get(field + "Sha256") == sha(read(path)),
-                        f"{profile_id} v{version}: {field} hash mismatch")
-        if entry.get("incrementalModulePath"):
-            for field, filename in (("incrementalModule", "liangxinyun-incremental.conf"),
-                                    ("scopeGuard", "scope_guard.py"),
-                                    ("mergeHelper", "merge_official.rb"),
-                                    ("bundleManifest", "BUNDLE.json")):
-                path = directory + "/" + filename
-                require(entry.get(field + "Path") == path and entry.get(field + "Sha256") == sha(read(path)),
-                        f"{profile_id} v{version}: invalid {field} artifact")
-            require(entry.get("moduleUsage") == "reference-only",
-                    f"{profile_id} v{version}: scoped companion must identify the full module as reference-only")
-            require(entry["incrementalModulePath"] in modules,
-                    f"{profile_id} v{version}: incremental module missing")
         if additional_direct_rules_path:
             read(additional_direct_rules_path)
 
@@ -680,16 +656,13 @@ def validate_manual_direct_sync(profile, modules):
     payload = parse_manual_direct_payload(read(source_path))
     rolling_path = profile["latestModulePath"]
     rolling = modules[rolling_path]
-    providers = rolling.get("rule-providers", {})
-    matches = [providers[key] for key in ("Manual-Direct!", "Manual-Direct") if key in providers]
-    require(matches == [{"type": "inline", "behavior": "classical", "payload": payload}],
+    provider = rolling.get("rule-providers", {}).get("Manual-Direct!")
+    require(provider == {"type": "inline", "behavior": "classical", "payload": payload},
             "rolling Manual-Direct inline payload must exactly match rules/manual-direct.yaml")
     rules = rolling.get("rules!", [])
     require(rules.count("RULE-SET,Manual-Direct,DIRECT") == 1,
             "rolling module must call the generated Manual-Direct provider exactly once")
-    google_indexes = [index for index, rule in enumerate(rules) if rule.startswith("GEOSITE,google,")]
-    require(len(google_indexes) == 1, "rolling module must have exactly one general Google rule")
-    google_index = google_indexes[0]
+    google_index = rules.index("GEOSITE,google,美国")
     manual_index = rules.index("RULE-SET,Manual-Direct,DIRECT")
     china_index = rules.index("RULE-SET,oc-cn-domain,DIRECT")
     require(google_index < manual_index < china_index,
@@ -720,7 +693,14 @@ def check_history(base_ref, profiles):
         print("SKIP: immutable history comparison (no --base-ref)")
         return
     base = json.loads(git("show", f"{base_ref}:profiles/catalog.json"))
-    approved = json.loads(git("show", f"{RETIREMENT_BASELINE}:profiles/catalog.json"))
+    approved = {"profiles": {}}
+    for reference in RETIREMENT_BASELINES:
+        snapshot = json.loads(git("show", f"{reference}:profiles/catalog.json"))
+        for profile_id, entry in snapshot["profiles"].items():
+            directories = approved["profiles"].setdefault(
+                profile_id, {"immutableVersionDirectories": []})["immutableVersionDirectories"]
+            directories.extend(directory for directory in entry.get("immutableVersionDirectories", [])
+                               if directory not in directories)
     retired = set(approved["profiles"]) - {JP}
     require(not (retired & set(profiles)), "retired profiles must not be reintroduced")
     require(set(base["profiles"]) - set(profiles) <= retired, "unapproved profile retirement")
@@ -783,7 +763,7 @@ def main():
         if profile["status"] == "stable":
             expected_modules.add(profile["latestModulePath"])
         for version_entry in profile["versions"].values():
-            expected_modules.update(version_entry[key] for key in ("modulePath", "localModuleTemplatePath", "incrementalModulePath")
+            expected_modules.update(version_entry[key] for key in ("modulePath", "localModuleTemplatePath")
                                     if key in version_entry)
     require(set(modules) == expected_modules, "module files must match the version catalog")
     for profile_id, profile in catalog["profiles"].items():

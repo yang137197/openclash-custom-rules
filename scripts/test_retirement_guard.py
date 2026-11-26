@@ -21,6 +21,7 @@ class RetirementGuardTests(unittest.TestCase):
                      f"{status}\t{directory}/openclash-overwrite.conf\n"]
         with tempfile.TemporaryDirectory() as temporary:
             with patch.object(validator, "ROOT", Path(temporary)), \
+                    patch.object(validator, "RETIREMENT_BASELINES", ("test-approved-retirement",)), \
                     patch.object(validator, "git", side_effect=responses), \
                     contextlib.redirect_stdout(io.StringIO()):
                 validator.check_history("test-base", {validator.JP: {}})
