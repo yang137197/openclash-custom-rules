@@ -531,7 +531,7 @@ def validate_profile_artifacts(profile_id, profile, modules):
                     f"{profile_id} v{version}: invalid local credential template path")
             require(local_template_path in modules,
                     f"{profile_id} v{version}: local template missing from parsed modules")
-            if profile_id != JP and "localTemplateSha256" in entry:
+            if "localTemplateSha256" in entry and (profile_id != JP or compare_versions(version, "1.0.8") >= 0):
                 require(entry["localTemplateSha256"] == sha(read(local_template_path)),
                         f"{profile_id} v{version}: local template hash mismatch")
         additional_direct_rules_path = entry.get("additionalDirectRulesPath")

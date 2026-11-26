@@ -34,6 +34,8 @@ v1.0.7 是当前正式版；用户于 2026-10-28 确认验收通过。它将手�
 
 开发规则、候选信息门禁、日志隐私与跨工具接续要求见 [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md)。更换 AI 开发工具或开启新对话时，在已打开仓库的工具中说“请你先读取仓库，我们继续开发”，再按规则恢复当前状态。
 
-## 新需求候选
+## v1.0.8 重构候选
 
-[tiktok-router-dual-subscription-jp v1.0.0 / candidate](profiles/tiktok-router-dual-subscription-jp/README.md)：iKuuu日本自动低延迟首跳和默认代理、固定Loongproxy美国TikTok出口、良心云日本专线/高速单层顺序回退。原生实现，无独立控制器。尚未实机验收，不替换上面的v1.0.7正式入口。候选应用、私有模板和完整回退见[SETUP](profiles/tiktok-router-dual-subscription-jp/versions/v1.0.0/SETUP.md)。
+本次按GitHub现有 `tiktok-router-loongproxy-jp-us v1.0.7` 继续迭代为 **v1.0.8 / candidate**，不另建方案或从v1.0.0重新编号。四组原生自动策略及测试见[需求合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/REQUIREMENTS.md)、[应用与完整回退](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/SETUP.md)。
+
+正式滚动覆写继续使用上面的同一个main地址，当前仍提供v1.0.7；v1.0.8实机验收并正式发布后，同步到原滚动文件与哈希。固定候选提交地址仅供本次测试，不替代日常滚动订阅。

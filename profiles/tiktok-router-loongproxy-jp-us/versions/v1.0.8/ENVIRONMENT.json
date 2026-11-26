@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "profileId": "tiktok-router-dual-subscription-jp",
-  "version": "1.0.0",
+  "profileId": "tiktok-router-loongproxy-jp-us",
+  "version": "1.0.8",
   "status": "pending",
   "behaviorChanged": true,
   "environment": {

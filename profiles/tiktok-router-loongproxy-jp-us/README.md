@@ -40,3 +40,7 @@ https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profile
 - **v1.0.3**：Claude 网页 Anthropic/Claude 第一方域名分流候选。
 
 正式版本号按本方案递增；已发布目录、标签和 Release 不得改写。仓库级流程见 [`DEVELOPMENT_RULES.md`](../../DEVELOPMENT_RULES.md)。
+
+## v1.0.8 重构候选
+
+候选 **v1.0.8 / candidate** 接续本方案v1.0.7，采用四个显式组和原生双订阅策略；[需求合同](versions/v1.0.8/REQUIREMENTS.md)、[测试、设置及回退](versions/v1.0.8/SETUP.md)、[环境](versions/v1.0.8/ENVIRONMENT.json)、[验证](versions/v1.0.8/VALIDATION.md)。候选未实机验收。正式发布后更新本方案原滚动入口，不另建订阅；当前正式滚动仍为v1.0.7。

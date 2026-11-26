@@ -3,7 +3,7 @@ import json
 import re
 import unittest
 
-from build_dual_subscription import (DIRECTORY, ROOT, FIRST, EXIT, MEDIA, DEFAULT,
+from build_dual_subscription import (DIRECTORY, ROOT, PROFILE, VERSION, FIRST, EXIT, MEDIA, DEFAULT,
                                      IK_FILTER, LXY_FILTER, LXY_MEMBER_FILTER, TEST_URL)
 from strict_yaml import load_yaml
 
@@ -59,14 +59,19 @@ class DualSubscriptionTests(unittest.TestCase):
     def test_complete_contract(self):
         validate(self.cloud, self.local, self.payload)
 
-    def test_new_profile_does_not_inherit_original_legacy_example_extension(self):
+    def test_candidate_extends_existing_version_line_and_keeps_stable_rolling(self):
         import validate_repository as validator
-        profile_id = "tiktok-router-dual-subscription-jp"
         catalog = json.loads((ROOT / "profiles/catalog.json").read_text(encoding="utf-8"))
-        profile = catalog["profiles"][profile_id]
-        entry = profile["versions"]["1.0.0"]
-        validator.validate_profile_artifacts(profile_id, profile, {
-            entry["modulePath"]: self.cloud, entry["localModuleTemplatePath"]: self.local})
+        self.assertEqual(set(catalog["profiles"]), {PROFILE})
+        profile = catalog["profiles"][PROFILE]
+        entry = profile["versions"][VERSION]
+        self.assertEqual(profile["currentVersion"], "1.0.7")
+        self.assertEqual(VERSION, "1.0.8")
+        self.assertEqual(entry["status"], "candidate")
+        self.assertTrue(entry["localModuleTemplatePath"].endswith("/local-tiktok-proxy.conf"))
+        self.assertEqual(profile["latestModulePath"], f"profiles/{PROFILE}/overwrite/openclash-overwrite.conf")
+        self.assertEqual(entry["moduleSha256"], validator.sha(validator.read(entry["modulePath"])))
+        self.assertEqual(entry["localTemplateSha256"], validator.sha(validator.read(entry["localModuleTemplatePath"])))
 
     def test_ikuuu_accepts_new_numbers_prefixes_spaces_but_not_other_categories(self):
         for name in ("🇯🇵 日本Z01 | IEPL", "IK: 日本 Z12|IEPL|x1", "日本Z105 | IEPL"):

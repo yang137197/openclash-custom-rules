@@ -9,8 +9,8 @@ from strict_yaml import load_yaml
 from sync_manual_direct import parse_payload
 
 ROOT = Path(__file__).resolve().parents[1]
-PROFILE = "tiktok-router-dual-subscription-jp"
-VERSION = "1.0.0"
+PROFILE = "tiktok-router-loongproxy-jp-us"
+VERSION = "1.0.8"
 DIRECTORY = ROOT / "profiles" / PROFILE / "versions" / f"v{VERSION}"
 FIRST = "TikTok首跳"
 EXIT = "Tiktok美国出口测速"

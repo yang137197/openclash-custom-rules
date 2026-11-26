@@ -19,7 +19,7 @@ from pathlib import Path
 
 import yaml
 
-from build_dual_subscription import ROOT, DIRECTORY, FIRST, EXIT, MEDIA, DEFAULT, SERVICES
+from build_dual_subscription import ROOT, DIRECTORY, PROFILE, VERSION, FIRST, EXIT, MEDIA, DEFAULT, SERVICES
 from strict_yaml import load_yaml
 
 URLLIB = urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -335,7 +335,7 @@ def main():
             check("tiktok-full-chain-includes-fixed-ISP", route("tiktok.example.test") == ["ISP"])
             check("tiktok-ISP-connection-actually-traverses-selected-first-hop",
                   any(label == "IK-fast" and port == isp.server_address[1] for label, _, port in TRAIL[before:]))
-            report = dict(passed=True, caseCount=len(cases), cases=cases,
+            report = dict(profileId=PROFILE, candidateVersion=VERSION, passed=True, caseCount=len(cases), cases=cases,
                           coreVersion=subprocess.check_output([args.core, "-v"], text=True).splitlines()[0],
                           officialMergeSource="vernesong/OpenClash@e553e82", fixturesOnly=True,
                           routerAccess=False, realSubscriptionsUsed=False, formalAcceptance=False)

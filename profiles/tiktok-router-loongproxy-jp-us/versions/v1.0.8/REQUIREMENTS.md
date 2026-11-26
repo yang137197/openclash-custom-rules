@@ -1,6 +1,6 @@
-# tiktok-router-dual-subscription-jp v1.0.0 需求合同
+# tiktok-router-loongproxy-jp-us v1.0.8 需求合同
 
-状态 **candidate**。需求来源：2026-11-26 用户明确重构要求及选择“固定顺序，故障切换、恢复返回”；本合同仅适用于本方案，不改变原正式版合同。
+状态 **candidate**。需求来源：2026-11-26 用户明确重构要求及选择“固定顺序，故障切换、恢复返回”；本次为现有方案在v1.0.7之上的重构候选，按仓库同一版本线递增，不另建方案；已发布版本合同保持不可变。
 
 - D1：`日本-入口` 在新方案改为 `TikTok首跳`；仅使用显式 `dual-ikuuu` 提供商中名称含“日本Z＋数字＋IEPL”的节点。当前用户报告 Z01–Z11，不将 11 作为固定数量；Z12 等自动加入，容忍旗帜、前缀、空格、倍率后缀。按本次第5条使用原生 url-test 自动选最近一次检测最低有效延迟，tolerance=0。首跳自动选择是本次明确授权的行为变更。
 - D2：原 `TikTok-ISP` 在新方案改为 `Tiktok美国出口测速`；撤除原“美国”机场组，不把其机场节点并入 ISP。出口组仅引用精确节点 `TikTok-ISP-Local`，保留 select、SOCKS5、udp:false；本地节点 dialer-proxy 仅改引用名为 `TikTok首跳`。ISP 地址、端口、账号密码由用户沿用本地现有值，云模块不保存。
@@ -12,9 +12,9 @@
 - D8：四组及两个提供商使用 https://www.gstatic.com/generate_204，每60秒检测、5000毫秒超时、期望204、lazy:false。ISP 检测经过完整代理链；首跳检测仅证明首跳本身可达，不能替代完整链路和视频播放。保留内核默认 GLOBAL，不配置 GLOBAL 定时检测，不定制面板。
 - D9：指定流媒体、网盘、游戏平台及专用下载域名走良心云。名单为 YouTube、Netflix、Telegram、Disney+、HBO/Max、Prime Video、Twitch、Spotify、Apple TV+、Steam、Epic、Blizzard、MEGA、Dropbox，以及 objects.githubusercontent.com 和 release-assets.githubusercontent.com。平台分类覆盖其整站（包括 Telegram 文字、游戏平台商店），不是按文件大小或 HTTPS 路径拆分。Google Drive/OneDrive 不整站自动迁移；无法识别的下载仍走默认组。
 - D10：新分类全部置于 TikTok 与紧邻 REJECT 之后、Google 大类之前，并排除 Manual-Direct、CN域名及已解析CN IP，避免截走直连命中。Telegram补充IP规则。保留私网、Google→Manual-Direct→CN→MATCH 的既有相对顺序；只将其他代理目标改为新默认组。DNS结构/解析器沿用基线，只同步策略组引用；不改变防火墙、IPv6、TUN、QUIC或插件开关。
-- D11：唯一手动直连源 rules/manual-direct.yaml 字节不变；候选 inline payload 与当前源逐项同序、含重复项一致，不固定域名清单、条数或源哈希。原方案目录和正式入口不变。
+- D11：唯一手动直连源 rules/manual-direct.yaml 字节不变；候选 inline payload 与当前源逐项同序、含重复项一致，不固定域名清单、条数或源哈希。已发布版本快照和当前正式滚动模块不变。
 - D12：仅通过供应商提供商归属和名称双重筛选；绝不 include-all 混选两机场。本地提供商添加 IK:/LXY: 前缀防重名。真实订阅URL和代理凭据仅存在路由器本地；公共模板均为 FILL_ME 占位。订阅应返回 Mihomo YAML 的 proxies 列表；Base64 URI 订阅不作为此模板支持输入。
-- D13：交付经本地验证、CI通过的候选供用户手动测试，不操作路由器、不安装服务。正式发布须取得本候选实机日志及用户确认，再按已有授权发布、同步 GitHub，并建立独立滚动入口和共享直连源同步；原正式方案仍可保留和回退。
+- D13：交付经本地验证、CI通过的候选供用户手动测试，不操作路由器、不安装服务。正式发布须取得本候选实机日志及用户确认，再按已有授权发布、同步 GitHub，并将已验收模块同步到原有滚动入口并沿用共享直连源同步；原正式方案仍可保留和回退。
 
 ## 验收标准
 

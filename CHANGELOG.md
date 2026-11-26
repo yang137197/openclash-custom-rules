@@ -1,9 +1,9 @@
 # 版本记录
 
-## tiktok-router-dual-subscription-jp v1.0.0 — candidate (2026-11-26)
+## tiktok-router-loongproxy-jp-us v1.0.8 — candidate (2026-11-26)
 
-- 新建独立原生双订阅候选：四个显式组，iKuuu最低延迟自动选择，Loongproxy固定美国出口，良心云专线/高速按编号顺序故障切换及恢复。
-- 新增流媒体/下载分流，Claude与普通代理转iKuuu；保持手动直连源、原方案目录及正式入口。
+- 沿现有v1.0.7迭代的原生双订阅重构候选：四个显式组，iKuuu最低延迟自动选择，Loongproxy固定美国出口，良心云专线/高速按编号顺序故障切换及恢复。
+- 新增流媒体/下载分流，Claude与普通代理转iKuuu；保持手动直连源、已发布快照及正式滚动入口。
 - 提供私有占位模板、设置/验收/完整回退文档、原生合成网络回归；实机状态待定，不安装控制器或服务。
 
 ## tiktok-router-loongproxy-jp-us v1.0.7 — 2026-10-28

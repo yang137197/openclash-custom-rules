@@ -60,4 +60,6 @@ git diff --check
 
 ## 2026-11-26 新需求候选
 
-`tiktok-router-dual-subscription-jp v1.0.0 / candidate` 按用户明确授权独立开发：四组为TikTok首跳、Tiktok美国出口测速、良心云-日本专线流媒体、ikuuu-默认代理；首跳及默认改原生最低延迟自动选择，ISP仍固定Loongproxy美国出口，良心云单层固定编号顺序回退。Claude/AI并入新默认代理，GLOBAL不定时检测。新需求覆盖旧手选/其他流量美国的限制仅限此候选，不修改原正式版合同和入口。详细需求见[新方案合同](profiles/tiktok-router-dual-subscription-jp/versions/v1.0.0/REQUIREMENTS.md)。不恢复控制器、不安装服务、不操作路由器；当前正式默认仍v1.0.7。用户授权候选实机验收通过后完成正式发布及GitHub同步，尚无新候选实机验收证据。
+`tiktok-router-loongproxy-jp-us v1.0.8 / candidate` 按用户明确要求沿GitHub现有v1.0.7递增重构：四组为TikTok首跳、Tiktok美国出口测速、良心云-日本专线流媒体、ikuuu-默认代理；首跳及默认改原生最低延迟自动选择，ISP仍固定Loongproxy美国出口，良心云单层固定编号顺序回退。Claude/AI并入新默认代理，GLOBAL不定时检测。新需求覆盖旧手选/其他流量美国的限制仅限此候选，不修改原正式版合同和入口。详细需求见[候选合同](profiles/tiktok-router-loongproxy-jp-us/versions/v1.0.8/REQUIREMENTS.md)。不恢复控制器、不安装服务、不操作路由器；当前正式默认仍v1.0.7。用户授权候选实机验收通过后完成正式发布及GitHub同步，尚无新候选实机验收证据。
+
+本次重构不另起v1.0.0、不新增profile。正式滚动订阅继续使用 `main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf`；候选期间保持其v1.0.7内容，验收通过正式发布时同步同址。固定候选提交仅供测试和准确回退，不能描述为替代滚动订阅。

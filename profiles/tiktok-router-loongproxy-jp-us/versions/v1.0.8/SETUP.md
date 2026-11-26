@@ -1,4 +1,4 @@
-# tiktok-router-dual-subscription-jp v1.0.0 候选应用与回退
+# tiktok-router-loongproxy-jp-us v1.0.8 候选应用与回退
 
 这是 **candidate**，尚未在用户 CatWrt 上验收。仅使用两个 `[YAML]` 覆写模块；没有控制器、服务、opkg安装或额外依赖。由用户手动操作路由器。
 
@@ -73,4 +73,14 @@
 2. 恢复备份中原可用的一套完整云模块及其配对本地模块、原排序、原配置匹配路径和原先选择。不要只关闭新云模块而留下新 `dialer-proxy` 引用的本地模块。
 3. 全部恢复完成后统一重启一次 OpenClash，再确认普通代理、TikTok和直连恢复。没有额外控制器或监督进程需要停止，也无服务需要卸载。
 
-若回退后仍失败，保存当前日志定位，不连续尝试其他版本。正式发布须先通过实机应用和完整回退，不覆盖原已发布快照。
+若回退后仍失败，保存当前日志定位，不连续尝试其他版本。正式发布须先通过实机应用和完整回退，不覆盖原已发布快照。正式发布后继续使用原有滚动订阅地址。
+
+## 滚动订阅与候选测试地址
+
+日常使用的正式滚动订阅继续沿用下面的原地址，不另建方案或要求更换长期订阅。当前main仍为v1.0.7；本候选验收通过并正式发布后，才将v1.0.8内容同步到同一个文件并更新catalog滚动哈希。
+
+```text
+https://raw.githubusercontent.com/yang137197/openclash-custom-rules/main/profiles/tiktok-router-loongproxy-jp-us/overwrite/openclash-overwrite.conf
+```
+
+候选测试使用交付的固定提交下 `versions/v1.0.8/openclash-overwrite.conf`，用于准确对应测试结果与文件字节。固定测试地址不替代正式滚动订阅。正式同步完成后，在原滚动模块点更新并重启；v1.0.8本地模块也须配套使用，不能搭配旧的日本-入口引用。
